@@ -33,7 +33,7 @@
             display: flex;
             justify-content: center;
             gap: 8px;
-            margin-top: 60px;
+            margin-top: 20px;
         }
 
         #code-input span {
@@ -69,7 +69,7 @@
             color: #000;
             font-size: 22px;
             font-weight: 400;
-            margin-top: 120px;
+            margin-top: 60px;
         }
 
         .input-caption svg {
@@ -118,20 +118,32 @@
         }
 
         #error-message {
-            color: #E31E24;
-            font-size: 16px;
-            text-align: center;
-            display: none;
-            position: absolute;
-            width: 100%;
+            position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
+            background: rgba(227, 30, 36, 0.9);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 12px;
+            font-size: 16px;
+            display: none;
+            z-index: 1000;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
     </style>
 </head>
 <body>
     <div class="main-content">
+        <div class="input-caption">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M3 9h18v10H3V9zm0-2a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h18a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2H3zm0-4h18v2H3V3z" fill="currentColor"/>
+            </svg>
+            Введите код с наклейки
+        </div>
+
         <div id="code-input">
             <span><input readonly inputmode="none"></span>
             <span><input readonly inputmode="none"></span>
@@ -139,13 +151,6 @@
             <span><input readonly inputmode="none"></span>
             <span><input readonly inputmode="none"></span>
             <span><input readonly inputmode="none"></span>
-        </div>
-
-        <div class="input-caption">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M3 9h18v10H3V9zm0-2a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h18a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2H3zm0-4h18v2H3V3z" fill="currentColor"/>
-            </svg>
-            Введите код с наклейки
         </div>
 
         <div id="error-message">Код неверный</div>
@@ -187,13 +192,13 @@
 
         // Тестовый билет для кода 500555
         const TEST_TICKET = {
-            code: "500555",
-            carrier: "Автобусный парк №1",
-            route: "Маршрут 15",
-            vehicle: "Автобус",
-            cost: "26 руб.",
-            purchase_date: "2024-03-20",
-            purchase_time: "14:30"
+            code: "965 769 046",
+            carrier: "МП Городской транспорт",
+            route: "1 мкрн. Северный - мкрн. Тихие зори",
+            vehicle: "т490то124",
+            cost: "40,00",
+            purchase_time: new Date().toLocaleTimeString('ru', { hour: '2-digit', minute: '2-digit' }),
+            expiration_time: new Date(Date.now() + 60 * 60 * 1000).toLocaleTimeString('ru', { hour: '2-digit', minute: '2-digit' })
         };
 
         function addDigit(digit) {
@@ -229,11 +234,16 @@
             } catch (error) {
                 console.error('Ошибка при проверке кода:', error);
                 errorMessage.style.display = 'block';
+                errorMessage.style.opacity = '1';
+                code = "";
+                updateDisplay();
+                
                 setTimeout(() => {
-                    errorMessage.style.display = 'none';
-                    code = "";
-                    updateDisplay();
-                }, 2000);
+                    errorMessage.style.opacity = '0';
+                    setTimeout(() => {
+                        errorMessage.style.display = 'none';
+                    }, 300);
+                }, 1000);
             }
         }
 
