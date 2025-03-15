@@ -48,7 +48,7 @@
             font-size: 24px;
             font-weight: 400;
             margin: 20px 0;
-            color: #000000;
+            color: #777777;
         }
 
         .tabs {
@@ -231,12 +231,21 @@
             color: #000;
             margin-top: 4px;
         }
+
+        /* Добавляем стиль для года внизу */
+        .year-footer {
+            text-align: center;
+            font-size: 14px;
+            color: #777777;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="timer" id="countdown">
-            Действует: 10 сек.
+            Действует: 15 сек.
         </div>
 
         <div class="tabs">
@@ -318,6 +327,7 @@
                     <div class="info-value" id="purchase-time">09:03</div>
                 </div>
             </div>
+            <div class="year-footer" id="vehicle-number">2028</div>
         </div>
 
         <div class="tab-content" id="control-content">
@@ -325,6 +335,7 @@
                 Для проверки билета покажите QR-код контролеру
             </div>
             <img id="qr-code" src="" alt="QR-код">
+            <div class="year-footer" id="vehicle-number-control">2028</div>
         </div>
     </div>
 
@@ -427,6 +438,10 @@
         document.getElementById('cost').textContent = `1 шт., Полный, ${cost} ₽`;
         document.getElementById('purchase-date').textContent = purchaseDate;
         document.getElementById('purchase-time').textContent = purchaseTime;
+        
+        // Заполняем номер vehicle внизу страницы
+        document.getElementById('vehicle-number').textContent = vehicle;
+        document.getElementById('vehicle-number-control').textContent = vehicle;
 
         // Генерируем QR-код
         const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(code)}`;
@@ -461,7 +476,7 @@
         }
 
         // Обратный отсчет
-        let seconds = 10;
+        let seconds = 15;
         const countdownElement = document.getElementById('countdown');
         
         function updateCountdown() {
@@ -471,6 +486,12 @@
                 setTimeout(updateCountdown, 1000);
             } else {
                 countdownElement.textContent = 'Время истекло';
+                // Закрываем приложение через 1 секунду после истечения времени
+                setTimeout(() => {
+                    if (window.Telegram && window.Telegram.WebApp) {
+                        window.Telegram.WebApp.close();
+                    }
+                }, 1000);
             }
         }
         
