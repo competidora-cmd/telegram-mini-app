@@ -21,28 +21,28 @@
             box-sizing: border-box;
         }
         #caption {
-            font-size: 4vmin;
-            margin-bottom: 5vmin;
-            margin-top: 5vmin;
+            font-size: 3vmin;
+            margin: 2vmin 0;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 2vmin;
+            gap: 1vmin;
         }
         #caption svg {
-            width: 4vmin;
-            height: 4vmin;
+            width: 3vmin;
+            height: 3vmin;
             fill: #D3D7D9;
         }
         #code-input {
             display: flex;
             justify-content: center;
-            gap: 0;
-            background-color: #2A2F31;
+            gap: 0.5vmin;
+            background-color: #333;
             border-radius: 2vmin;
             padding: 1vmin;
-            width: 60vmin;
-            max-width: 300px;
+            width: 50vmin;
+            max-width: 250px;
+            border: 1px solid #444;
             margin: 0 auto;
         }
         #code-input span {
@@ -50,11 +50,11 @@
         }
         #code-input input {
             width: 100%;
-            height: 10vmin;
-            max-height: 50px;
-            font-size: 6vmin;
+            height: 8vmin;
+            max-height: 40px;
+            font-size: 4vmin;
             text-align: center;
-            border: none;
+            border: 1px solid #444;
             background: none;
             color: #D3D7D9;
             pointer-events: none;
@@ -69,18 +69,17 @@
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 1vmin;
-            width: 80vmin;
-            max-width: 300px;
-            margin: 5vmin auto;
+            width: 70vmin;
+            max-width: 280px;
+            margin: 2vmin auto;
             background-color: #2A2F31;
             border-radius: 2vmin;
-            padding: 2vmin;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 1vmin;
             box-sizing: border-box;
         }
         .hg-button {
-            padding: 4vmin;
-            font-size: 4vmin;
+            padding: 2vmin;
+            font-size: 3vmin;
             color: #D3D7D9;
             background-color: #4A4E50;
             border: none;
@@ -90,7 +89,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 1vmin;
+            gap: 0.5vmin;
             box-sizing: border-box;
         }
         .hg-button:hover {
@@ -98,12 +97,12 @@
         }
         .hg-functionBtn {
             flex-direction: column;
-            font-size: 3vmin;
+            font-size: 2vmin;
             line-height: 1;
         }
         .hg-functionBtn svg {
-            width: 4vmin;
-            height: 4vmin;
+            width: 3vmin;
+            height: 3vmin;
             fill: #D3D7D9;
         }
     </style>
@@ -143,8 +142,8 @@
             <div class="hg-row">
                 <div class="hg-button hg-functionBtn hg-button-qr" data-skbtn="{qr}" data-skbtnuid="default-r3b0">
                     <span>
-                        <div style="text-align: center; line-height: 5vw;">
-                            <span style="margin: 0; padding: 0; font-size: 3vmin;">Сканировать</span>
+                        <div style="text-align: center; line-height: 2vmin;">
+                            <span style="margin: 0; padding: 0; font-size: 2vmin;">Сканировать</span>
                             <svg aria-hidden="true" focusable="false" data-prefix="far" data-icon="qrcode" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
                                 <path fill="currentColor" d="M104 103.1C112.8 103.1 120 111.2 120 119.1V135.1C120 144.8 112.8 151.1 104 151.1H88C79.16 151.1 72 144.8 72 135.1V119.1C72 111.2 79.16 103.1 88 103.1H104zM0 79.1C0 53.49 21.49 31.1 48 31.1H144C170.5 31.1 192 53.49 192 79.1V175.1C192 202.5 170.5 223.1 144 223.1H48C21.49 223.1 0 202.5 0 175.1V79.1zM48 175.1H144V79.1H48V175.1zM72 375.1C72 367.2 79.16 359.1 88 359.1H104C112.8 359.1 120 367.2 120 375.1V391.1C120 400.8 112.8 407.1 104 407.1H88C79.16 407.1 72 400.8 72 391.1V375.1zM0 335.1C0 309.5 21.49 287.1 48 287.1H144C170.5 287.1 192 309.5 192 335.1V431.1C192 458.5 170.5 479.1 144 479.1H48C21.49 479.1 0 458.5 0 431.1V335.1zM48 431.1H144V335.1H48V431.1zM360 103.1C368.8 103.1 376 111.2 376 119.1V135.1C376 144.8 368.8 151.1 360 151.1H344C335.2 151.1 328 144.8 328 135.1V119.1C328 111.2 335.2 103.1 344 103.1H360zM400 31.1C426.5 31.1 448 53.49 448 79.1V175.1C448 202.5 426.5 223.1 400 223.1H304C277.5 223.1 256 202.5 256 175.1V79.1C256 53.49 277.5 31.1 304 31.1H400zM400 79.1H304V175.1H400V79.1zM384 479.1H352V447.1H384V479.1zM416 447.1H448V479.1H416V447.1zM448 415.1H352V383.1H320V479.1H256V287.1H352V319.1H416V287.1H448V415.1z"></path>
                             </svg>
@@ -168,12 +167,14 @@
                 if (code.length === 6) {
                     Telegram.WebApp.sendData(code);
                 }
+                focusNext();
             }
         }
 
         function resetCode() {
             code = code.slice(0, -1);
             updateDisplay();
+            focusNext();
         }
 
         function updateDisplay() {
@@ -183,7 +184,13 @@
             });
         }
 
-        // Привязка событий к кнопкам
+        function focusNext() {
+            const emptyIndex = code.length;
+            if (emptyIndex < inputs.length) {
+                inputs[emptyIndex].focus();
+            }
+        }
+
         document.querySelectorAll('.hg-button').forEach(button => {
             const skbtn = button.getAttribute('data-skbtn');
             if (skbtn && !isNaN(skbtn)) {
