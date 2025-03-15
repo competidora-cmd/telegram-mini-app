@@ -18,30 +18,6 @@
             height: 100vh;
             justify-content: center;
         }
-        #box {
-            display: flex;
-            justify-content: center;
-            gap: 0;
-            margin: 20px 0;
-            background-color: #2A2F31;
-            border-radius: 10px;
-            padding: 5px;
-            width: 240px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        .code-cell input {
-            width: 40px;
-            height: 50px;
-            font-size: 24px;
-            text-align: center;
-            border: none;
-            background: none;
-            color: #D3D7D9;
-            pointer-events: none;
-            outline: none;
-            flex-grow: 1;
-        }
         #caption {
             font-size: 16px;
             margin-bottom: 20px;
@@ -56,7 +32,37 @@
             height: 20px;
             fill: #D3D7D9;
         }
-        .keyboard {
+        #code-input {
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            margin: 20px 0;
+            background-color: #2A2F31;
+            border-radius: 10px;
+            padding: 5px;
+            width: 240px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        #code-input span {
+            flex-grow: 1;
+        }
+        #code-input input {
+            width: 40px;
+            height: 50px;
+            font-size: 24px;
+            text-align: center;
+            border: none;
+            background: none;
+            color: #D3D7D9;
+            pointer-events: none;
+            outline: none;
+            padding: 0;
+        }
+        #code-input .has-value input {
+            color: #D3D7D9; /* Убедимся, что заполненные ячейки видны */
+        }
+        .simple-keyboard {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 5px;
@@ -67,7 +73,7 @@
             padding: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        .keyboard button {
+        .hg-button {
             padding: 20px;
             font-size: 18px;
             color: #D3D7D9;
@@ -81,15 +87,15 @@
             justify-content: center;
             gap: 5px;
         }
-        .keyboard button:hover {
+        .hg-button:hover {
             background-color: #5A5E60;
         }
-        .keyboard .qr-btn {
+        .hg-functionBtn {
             flex-direction: column;
             font-size: 14px;
             line-height: 1;
         }
-        .keyboard .qr-btn svg {
+        .hg-functionBtn svg {
             width: 20px;
             height: 20px;
             fill: #D3D7D9;
@@ -103,37 +109,51 @@
         </svg>
         Введите код с наклейки
     </div>
-    <div id="box">
-        <div class="code-cell"><input autocomplete="one-time-code" type="tel" inputmode="numeric"></div>
-        <div class="code-cell"><input autocomplete="one-time-code" type="tel" inputmode="numeric"></div>
-        <div class="code-cell"><input autocomplete="one-time-code" type="tel" inputmode="numeric"></div>
-        <div class="code-cell"><input autocomplete="one-time-code" type="tel" inputmode="numeric"></div>
-        <div class="code-cell"><input autocomplete="one-time-code" type="tel" inputmode="numeric"></div>
-        <div class="code-cell"><input autocomplete="one-time-code" type="tel" inputmode="numeric"></div>
+    <div id="code-input">
+        <span class="empty"><input autocomplete="one-time-code" type="tel" inputmode="numeric"></span>
+        <span class="empty"><input autocomplete="one-time-code" type="tel" inputmode="numeric"></span>
+        <span class="empty"><input autocomplete="one-time-code" type="tel" inputmode="numeric"></span>
+        <span class="empty"><input autocomplete="one-time-code" type="tel" inputmode="numeric"></span>
+        <span class="empty"><input autocomplete="one-time-code" type="tel" inputmode="numeric"></span>
+        <span class="empty"><input autocomplete="one-time-code" type="tel" inputmode="numeric"></span>
     </div>
-    <div class="keyboard">
-        <button onclick="addDigit('1')">1</button>
-        <button onclick="addDigit('2')">2</button>
-        <button onclick="addDigit('3')">3</button>
-        <button onclick="addDigit('4')">4</button>
-        <button onclick="addDigit('5')">5</button>
-        <button onclick="addDigit('6')">6</button>
-        <button onclick="addDigit('7')">7</button>
-        <button onclick="addDigit('8')">8</button>
-        <button onclick="addDigit('9')">9</button>
-        <button class="qr-btn" onclick="alert('Функция сканирования не реализована')">
-            <span>Сканировать</span>
-            <svg aria-hidden="true" focusable="false" data-prefix="far" data-icon="qrcode" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
-                <path fill="currentColor" d="M104 103.1C112.8 103.1 120 111.2 120 119.1V135.1C120 144.8 112.8 151.1 104 151.1H88C79.16 151.1 72 144.8 72 135.1V119.1C72 111.2 79.16 103.1 88 103.1H104zM0 79.1C0 53.49 21.49 31.1 48 31.1H144C170.5 31.1 192 53.49 192 79.1V175.1C192 202.5 170.5 223.1 144 223.1H48C21.49 223.1 0 202.5 0 175.1V79.1zM48 175.1H144V79.1H48V175.1zM72 375.1C72 367.2 79.16 359.1 88 359.1H104C112.8 359.1 120 367.2 120 375.1V391.1C120 400.8 112.8 407.1 104 407.1H88C79.16 407.1 72 400.8 72 391.1V375.1zM0 335.1C0 309.5 21.49 287.1 48 287.1H144C170.5 287.1 192 309.5 192 335.1V431.1C192 458.5 170.5 479.1 144 479.1H48C21.49 479.1 0 458.5 0 431.1V335.1zM48 431.1H144V335.1H48V431.1zM360 103.1C368.8 103.1 376 111.2 376 119.1V135.1C376 144.8 368.8 151.1 360 151.1H344C335.2 151.1 328 144.8 328 135.1V119.1C328 111.2 335.2 103.1 344 103.1H360zM400 31.1C426.5 31.1 448 53.49 448 79.1V175.1C448 202.5 426.5 223.1 400 223.1H304C277.5 223.1 256 202.5 256 175.1V79.1C256 53.49 277.5 31.1 304 31.1H400zM400 79.1H304V175.1H400V79.1zM384 479.1H352V447.1H384V479.1zM416 447.1H448V479.1H416V447.1zM448 415.1H352V383.1H320V479.1H256V287.1H352V319.1H416V287.1H448V415.1z"></path>
-            </svg>
-        </button>
-        <button onclick="addDigit('0')">0</button>
-        <button class="qr-btn" onclick="resetCode()">⌫</button>
+    <div class="simple-keyboard hg-theme-default hg-layout-numeric numeric-theme hg-layout-default">
+        <div class="hg-rows">
+            <div class="hg-row">
+                <div class="hg-button hg-standardBtn" data-skbtn="1" data-skbtnuid="default-r0b0"><span>1</span></div>
+                <div class="hg-button hg-standardBtn" data-skbtn="2" data-skbtnuid="default-r0b1"><span>2</span></div>
+                <div class="hg-button hg-standardBtn" data-skbtn="3" data-skbtnuid="default-r0b2"><span>3</span></div>
+            </div>
+            <div class="hg-row">
+                <div class="hg-button hg-standardBtn" data-skbtn="4" data-skbtnuid="default-r1b0"><span>4</span></div>
+                <div class="hg-button hg-standardBtn" data-skbtn="5" data-skbtnuid="default-r1b1"><span>5</span></div>
+                <div class="hg-button hg-standardBtn" data-skbtn="6" data-skbtnuid="default-r1b2"><span>6</span></div>
+            </div>
+            <div class="hg-row">
+                <div class="hg-button hg-standardBtn" data-skbtn="7" data-skbtnuid="default-r2b0"><span>7</span></div>
+                <div class="hg-button hg-standardBtn" data-skbtn="8" data-skbtnuid="default-r2b1"><span>8</span></div>
+                <div class="hg-button hg-standardBtn" data-skbtn="9" data-skbtnuid="default-r2b2"><span>9</span></div>
+            </div>
+            <div class="hg-row">
+                <div class="hg-button hg-functionBtn hg-button-qr" data-skbtn="{qr}" data-skbtnuid="default-r3b0">
+                    <span>
+                        <div style="text-align: center; line-height: 5vw;">
+                            <span style="margin: 0; padding: 0; font-size: 4vmin;">Сканировать</span>
+                            <svg aria-hidden="true" focusable="false" data-prefix="far" data-icon="qrcode" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
+                                <path fill="currentColor" d="M104 103.1C112.8 103.1 120 111.2 120 119.1V135.1C120 144.8 112.8 151.1 104 151.1H88C79.16 151.1 72 144.8 72 135.1V119.1C72 111.2 79.16 103.1 88 103.1H104zM0 79.1C0 53.49 21.49 31.1 48 31.1H144C170.5 31.1 192 53.49 192 79.1V175.1C192 202.5 170.5 223.1 144 223.1H48C21.49 223.1 0 202.5 0 175.1V79.1zM48 175.1H144V79.1H48V175.1zM72 375.1C72 367.2 79.16 359.1 88 359.1H104C112.8 359.1 120 367.2 120 375.1V391.1C120 400.8 112.8 407.1 104 407.1H88C79.16 407.1 72 400.8 72 391.1V375.1zM0 335.1C0 309.5 21.49 287.1 48 287.1H144C170.5 287.1 192 309.5 192 335.1V431.1C192 458.5 170.5 479.1 144 479.1H48C21.49 479.1 0 458.5 0 431.1V335.1zM48 431.1H144V335.1H48V431.1zM360 103.1C368.8 103.1 376 111.2 376 119.1V135.1C376 144.8 368.8 151.1 360 151.1H344C335.2 151.1 328 144.8 328 135.1V119.1C328 111.2 335.2 103.1 344 103.1H360zM400 31.1C426.5 31.1 448 53.49 448 79.1V175.1C448 202.5 426.5 223.1 400 223.1H304C277.5 223.1 256 202.5 256 175.1V79.1C256 53.49 277.5 31.1 304 31.1H400zM400 79.1H304V175.1H400V79.1zM384 479.1H352V447.1H384V479.1zM416 447.1H448V479.1H416V447.1zM448 415.1H352V383.1H320V479.1H256V287.1H352V319.1H416V287.1H448V415.1z"></path>
+                            </svg>
+                        </div>
+                    </span>
+                </div>
+                <div class="hg-button hg-standardBtn" data-skbtn="0" data-skbtnuid="default-r3b1"><span>0</span></div>
+                <div class="hg-button hg-functionBtn hg-button-bksp" data-skbtn="{bksp}" data-skbtnuid="default-r3b2"><span>⌫</span></div>
+            </div>
+        </div>
     </div>
 
     <script>
         let code = "";
-        const inputs = document.querySelectorAll('#box input');
+        const inputs = document.querySelectorAll('#code-input input');
 
         function addDigit(digit) {
             if (code.length < 6) {
@@ -153,8 +173,21 @@
         function updateDisplay() {
             inputs.forEach((input, index) => {
                 input.value = code[index] || '';
+                input.parentElement.classList.toggle('has-value', !!code[index]);
             });
         }
+
+        // Привязка событий к кнопкам
+        document.querySelectorAll('.hg-button').forEach(button => {
+            const skbtn = button.getAttribute('data-skbtn');
+            if (skbtn && !isNaN(skbtn)) {
+                button.addEventListener('click', () => addDigit(skbtn));
+            } else if (skbtn === '{bksp}') {
+                button.addEventListener('click', resetCode);
+            } else if (skbtn === '{qr}') {
+                button.addEventListener('click', () => alert('Функция сканирования не реализована'));
+            }
+        });
 
         Telegram.WebApp.ready();
     </script>
