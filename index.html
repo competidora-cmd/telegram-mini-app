@@ -16,54 +16,59 @@
             display: flex;
             flex-direction: column;
             height: 100vh;
-        }
-        h1 {
-            font-size: 20px;
-            color: #FF2D55;
-            margin-bottom: 20px;
-            font-weight: bold;
+            justify-content: center;
         }
         .code-display {
             display: flex;
             justify-content: center;
-            gap: 10px;
+            gap: 0;
             margin: 20px 0;
+            background-color: #2A2F31;
+            border-radius: 10px;
+            padding: 5px;
+            width: 240px;
+            margin-left: auto;
+            margin-right: auto;
         }
         .code-cell {
             width: 40px;
             height: 50px;
-            border: 2px solid #4A4E50;
-            border-radius: 5px;
             font-size: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
-            background-color: #2A2F31;
             color: #D3D7D9;
+            flex-grow: 1;
         }
         p {
             font-size: 16px;
             color: #D3D7D9;
             margin-bottom: 20px;
+            margin-top: 20px;
         }
         .keyboard {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
+            gap: 5px;
             max-width: 300px;
             margin: 0 auto;
-            flex-grow: 1;
-            justify-content: center;
+            background-color: #2A2F31;
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
         button {
-            padding: 15px;
+            padding: 20px;
             font-size: 18px;
-            color: #000;
-            background-color: #4A4E50;
-            border: 1px solid #666;
-            border-radius: 10px;
-            cursor: pointer;
             color: #D3D7D9;
+            background-color: #4A4E50;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #5A5E60;
         }
         button.special {
             display: flex;
@@ -79,12 +84,11 @@
     </style>
 </head>
 <body>
-    <h1>Городской Транспорт</h1>
+    <p>Введите код с наклейки</p>
     <div class="code-display" id="codeDisplay">
         <div class="code-cell"></div><div class="code-cell"></div><div class="code-cell"></div>
         <div class="code-cell"></div><div class="code-cell"></div><div class="code-cell"></div>
     </div>
-    <p>Введите код с наклейки</p>
     <div class="keyboard">
         <button onclick="addDigit('1')">1</button>
         <button onclick="addDigit('2')">2</button>
@@ -97,7 +101,7 @@
         <button onclick="addDigit('9')">9</button>
         <button class="special" onclick="alert('Функция сканирования не реализована')"><span class="icon-qr">📷</span> Сканировать</button>
         <button onclick="addDigit('0')">0</button>
-        <button class="special" onclick="resetCode()"><span class="icon-reset">↩</span> Сброс</button>
+        <button class="special" onclick="resetCode()"><span class="icon-reset">✖</span></button>
     </div>
 
     <script>
