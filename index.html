@@ -215,37 +215,36 @@
             try {
                 console.log('Проверка кода:', code);
                 
-                if (code !== "500555") {
-                    throw new Error('Код не найден');
+                if (code === "500555") {
+                    // Текущая дата и время
+                    const now = new Date();
+                    const purchaseDate = now.toLocaleDateString('ru', { 
+                        day: 'numeric', 
+                        month: 'long', 
+                        year: 'numeric'
+                    });
+                    const purchaseTime = now.toLocaleTimeString('ru', { 
+                        hour: '2-digit', 
+                        minute: '2-digit'
+                    });
+
+                    // Формирование URL для ticket.html
+                    const ticketUrl = `ticket.html?` +
+                        `code=${encodeURIComponent(TEST_TICKET.code)}&` +
+                        `carrier=${encodeURIComponent(TEST_TICKET.carrier)}&` +
+                        `route=${encodeURIComponent(TEST_TICKET.route)}&` +
+                        `vehicle=${encodeURIComponent(TEST_TICKET.vehicle)}&` +
+                        `cost=${encodeURIComponent(TEST_TICKET.cost)}&` +
+                        `purchase_date=${encodeURIComponent(purchaseDate)}&` +
+                        `purchase_time=${encodeURIComponent(purchaseTime)}`;
+                    
+                    // Перенаправление на ticket.html
+                    window.location.href = ticketUrl;
+                    return;
                 }
 
-                const response = await fetch('http://localhost:8000/check-code', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ code: code })
-                });
-
-                if (!response.ok) {
-                    throw new Error('Ошибка сервера');
-                }
-
-                const data = await response.json();
-                const ticket = data.ticket;
-                
-                // Формирование URL для ticket.html
-                const ticketUrl = `${BASE_WEB_APP_URL}ticket.html?` +
-                    `code=${encodeURIComponent(ticket.code)}&` +
-                    `carrier=${encodeURIComponent(ticket.carrier)}&` +
-                    `route=${encodeURIComponent(ticket.route)}&` +
-                    `vehicle=${encodeURIComponent(ticket.vehicle)}&` +
-                    `cost=${encodeURIComponent(ticket.cost)}&` +
-                    `purchase_date=${encodeURIComponent(ticket.purchase_date)}&` +
-                    `purchase_time=${encodeURIComponent(ticket.purchase_time)}`;
-                
-                // Перенаправление на ticket.html
-                window.location.href = ticketUrl;
+                // Если код не 500555, показываем ошибку
+                throw new Error('Код не найден');
             } catch (error) {
                 console.error('Ошибка при проверке кода:', error);
                 errorMessage.style.display = 'block';
