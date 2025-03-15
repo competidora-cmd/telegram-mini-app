@@ -1,460 +1,495 @@
-    <!DOCTYPE html>
-    <html lang="ru">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-        <title>Городской Транспорт</title>
-        <script src="https://telegram.org/js/telegram-web-app.js"></script>
-        <style>
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                -webkit-tap-highlight-color: transparent;
-                touch-action: none;
-                -webkit-touch-callout: none;
-                -webkit-user-select: none;
-                user-select: none;
-            }
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <title>Городской Транспорт</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: none;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
 
-            html, body {
-                overflow: hidden;
-                position: fixed;
-                width: 100%;
-                height: 100%;
-                background-color: white;
-            }
+        html, body {
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background-color: white;
+        }
 
-            body {
-                display: flex;
-                flex-direction: column;
-            }
+        body {
+            display: flex;
+            flex-direction: column;
+        }
 
-            .main-content {
-                flex: 1;
-                display: flex;
-                flex-direction: column;
-                padding: 4vh 6vw;
-                gap: 10vh;
-                height: 100%;
-                overflow: hidden;
-            }
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 4vh 6vw;
+            gap: 10vh;
+            height: 100%;
+            overflow: hidden;
+        }
 
-            #code-input {
-                display: flex;
-                justify-content: center;
-                gap: 2vw;
-                margin-top: 4vh;
-            }
+        #code-input {
+            display: flex;
+            justify-content: center;
+            gap: 2vw;
+            margin-top: 4vh;
+        }
 
-            #code-input span {
-                width: min(14vw, 18vh);
-                height: min(16vw, 20vh);
-                border: 1.5px solid #D1D1D6;
-                border-radius: 4px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                background: white;
-            }
+        #code-input span {
+            width: min(14vw, 18vh);
+            height: min(16vw, 20vh);
+            border: 1.5px solid #D1D1D6;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+        }
 
-            #code-input input {
-                width: 100%;
-                height: 100%;
-                font-size: min(8vw, 10vh);
-                font-weight: 400;
-                text-align: center;
-                border: none;
-                background: none;
-                color: #000;
-                outline: none;
-                padding: 0;
-                pointer-events: none;
-            }
+        #code-input input {
+            width: 100%;
+            height: 100%;
+            font-size: min(8vw, 10vh);
+            font-weight: 400;
+            text-align: center;
+            border: none;
+            background: none;
+            color: #000;
+            outline: none;
+            padding: 0;
+            pointer-events: none;
+        }
 
-            .input-caption {
-                display: flex;
-                align-items: flex-start;
-                justify-content: center;
-                gap: 2vw;
-                color: rgba(0, 0, 0, 1);
-                font-size: min(7vw, 8vh);
-                font-weight: 600;
-                margin-bottom: 4vh;
-                text-align: center;
-                line-height: 1.2;
-            }
+        .input-caption {
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            gap: 2vw;
+            color: rgba(0, 0, 0, 1);
+            font-size: min(7vw, 8vh);
+            font-weight: 600;
+            margin-bottom: 4vh;
+            text-align: center;
+            line-height: 1.2;
+        }
 
-            .input-caption svg {
-                width: min(7vw, 8vh);
-                height: min(7vw, 8vh);
-                color: rgba(0, 0, 0, 1);
-                margin-top: 0.3vh;
-            }
+        .input-caption svg {
+            width: min(7vw, 8vh);
+            height: min(7vw, 8vh);
+            color: rgba(0, 0, 0, 1);
+            margin-top: 0.3vh;
+        }
 
-            .keyboard-container {
-                background: #F2F2F7;
-                border-radius: 12px;
-                padding: 2vh 6vw;
-                margin: 0;
-            }
+        .keyboard-container {
+            background: #F2F2F7;
+            border-radius: 12px;
+            padding: 2vh 6vw;
+            margin: 0;
+        }
 
-            .keyboard {
-                width: 100%;
-                margin: 0;
-            }
+        .keyboard {
+            width: 100%;
+            margin: 0;
+        }
 
-            .keyboard-row {
-                display: flex;
-                justify-content: center;
-                gap: 2vw;
-                margin-bottom: 2vw;
-            }
+        .keyboard-row {
+            display: flex;
+            justify-content: center;
+            gap: 2vw;
+            margin-bottom: 2vw;
+        }
 
-            .keyboard-row:last-child {
-                margin-bottom: 0;
-            }
+        .keyboard-row:last-child {
+            margin-bottom: 0;
+        }
 
-            .key {
-                flex: 1;
-                height: min(16vw, 20vh);
-                background: white;
-                border: none;
-                border-radius: 4px;
-                font-size: min(9vw, 11vh);
-                color: #000;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                cursor: pointer;
-                font-weight: 400;
-            }
+        .key {
+            flex: 1;
+            height: min(16vw, 20vh);
+            background: white;
+            border: none;
+            border-radius: 4px;
+            font-size: min(9vw, 11vh);
+            color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-weight: 400;
+        }
 
-            .key.function {
-                font-size: min(4vw, 5vh);
-                flex-direction: column;
-                gap: 0.5vh;
-            }
+        .key.function {
+            font-size: min(4vw, 5vh);
+            flex-direction: column;
+            gap: 0.5vh;
+        }
 
-            .key.function svg {
-                width: min(8vw, 10vh);
-                height: min(8vw, 10vh);
-                margin-top: 0.5vh;
-            }
+        .key.function svg {
+            width: min(8vw, 10vh);
+            height: min(8vw, 10vh);
+            margin-top: 0.5vh;
+        }
 
-            #error-message {
-                position: fixed;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                background: rgba(227, 30, 36, 0.9);
-                color: white;
-                padding: 2vh 4vw;
-                border-radius: 12px;
-                font-size: min(3.5vw, 4.5vh);
-                display: none;
-                z-index: 1000;
-                text-align: center;
-                opacity: 0;
-                transition: opacity 0.3s ease;
-            }
+        #error-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(227, 30, 36, 0.9);
+            color: white;
+            padding: 2vh 4vw;
+            border-radius: 12px;
+            font-size: min(3.5vw, 4.5vh);
+            display: none;
+            z-index: 1000;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
 
-            #access-overlay {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(255, 255, 255, 0.95);
-                display: none;
-                justify-content: center;
-                align-items: center;
-                z-index: 2000;
-                flex-direction: column;
-                padding: 4vh 6vw;
-                text-align: center;
-            }
+        #access-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            flex-direction: column;
+            padding: 4vh 6vw;
+            text-align: center;
+        }
 
-            #access-overlay h2 {
-                font-size: min(6vw, 7vh);
-                color: #000;
-                margin-bottom: 2vh;
-                font-weight: 600;
-            }
+        #access-overlay h2 {
+            font-size: min(6vw, 7vh);
+            color: #000;
+            margin-bottom: 2vh;
+            font-weight: 600;
+        }
 
-            #access-overlay p {
-                font-size: min(4vw, 5vh);
-                color: #666;
-                line-height: 1.4;
-            }
+        #access-overlay p {
+            font-size: min(4vw, 5vh);
+            color: #666;
+            line-height: 1.4;
+            margin-bottom: 3vh;
+        }
 
-            .key.disabled {
-                opacity: 0.5;
-                pointer-events: none;
-            }
+        #access-overlay button {
+            background: #007AFF;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 1.5vh 4vw;
+            font-size: min(4vw, 5vh);
+            font-weight: 500;
+            cursor: pointer;
+        }
 
-            .key.backspace {
-                font-size: min(7vw, 9vh);
-            }
-        </style>
-    </head>
-    <body>
-        <div class="main-content">
-            <div id="code-input">
-                <span><input readonly inputmode="none"></span>
-                <span><input readonly inputmode="none"></span>
-                <span><input readonly inputmode="none"></span>
-                <span><input readonly inputmode="none"></span>
-                <span><input readonly inputmode="none"></span>
-                <span><input readonly inputmode="none"></span>
-            </div>
+        .key.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
 
-            <div class="input-caption">
-                <svg viewBox="0 0 448 480" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path fill="currentColor" d="M104 103.1C112.8 103.1 120 111.2 120 119.1V135.1C120 144.8 112.8 151.1 104 151.1H88C79.16 151.1 72 144.8 72 135.1V119.1C72 111.2 79.16 103.1 88 103.1H104zM0 79.1C0 53.49 21.49 31.1 48 31.1H144C170.5 31.1 192 53.49 192 79.1V175.1C192 202.5 170.5 223.1 144 223.1H48C21.49 223.1 0 202.5 0 175.1V79.1zM48 175.1H144V79.1H48V175.1zM72 375.1C72 367.2 79.16 359.1 88 359.1H104C112.8 359.1 120 367.2 120 375.1V391.1C120 400.8 112.8 407.1 104 407.1H88C79.16 407.1 72 400.8 72 391.1V375.1zM0 335.1C0 309.5 21.49 287.1 48 287.1H144C170.5 287.1 192 309.5 192 335.1V431.1C192 458.5 170.5 479.1 144 479.1H48C21.49 479.1 0 458.5 0 431.1V335.1zM48 431.1H144V335.1H48V431.1zM360 103.1C368.8 103.1 376 111.2 376 119.1V135.1C376 144.8 368.8 151.1 360 151.1H344C335.2 151.1 328 144.8 328 135.1V119.1C328 111.2 335.2 103.1 344 103.1H360zM400 31.1C426.5 31.1 448 53.49 448 79.1V175.1C448 202.5 426.5 223.1 400 223.1H304C277.5 223.1 256 202.5 256 175.1V79.1C256 53.49 277.5 31.1 304 31.1H400zM400 79.1H304V175.1H400V79.1zM384 479.1H352V447.1H384V479.1zM416 447.1H448V479.1H416V447.1zM448 415.1H352V383.1H320V479.1H256V287.1H352V319.1H416V287.1H448V415.1z"/>
-                </svg>
-                Введите код с наклейки
-            </div>
+        .key.backspace {
+            font-size: min(7vw, 9vh);
+        }
+    </style>
+</head>
+<body>
+    <div class="main-content">
+        <div id="code-input">
+            <span><input readonly inputmode="none"></span>
+            <span><input readonly inputmode="none"></span>
+            <span><input readonly inputmode="none"></span>
+            <span><input readonly inputmode="none"></span>
+            <span><input readonly inputmode="none"></span>
+            <span><input readonly inputmode="none"></span>
+        </div>
 
-            <div class="keyboard-container">
-                <div class="keyboard">
-                    <div class="keyboard-row">
-                        <button class="key">1</button>
-                        <button class="key">2</button>
-                        <button class="key">3</button>
-                    </div>
-                    <div class="keyboard-row">
-                        <button class="key">4</button>
-                        <button class="key">5</button>
-                        <button class="key">6</button>
-                    </div>
-                    <div class="keyboard-row">
-                        <button class="key">7</button>
-                        <button class="key">8</button>
-                        <button class="key">9</button>
-                    </div>
-                    <div class="keyboard-row">
-                        <button class="key function">
-                            Сканировать
-                            <svg viewBox="0 0 448 480" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path fill="currentColor" d="M104 103.1C112.8 103.1 120 111.2 120 119.1V135.1C120 144.8 112.8 151.1 104 151.1H88C79.16 151.1 72 144.8 72 135.1V119.1C72 111.2 79.16 103.1 88 103.1H104zM0 79.1C0 53.49 21.49 31.1 48 31.1H144C170.5 31.1 192 53.49 192 79.1V175.1C192 202.5 170.5 223.1 144 223.1H48C21.49 223.1 0 202.5 0 175.1V79.1zM48 175.1H144V79.1H48V175.1zM72 375.1C72 367.2 79.16 359.1 88 359.1H104C112.8 359.1 120 367.2 120 375.1V391.1C120 400.8 112.8 407.1 104 407.1H88C79.16 407.1 72 400.8 72 391.1V375.1zM0 335.1C0 309.5 21.49 287.1 48 287.1H144C170.5 287.1 192 309.5 192 335.1V431.1C192 458.5 170.5 479.1 144 479.1H48C21.49 479.1 0 458.5 0 431.1V335.1zM48 431.1H144V335.1H48V431.1zM360 103.1C368.8 103.1 376 111.2 376 119.1V135.1C376 144.8 368.8 151.1 360 151.1H344C335.2 151.1 328 144.8 328 135.1V119.1C328 111.2 335.2 103.1 344 103.1H360zM400 31.1C426.5 31.1 448 53.49 448 79.1V175.1C448 202.5 426.5 223.1 400 223.1H304C277.5 223.1 256 202.5 256 175.1V79.1C256 53.49 277.5 31.1 304 31.1H400zM400 79.1H304V175.1H400V79.1zM384 479.1H352V447.1H384V479.1zM416 447.1H448V479.1H416V447.1zM448 415.1H352V383.1H320V479.1H256V287.1H352V319.1H416V287.1H448V415.1z"/>
-                            </svg>
-                        </button>
-                        <button class="key">0</button>
-                        <button class="key backspace">⌫</button>
-                    </div>
+        <div class="input-caption">
+            <svg viewBox="0 0 448 480" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path fill="currentColor" d="M104 103.1C112.8 103.1 120 111.2 120 119.1V135.1C120 144.8 112.8 151.1 104 151.1H88C79.16 151.1 72 144.8 72 135.1V119.1C72 111.2 79.16 103.1 88 103.1H104zM0 79.1C0 53.49 21.49 31.1 48 31.1H144C170.5 31.1 192 53.49 192 79.1V175.1C192 202.5 170.5 223.1 144 223.1H48C21.49 223.1 0 202.5 0 175.1V79.1zM48 175.1H144V79.1H48V175.1zM72 375.1C72 367.2 79.16 359.1 88 359.1H104C112.8 359.1 120 367.2 120 375.1V391.1C120 400.8 112.8 407.1 104 407.1H88C79.16 407.1 72 400.8 72 391.1V375.1zM0 335.1C0 309.5 21.49 287.1 48 287.1H144C170.5 287.1 192 309.5 192 335.1V431.1C192 458.5 170.5 479.1 144 479.1H48C21.49 479.1 0 458.5 0 431.1V335.1zM48 431.1H144V335.1H48V431.1zM360 103.1C368.8 103.1 376 111.2 376 119.1V135.1C376 144.8 368.8 151.1 360 151.1H344C335.2 151.1 328 144.8 328 135.1V119.1C328 111.2 335.2 103.1 344 103.1H360zM400 31.1C426.5 31.1 448 53.49 448 79.1V175.1C448 202.5 426.5 223.1 400 223.1H304C277.5 223.1 256 202.5 256 175.1V79.1C256 53.49 277.5 31.1 304 31.1H400zM400 79.1H304V175.1H400V79.1zM384 479.1H352V447.1H384V479.1zM416 447.1H448V479.1H416V447.1zM448 415.1H352V383.1H320V479.1H256V287.1H352V319.1H416V287.1H448V415.1z"/>
+            </svg>
+            Введите код с наклейки
+        </div>
+
+        <div class="keyboard-container">
+            <div class="keyboard">
+                <div class="keyboard-row">
+                    <button class="key">1</button>
+                    <button class="key">2</button>
+                    <button class="key">3</button>
+                </div>
+                <div class="keyboard-row">
+                    <button class="key">4</button>
+                    <button class="key">5</button>
+                    <button class="key">6</button>
+                </div>
+                <div class="keyboard-row">
+                    <button class="key">7</button>
+                    <button class="key">8</button>
+                    <button class="key">9</button>
+                </div>
+                <div class="keyboard-row">
+                    <button class="key function">
+                        Сканировать
+                        <svg viewBox="0 0 448 480" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path fill="currentColor" d="M104 103.1C112.8 103.1 120 111.2 120 119.1V135.1C120 144.8 112.8 151.1 104 151.1H88C79.16 151.1 72 144.8 72 135.1V119.1C72 111.2 79.16 103.1 88 103.1H104zM0 79.1C0 53.49 21.49 31.1 48 31.1H144C170.5 31.1 192 53.49 192 79.1V175.1C192 202.5 170.5 223.1 144 223.1H48C21.49 223.1 0 202.5 0 175.1V79.1zM48 175.1H144V79.1H48V175.1zM72 375.1C72 367.2 79.16 359.1 88 359.1H104C112.8 359.1 120 367.2 120 375.1V391.1C120 400.8 112.8 407.1 104 407.1H88C79.16 407.1 72 400.8 72 391.1V375.1zM0 335.1C0 309.5 21.49 287.1 48 287.1H144C170.5 287.1 192 309.5 192 335.1V431.1C192 458.5 170.5 479.1 144 479.1H48C21.49 479.1 0 458.5 0 431.1V335.1zM48 431.1H144V335.1H48V431.1zM360 103.1C368.8 103.1 376 111.2 376 119.1V135.1C376 144.8 368.8 151.1 360 151.1H344C335.2 151.1 328 144.8 328 135.1V119.1C328 111.2 335.2 103.1 344 103.1H360zM400 31.1C426.5 31.1 448 53.49 448 79.1V175.1C448 202.5 426.5 223.1 400 223.1H304C277.5 223.1 256 202.5 256 175.1V79.1C256 53.49 277.5 31.1 304 31.1H400zM400 79.1H304V175.1H400V79.1zM384 479.1H352V447.1H384V479.1zM416 447.1H448V479.1H416V447.1zM448 415.1H352V383.1H320V479.1H256V287.1H352V319.1H416V287.1H448V415.1z"/>
+                        </svg>
+                    </button>
+                    <button class="key">0</button>
+                    <button class="key backspace">⌫</button>
                 </div>
             </div>
-
-            <div id="error-message">Код неверный</div>
         </div>
 
-        <div id="access-overlay">
-            <h2>Нет доступа</h2>
-            <p>Для использования сервиса необходимо получить доступ. Свяжитесь с менеджером для получения доступа.</p>
-        </div>
+        <div id="error-message">Код неверный</div>
+    </div>
 
-        <script>
-            let code = "";
-            const inputs = document.querySelectorAll('#code-input input');
-            const errorMessage = document.getElementById('error-message');
-            const accessOverlay = document.getElementById('access-overlay');
-            const BASE_WEB_APP_URL = "https://competidora-cmd.github.io/telegram-mini-app/";
-            let hasAccess = false;
+    <div id="access-overlay">
+        <h2>Нет доступа</h2>
+        <p>Для использования сервиса необходимо получить доступ. Свяжитесь с менеджером для получения доступа.</p>
+        <button id="contact-manager">Связаться с менеджером</button>
+    </div>
 
-            // Проверяем доступ при загрузке страницы
-            
-            const ALLOWED_USERS = [];
-            
-             {
-                if (!window.Telegram.WebApp.initDataUnsafe.user) {
+    <script>
+        let code = "";
+        const inputs = document.querySelectorAll('#code-input input');
+        const errorMessage = document.getElementById('error-message');
+        const accessOverlay = document.getElementById('access-overlay');
+        const contactManagerBtn = document.getElementById('contact-manager');
+        const BASE_WEB_APP_URL = "https://competidora-cmd.github.io/telegram-mini-app/";
+        let hasAccess = false;
+
+        // Инициализация Telegram WebApp
+        window.Telegram.WebApp.ready();
+        window.Telegram.WebApp.expand();
+
+        // Кнопка "Связаться с менеджером"
+        contactManagerBtn.addEventListener('click', () => {
+            window.Telegram.WebApp.close();
+        });
+
+        // Проверяем доступ при загрузке страницы
+        function checkAccess() {
+            try {
+                // Проверяем, есть ли данные пользователя
+                if (!window.Telegram.WebApp.initDataUnsafe || !window.Telegram.WebApp.initDataUnsafe.user) {
+                    console.error('Нет данных пользователя');
                     showAccessOverlay();
                     return;
                 }
 
                 const userId = window.Telegram.WebApp.initDataUnsafe.user.id;
-                const username = window.Telegram.WebApp.initDataUnsafe.user.username;
-                console.log('Checking access for user:', userId, 'username:', username);
+                console.log('ID пользователя:', userId);
 
-                // Проверяем доступ по ID или username
-                hasAccess = ALLOWED_USERS.includes(userId.toString()) || 
-                           (username && ALLOWED_USERS.includes('@' + username));
-                console.log('Has access:', hasAccess);
-                
-                if (!hasAccess) {
-                    showAccessOverlay();
-                    disableKeyboard();
-                }
-            }
-             {
-                if (!window.Telegram.WebApp.initDataUnsafe.user) {
-                    showAccessOverlay();
-                    return;
-                }
-
+                // Проверяем доступ через GitHub
                 fetch('https://competidora-cmd.github.io/telegram-mini-app/users_data.json')
-                    .then(response => response.json())
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Не удалось загрузить данные пользователей');
+                        }
+                        return response.json();
+                    })
                     .then(data => {
-                        const userId = window.Telegram.WebApp.initDataUnsafe.user.id.toString();
-                        hasAccess = data.allowed_users.includes(userId);
-                        if (!hasAccess) {
+                        console.log('Загруженные данные:', data);
+                        
+                        // Проверяем, есть ли пользователь в списке разрешенных
+                        if (data && data.allowed_users && Array.isArray(data.allowed_users)) {
+                            const userIdStr = userId.toString();
+                            hasAccess = data.allowed_users.includes(userIdStr);
+                            console.log('Доступ разрешен:', hasAccess);
+                            
+                            if (!hasAccess) {
+                                showAccessOverlay();
+                            }
+                        } else {
+                            console.error('Некорректный формат данных пользователей');
                             showAccessOverlay();
-                            disableKeyboard();
                         }
                     })
                     .catch(error => {
                         console.error('Ошибка при проверке доступа:', error);
                         showAccessOverlay();
-                        disableKeyboard();
                     });
+            } catch (error) {
+                console.error('Ошибка при инициализации:', error);
+                showAccessOverlay();
+            }
+        }
+
+        function showAccessOverlay() {
+            accessOverlay.style.display = 'flex';
+        }
+
+        function hideAccessOverlay() {
+            accessOverlay.style.display = 'none';
+        }
+
+        function addDigit(digit) {
+            if (!hasAccess) {
+                showAccessOverlay();
             }
 
-            function showAccessOverlay() {
-                accessOverlay.style.display = 'flex';
+            if (code.length < 6) {
+                code += digit;
+                updateDisplay();
+                if (code.length === 6) {
+                    checkCode();
+                }
             }
+        }
 
-            function disableKeyboard() {
-                document.querySelectorAll('.key').forEach(key => {
-                    key.classList.add('disabled');
-                });
-            }
+        async function checkCode() {
+            try {
+                console.log('Проверка кода:', code);
+                
+                // Загружаем данные билетов
+                const response = await fetch('tickets.json');
+                if (!response.ok) {
+                    throw new Error('Не удалось загрузить данные билетов');
+                }
+                const data = await response.json();
+                console.log('Загруженные данные билетов:', data);
+                
+                // Ищем код билета во всех маршрутах
+                let ticketData = null;
+                let ticketCode = null;
+                
+                for (const [routeNum, route] of Object.entries(data.routes)) {
+                    if (route.codes && route.codes[code]) {
+                        ticketCode = route.codes[code];
+                        ticketData = {
+                            code: ticketCode,
+                            carrier: route.carrier,
+                            route: `${routeNum}, ${route.name}`,
+                            vehicle: route.vehicle,
+                            cost: route.cost
+                        };
+                        break;
+                    }
+                }
+                
+                if (ticketData) {
+                    // Форматируем дату и время
+                    const now = new Date();
+                    const purchaseDate = now.toLocaleDateString('ru', { 
+                        day: 'numeric', 
+                        month: 'long', 
+                        year: 'numeric'
+                    });
+                    const purchaseTime = now.toLocaleTimeString('ru', { 
+                        hour: '2-digit', 
+                        minute: '2-digit'
+                    });
 
-            function addDigit(digit) {
-                if (!hasAccess) {
-                    showAccessOverlay();
+                    // Формируем сообщение для отправки в бот
+                    const message = `Билет куплен успешно.\n${ticketData.carrier}\n🚌 ${ticketData.route}\n🎫 ${ticketCode}\n💰 Тариф: Полный ${ticketData.cost} ₽\n🎟️ Билет № ${formatTicketNumber(ticketData.code)}\n⏱️ Действует: 15 сек.`;
+                    
+                    // Отправляем данные в Telegram WebApp
+                    if (window.Telegram && window.Telegram.WebApp) {
+                        window.Telegram.WebApp.sendData(JSON.stringify({
+                            action: 'ticket_purchased',
+                            message: message
+                        }));
+                    }
+
+                    // Формирование URL для ticket.html
+                    const ticketUrl = `${BASE_WEB_APP_URL}ticket.html?` +
+                        `code=${encodeURIComponent(ticketData.code)}&` +
+                        `carrier=${encodeURIComponent(ticketData.carrier)}&` +
+                        `route=${encodeURIComponent(ticketData.route)}&` +
+                        `vehicle=${encodeURIComponent(ticketData.vehicle)}&` +
+                        `cost=${encodeURIComponent(ticketData.cost)}&` +
+                        `purchase_date=${encodeURIComponent(purchaseDate)}&` +
+                        `purchase_time=${encodeURIComponent(purchaseTime)}`;
+                    
+                    // Перенаправление на ticket.html
+                    window.location.href = ticketUrl;
                     return;
                 }
 
-                if (code.length < 6) {
-                    code += digit;
-                    updateDisplay();
-                    if (code.length === 6) {
-                        checkCode();
-                    }
-                }
-            }
-
-            async function checkCode() {
-                try {
-                    console.log('Проверка кода:', code);
-                    
-                    // Загружаем данные билетов
-                    const response = await fetch('tickets.json');
-                    if (!response.ok) {
-                        throw new Error('Не удалось загрузить данные билетов');
-                    }
-                    const data = await response.json();
-                    console.log('Загруженные данные:', data);
-                    
-                    // Ищем код билета во всех маршрутах
-                    let ticketData = null;
-                    let ticketCode = null;
-                    
-                    for (const [routeNum, route] of Object.entries(data.routes)) {
-                        if (route.codes && route.codes[code]) {
-                            ticketCode = route.codes[code];
-                            ticketData = {
-                                code: ticketCode,
-                                carrier: route.carrier,
-                                route: `${routeNum}, ${route.name}`,
-                                vehicle: route.vehicle,
-                                cost: route.cost
-                            };
-                            break;
-                        }
-                    }
-                    
-                    if (ticketData) {
-                        // Форматируем дату и время
-                        const now = new Date();
-                        const purchaseDate = now.toLocaleDateString('ru', { 
-                            day: 'numeric', 
-                            month: 'long', 
-                            year: 'numeric'
-                        });
-                        const purchaseTime = now.toLocaleTimeString('ru', { 
-                            hour: '2-digit', 
-                            minute: '2-digit'
-                        });
-
-                        // Формируем сообщение для отправки в бот
-                        const message = `Билет куплен успешно.\n${ticketData.carrier}\n🚌 ${ticketData.route}\n🎫 ${ticketCode}\n💰 Тариф: Полный ${ticketData.cost} ₽\n🎟️ Билет № ${formatTicketNumber(ticketData.code)}\n⏱️ Действует: 15 сек.`;
-                        
-                        // Отправляем данные в Telegram WebApp
-                        if (window.Telegram && window.Telegram.WebApp) {
-                            window.Telegram.WebApp.sendData(JSON.stringify({
-                                action: 'ticket_purchased',
-                                message: message
-                            }));
-                        }
-
-                        // Формирование URL для ticket.html
-                        const ticketUrl = `${BASE_WEB_APP_URL}ticket.html?` +
-                            `code=${encodeURIComponent(ticketData.code)}&` +
-                            `carrier=${encodeURIComponent(ticketData.carrier)}&` +
-                            `route=${encodeURIComponent(ticketData.route)}&` +
-                            `vehicle=${encodeURIComponent(ticketData.vehicle)}&` +
-                            `cost=${encodeURIComponent(ticketData.cost)}&` +
-                            `purchase_date=${encodeURIComponent(purchaseDate)}&` +
-                            `purchase_time=${encodeURIComponent(purchaseTime)}`;
-                        
-                        // Перенаправление на ticket.html
-                        window.location.href = ticketUrl;
-                        return;
-                    }
-
-                    throw new Error('Код не найден');
-                } catch (error) {
-                    console.error('Ошибка при проверке кода:', error);
-                    errorMessage.style.display = 'block';
-                    errorMessage.style.opacity = '1';
-                    
-                    // Очищаем код и обновляем отображение
-                    code = '';
-                    updateDisplay();
-                    
-                    // Скрываем сообщение об ошибке через 1 секунду
-                    setTimeout(() => {
-                        errorMessage.style.opacity = '0';
-                        setTimeout(() => {
-                            errorMessage.style.display = 'none';
-                        }, 300);
-                    }, 1000);
-                }
-            }
-
-            function formatTicketNumber(code) {
-                if (!code) return '';
-                return code.toString().replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3');
-            }
-
-            function resetCode() {
-                code = code.slice(0, -1);
+                throw new Error('Код не найден');
+            } catch (error) {
+                console.error('Ошибка при проверке кода:', error);
+                errorMessage.style.display = 'block';
+                errorMessage.style.opacity = '1';
+                
+                // Очищаем код и обновляем отображение
+                code = '';
                 updateDisplay();
+                
+                // Скрываем сообщение об ошибке через 1 секунду
+                setTimeout(() => {
+                    errorMessage.style.opacity = '0';
+                    setTimeout(() => {
+                        errorMessage.style.display = 'none';
+                    }, 300);
+                }, 1000);
             }
+        }
 
-            function updateDisplay() {
-                inputs.forEach((input, index) => {
-                    input.value = code[index] || '';
-                    input.parentElement.classList.toggle('has-value', !!code[index]);
-                });
-            }
+        function formatTicketNumber(code) {
+            if (!code) return '';
+            return code.toString().replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3');
+        }
 
-            document.querySelectorAll('.key').forEach(button => {
-                const skbtn = button.textContent;
-                if (skbtn && !isNaN(skbtn)) {
-                    button.addEventListener('click', () => addDigit(skbtn));
-                } else if (skbtn === '⌫') {
-                    button.addEventListener('click', resetCode);
-                } else if (skbtn === 'Сканировать') {
-                    button.addEventListener('click', () => alert('Функция сканирования не реализована'));
-                }
+        function resetCode() {
+            code = code.slice(0, -1);
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            inputs.forEach((input, index) => {
+                input.value = code[index] || '';
+                input.parentElement.classList.toggle('has-value', !!code[index]);
             });
+        }
 
-            // Инициализация при загрузке страницы
-            window.Telegram.WebApp.ready();
-            checkAccess();
-        </script>
-    </body>
-    </html>
+        // Обработчики событий для клавиатуры
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM загружен, настраиваем обработчики');
+            
+            document.querySelectorAll('.key').forEach(button => {
+                console.log('Настройка кнопки:', button.textContent.trim());
+                
+                button.addEventListener('click', function() {
+                    console.log('Клик по кнопке:', this.textContent.trim());
+                    const btnText = this.textContent.trim();
+                    
+                    if (btnText && !isNaN(btnText)) {
+                        addDigit(btnText);
+                    } else if (btnText === '⌫') {
+                        resetCode();
+                    } else if (this.classList.contains('function')) {
+                        if (hasAccess) {
+                            alert('Функция сканирования не реализована');
+                        } else {
+                            showAccessOverlay();
+                        }
+                    }
+                });
+            });
+        });
+
+        // Запускаем проверку доступа
+        checkAccess();
+    </script>
+</body>
+</html>
