@@ -213,7 +213,16 @@
                 const result = await response.json();
                 console.log("Response data:", result);
                 const ticket = result.ticket;
-                // Формирование URL для ticket.html
+                // Отправка данных билета в бот
+                const ticketData = JSON.stringify({
+                    code: ticket.code,
+                    carrier: ticket.carrier,
+                    route: ticket.route,
+                    vehicle: ticket.vehicle,
+                    cost: ticket.cost
+                });
+                Telegram.WebApp.sendData(ticketData);
+                // Перенаправление на ticket.html
                 const ticketUrl = `${BASE_WEB_APP_URL}ticket.html?` +
                     `code=${encodeURIComponent(ticket.code)}&` +
                     `carrier=${encodeURIComponent(ticket.carrier)}&` +
@@ -223,7 +232,6 @@
                     `purchase_date=${encodeURIComponent(ticket.purchase_date)}&` +
                     `purchase_time=${encodeURIComponent(ticket.purchase_time)}`;
                 console.log("Redirecting to:", ticketUrl);
-                // Перенаправление на ticket.html
                 window.location.href = ticketUrl;
             } catch (error) {
                 console.error("Error during code check:", error.message);
