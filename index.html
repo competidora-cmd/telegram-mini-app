@@ -160,52 +160,6 @@
             transition: opacity 0.3s ease;
         }
 
-        #access-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.95);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
-            flex-direction: column;
-            padding: 4vh 6vw;
-            text-align: center;
-        }
-
-        #access-overlay h2 {
-            font-size: min(6vw, 7vh);
-            color: #000;
-            margin-bottom: 2vh;
-            font-weight: 600;
-        }
-
-        #access-overlay p {
-            font-size: min(4vw, 5vh);
-            color: #666;
-            line-height: 1.4;
-            margin-bottom: 3vh;
-        }
-
-        #access-overlay button {
-            background: #007AFF;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 1.5vh 4vw;
-            font-size: min(4vw, 5vh);
-            font-weight: 500;
-            cursor: pointer;
-        }
-
-        .key.disabled {
-            opacity: 0.5;
-            pointer-events: none;
-        }
-
         .key.backspace {
             font-size: min(7vw, 9vh);
         }
@@ -232,29 +186,29 @@
         <div class="keyboard-container">
             <div class="keyboard">
                 <div class="keyboard-row">
-                    <button class="key">1</button>
-                    <button class="key">2</button>
-                    <button class="key">3</button>
+                    <button class="key" onclick="addDigit('1')">1</button>
+                    <button class="key" onclick="addDigit('2')">2</button>
+                    <button class="key" onclick="addDigit('3')">3</button>
                 </div>
                 <div class="keyboard-row">
-                    <button class="key">4</button>
-                    <button class="key">5</button>
-                    <button class="key">6</button>
+                    <button class="key" onclick="addDigit('4')">4</button>
+                    <button class="key" onclick="addDigit('5')">5</button>
+                    <button class="key" onclick="addDigit('6')">6</button>
                 </div>
                 <div class="keyboard-row">
-                    <button class="key">7</button>
-                    <button class="key">8</button>
-                    <button class="key">9</button>
+                    <button class="key" onclick="addDigit('7')">7</button>
+                    <button class="key" onclick="addDigit('8')">8</button>
+                    <button class="key" onclick="addDigit('9')">9</button>
                 </div>
                 <div class="keyboard-row">
-                    <button class="key function">
+                    <button class="key function" onclick="scanCode()">
                         Сканировать
                         <svg viewBox="0 0 448 480" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path fill="currentColor" d="M104 103.1C112.8 103.1 120 111.2 120 119.1V135.1C120 144.8 112.8 151.1 104 151.1H88C79.16 151.1 72 144.8 72 135.1V119.1C72 111.2 79.16 103.1 88 103.1H104zM0 79.1C0 53.49 21.49 31.1 48 31.1H144C170.5 31.1 192 53.49 192 79.1V175.1C192 202.5 170.5 223.1 144 223.1H48C21.49 223.1 0 202.5 0 175.1V79.1zM48 175.1H144V79.1H48V175.1zM72 375.1C72 367.2 79.16 359.1 88 359.1H104C112.8 359.1 120 367.2 120 375.1V391.1C120 400.8 112.8 407.1 104 407.1H88C79.16 407.1 72 400.8 72 391.1V375.1zM0 335.1C0 309.5 21.49 287.1 48 287.1H144C170.5 287.1 192 309.5 192 335.1V431.1C192 458.5 170.5 479.1 144 479.1H48C21.49 479.1 0 458.5 0 431.1V335.1zM48 431.1H144V335.1H48V431.1zM360 103.1C368.8 103.1 376 111.2 376 119.1V135.1C376 144.8 368.8 151.1 360 151.1H344C335.2 151.1 328 144.8 328 135.1V119.1C328 111.2 335.2 103.1 344 103.1H360zM400 31.1C426.5 31.1 448 53.49 448 79.1V175.1C448 202.5 426.5 223.1 400 223.1H304C277.5 223.1 256 202.5 256 175.1V79.1C256 53.49 277.5 31.1 304 31.1H400zM400 79.1H304V175.1H400V79.1zM384 479.1H352V447.1H384V479.1zM416 447.1H448V479.1H416V447.1zM448 415.1H352V383.1H320V479.1H256V287.1H352V319.1H416V287.1H448V415.1z"/>
                         </svg>
                     </button>
-                    <button class="key">0</button>
-                    <button class="key backspace">⌫</button>
+                    <button class="key" onclick="addDigit('0')">0</button>
+                    <button class="key backspace" onclick="resetCode()">⌫</button>
                 </div>
             </div>
         </div>
@@ -262,91 +216,60 @@
         <div id="error-message">Код неверный</div>
     </div>
 
-    <div id="access-overlay">
-        <h2>Нет доступа</h2>
-        <p>Для использования сервиса необходимо получить доступ. Свяжитесь с менеджером для получения доступа.</p>
-        <button id="contact-manager">Связаться с менеджером</button>
-    </div>
-
     <script>
         let code = "";
         const inputs = document.querySelectorAll('#code-input input');
         const errorMessage = document.getElementById('error-message');
-        const accessOverlay = document.getElementById('access-overlay');
-        const contactManagerBtn = document.getElementById('contact-manager');
         const BASE_WEB_APP_URL = "https://competidora-cmd.github.io/telegram-mini-app/";
-        let hasAccess = false;
+        const GITHUB_REPO = "competidora-cmd/telegram-mini-app";
+        const GITHUB_BRANCH = "main";
 
         // Инициализация Telegram WebApp
-        window.Telegram.WebApp.ready();
-        window.Telegram.WebApp.expand();
+        if (window.Telegram && window.Telegram.WebApp) {
+            window.Telegram.WebApp.ready();
+            window.Telegram.WebApp.expand();
+            
+            // Проверяем обновления при запуске
+            checkForUpdates();
+        }
 
-        // Кнопка "Связаться с менеджером"
-        contactManagerBtn.addEventListener('click', () => {
-            window.Telegram.WebApp.close();
-        });
-
-        // Проверяем доступ при загрузке страницы
-        function checkAccess() {
+        // Функция для проверки обновлений с GitHub
+        async function checkForUpdates() {
             try {
-                // Проверяем, есть ли данные пользователя
-                if (!window.Telegram.WebApp.initDataUnsafe || !window.Telegram.WebApp.initDataUnsafe.user) {
-                    console.error('Нет данных пользователя');
-                    showAccessOverlay();
-                    return;
+                console.log('Проверка обновлений с GitHub...');
+                
+                // Получаем последний коммит в репозитории
+                const response = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/commits/${GITHUB_BRANCH}`);
+                if (!response.ok) {
+                    throw new Error('Не удалось получить информацию о последнем коммите');
                 }
-
-                const userId = window.Telegram.WebApp.initDataUnsafe.user.id;
-                console.log('ID пользователя:', userId);
-
-                // Проверяем доступ через GitHub
-                fetch('https://competidora-cmd.github.io/telegram-mini-app/users_data.json')
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Не удалось загрузить данные пользователей');
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        console.log('Загруженные данные:', data);
-                        
-                        // Проверяем, есть ли пользователь в списке разрешенных
-                        if (data && data.allowed_users && Array.isArray(data.allowed_users)) {
-                            const userIdStr = userId.toString();
-                            hasAccess = data.allowed_users.includes(userIdStr);
-                            console.log('Доступ разрешен:', hasAccess);
-                            
-                            if (!hasAccess) {
-                                showAccessOverlay();
-                            }
-                        } else {
-                            console.error('Некорректный формат данных пользователей');
-                            showAccessOverlay();
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Ошибка при проверке доступа:', error);
-                        showAccessOverlay();
-                    });
+                
+                const commitData = await response.json();
+                const lastCommitSha = commitData.sha;
+                
+                // Проверяем, есть ли сохраненный SHA последнего коммита
+                const savedCommitSha = localStorage.getItem('lastCommitSha');
+                
+                if (savedCommitSha !== lastCommitSha) {
+                    console.log('Обнаружены обновления, синхронизация...');
+                    
+                    // Сохраняем новый SHA
+                    localStorage.setItem('lastCommitSha', lastCommitSha);
+                    
+                    // Если есть обновления, перезагружаем страницу для получения последней версии
+                    if (confirm('Доступна новая версия приложения. Обновить сейчас?')) {
+                        window.location.reload(true);
+                    }
+                } else {
+                    console.log('Обновлений нет, используется последняя версия');
+                }
             } catch (error) {
-                console.error('Ошибка при инициализации:', error);
-                showAccessOverlay();
+                console.error('Ошибка при проверке обновлений:', error);
             }
-        }
-
-        function showAccessOverlay() {
-            accessOverlay.style.display = 'flex';
-        }
-
-        function hideAccessOverlay() {
-            accessOverlay.style.display = 'none';
         }
 
         function addDigit(digit) {
-            if (!hasAccess) {
-                showAccessOverlay();
-            }
-
+            console.log('Добавление цифры:', digit);
             if (code.length < 6) {
                 code += digit;
                 updateDisplay();
@@ -354,6 +277,10 @@
                     checkCode();
                 }
             }
+        }
+
+        function scanCode() {
+            alert('Функция сканирования не реализована');
         }
 
         async function checkCode() {
@@ -428,21 +355,26 @@
                 throw new Error('Код не найден');
             } catch (error) {
                 console.error('Ошибка при проверке кода:', error);
-                errorMessage.style.display = 'block';
-                errorMessage.style.opacity = '1';
-                
-                // Очищаем код и обновляем отображение
-                code = '';
-                updateDisplay();
-                
-                // Скрываем сообщение об ошибке через 1 секунду
-                setTimeout(() => {
-                    errorMessage.style.opacity = '0';
-                    setTimeout(() => {
-                        errorMessage.style.display = 'none';
-                    }, 300);
-                }, 1000);
+                showError('Код неверный');
             }
+        }
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+            errorMessage.style.opacity = '1';
+            
+            // Очищаем код и обновляем отображение
+            code = '';
+            updateDisplay();
+            
+            // Скрываем сообщение об ошибке через 1 секунду
+            setTimeout(() => {
+                errorMessage.style.opacity = '0';
+                setTimeout(() => {
+                    errorMessage.style.display = 'none';
+                }, 300);
+            }, 1000);
         }
 
         function formatTicketNumber(code) {
@@ -461,35 +393,6 @@
                 input.parentElement.classList.toggle('has-value', !!code[index]);
             });
         }
-
-        // Обработчики событий для клавиатуры
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM загружен, настраиваем обработчики');
-            
-            document.querySelectorAll('.key').forEach(button => {
-                console.log('Настройка кнопки:', button.textContent.trim());
-                
-                button.addEventListener('click', function() {
-                    console.log('Клик по кнопке:', this.textContent.trim());
-                    const btnText = this.textContent.trim();
-                    
-                    if (btnText && !isNaN(btnText)) {
-                        addDigit(btnText);
-                    } else if (btnText === '⌫') {
-                        resetCode();
-                    } else if (this.classList.contains('function')) {
-                        if (hasAccess) {
-                            alert('Функция сканирования не реализована');
-                        } else {
-                            showAccessOverlay();
-                        }
-                    }
-                });
-            });
-        });
-
-        // Запускаем проверку доступа
-        checkAccess();
     </script>
 </body>
 </html>
