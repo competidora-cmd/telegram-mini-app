@@ -3,177 +3,234 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mini App для ввода кода</title>
+    <title>Городской Транспорт</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #1C2526;
-            color: #D3D7D9;
-            padding: 0;
+        * {
             margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: white;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            height: 100vh;
-            justify-content: center;
-            align-items: center;
-            box-sizing: border-box;
-            position: fixed;
-            width: 100%;
-            overflow: hidden;
         }
-        #caption {
-            font-size: 20px;
-            font-weight: 500;
-            margin: 24px 0;
+
+        .header {
+            background: white;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-left {
+            color: #007AFF;
+            font-size: 17px;
+            font-weight: 400;
+        }
+
+        .header-center {
+            text-align: center;
+            flex: 1;
+            margin: 0 16px;
+        }
+
+        .header-title {
+            font-size: 17px;
+            font-weight: 600;
+            color: #000;
+            margin-bottom: 1px;
+        }
+
+        .header-subtitle {
+            font-size: 13px;
+            color: #8E8E93;
+            text-transform: uppercase;
+        }
+
+        .header-right {
+            width: 24px;
+            height: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 12px;
-            padding: 0 20px;
-            color: #D3D7D9;
+            color: #8E8E93;
+            font-size: 20px;
         }
-        #caption svg {
-            width: 20px;
-            height: 20px;
-            fill: #D3D7D9;
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            gap: 40px;
         }
+
         #code-input {
             display: flex;
             justify-content: center;
             gap: 8px;
-            width: 100%;
-            max-width: 300px;
-            margin: 0 auto 20px;
-            box-sizing: border-box;
+            margin-top: 60px;
         }
+
         #code-input span {
-            flex: 1;
-            width: 40px;
-            height: 40px;
-            background: #333;
-            border-radius: 8px;
+            width: 44px;
+            height: 44px;
+            border: 1.5px solid #D1D1D6;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
+            background: white;
         }
-        #code-input .has-value {
-            background: #4A4E50;
-        }
+
         #code-input input {
             width: 100%;
             height: 100%;
-            font-size: 18px;
-            font-weight: bold;
+            font-size: 22px;
+            font-weight: 400;
             text-align: center;
             border: none;
             background: none;
-            color: #D3D7D9;
+            color: #000;
             outline: none;
             padding: 0;
-            box-sizing: border-box;
             pointer-events: none;
-            readonly: true;
         }
-        .simple-keyboard {
-            width: 100%;
-            max-width: 300px;
-            margin: 0 auto;
-            background-color: #2A2F31;
-            border-radius: 8px;
-            padding: 8px;
-            box-sizing: border-box;
-        }
-        .hg-rows {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        .hg-row {
-            display: flex;
-            justify-content: center;
-            gap: 8px;
-        }
-        .hg-button {
-            width: 50px;
-            height: 50px;
-            padding: 5px;
-            font-size: 20px;
-            color: #D3D7D9;
-            background-color: #4A4E50;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.3s;
+
+        .input-caption {
             display: flex;
             align-items: center;
             justify-content: center;
-            box-sizing: border-box;
+            gap: 8px;
+            color: #000;
+            font-size: 22px;
+            font-weight: 400;
+            margin-top: 120px;
         }
-        .hg-button:hover {
-            background-color: #5A5E60;
+
+        .input-caption svg {
+            width: 22px;
+            height: 22px;
         }
-        .hg-functionBtn {
+
+        .keyboard {
+            padding: 0 6px;
+            margin-top: auto;
+        }
+
+        .keyboard-row {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin-bottom: 6px;
+        }
+
+        .key {
+            flex: 1;
+            height: 42px;
+            background: #F2F2F7;
+            border: none;
+            border-radius: 10px;
+            font-size: 22px;
+            color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            min-width: 80px;
+            font-weight: 400;
+        }
+
+        .key.function {
+            font-size: 15px;
             flex-direction: column;
-            font-size: 14px;
-            line-height: 1;
+            gap: 2px;
         }
-        .hg-functionBtn svg {
-            width: 20px;
-            height: 20px;
-            fill: #D3D7D9;
+
+        .key.function svg {
+            width: 18px;
+            height: 18px;
+            margin-top: 2px;
         }
+
         #error-message {
-            color: #FF5555;
+            color: #E31E24;
             font-size: 16px;
-            margin: 10px 0;
+            text-align: center;
             display: none;
+            position: absolute;
+            width: 100%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
         }
     </style>
 </head>
 <body>
-    <div id="caption">
-        <svg role="img" aria-hidden="true" focusable="false" data-prefix="far" data-icon="qrcode" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
-            <path fill="currentColor" d="M104 103.1C112.8 103.1 120 111.2 120 119.1V135.1C120 144.8 112.8 151.1 104 151.1H88C79.16 151.1 72 144.8 72 135.1V119.1C72 111.2 79.16 103.1 88 103.1H104zM0 79.1C0 53.49 21.49 31.1 48 31.1H144C170.5 31.1 192 53.49 192 79.1V175.1C192 202.5 170.5 223.1 144 223.1H48C21.49 223.1 0 202.5 0 175.1V79.1zM48 175.1H144V79.1H48V175.1zM72 375.1C72 367.2 79.16 359.1 88 359.1H104C112.8 359.1 120 367.2 120 375.1V391.1C120 400.8 112.8 407.1 104 407.1H88C79.16 407.1 72 400.8 72 391.1V375.1zM0 335.1C0 309.5 21.49 287.1 48 287.1H144C170.5 287.1 192 309.5 192 335.1V431.1C192 458.5 170.5 479.1 144 479.1H48C21.49 479.1 0 458.5 0 431.1V335.1zM48 431.1H144V335.1H48V431.1zM360 103.1C368.8 103.1 376 111.2 376 119.1V135.1C376 144.8 368.8 151.1 360 151.1H344C335.2 151.1 328 144.8 328 135.1V119.1C328 111.2 335.2 103.1 344 103.1H360zM400 31.1C426.5 31.1 448 53.49 448 79.1V175.1C448 202.5 426.5 223.1 400 223.1H304C277.5 223.1 256 202.5 256 175.1V79.1C256 53.49 277.5 31.1 304 31.1H400zM400 79.1H304V175.1H400V79.1zM384 479.1H352V447.1H384V479.1zM416 447.1H448V479.1H416V447.1zM448 415.1H352V383.1H320V479.1H256V287.1H352V319.1H416V287.1H448V415.1z"></path>
-        </svg>
-        Введите код с наклейки
+    <div class="header">
+        <div class="header-left">Закрыть</div>
+        <div class="header-center">
+            <div class="header-title">Городской Транспорт</div>
+            <div class="header-subtitle">мини-приложение</div>
+        </div>
+        <div class="header-right">⋯</div>
     </div>
-    <div id="error-message">Код неверный</div>
-    <div id="code-input">
-        <span class="empty"><input readonly inputmode="none"></span>
-        <span class="empty"><input readonly inputmode="none"></span>
-        <span class="empty"><input readonly inputmode="none"></span>
-        <span class="empty"><input readonly inputmode="none"></span>
-        <span class="empty"><input readonly inputmode="none"></span>
-        <span class="empty"><input readonly inputmode="none"></span>
-    </div>
-    <div class="simple-keyboard">
-        <div class="hg-rows">
-            <div class="hg-row">
-                <div class="hg-button" data-skbtn="1">1</div>
-                <div class="hg-button" data-skbtn="2">2</div>
-                <div class="hg-button" data-skbtn="3">3</div>
+
+    <div class="main-content">
+        <div id="code-input">
+            <span><input readonly inputmode="none"></span>
+            <span><input readonly inputmode="none"></span>
+            <span><input readonly inputmode="none"></span>
+            <span><input readonly inputmode="none"></span>
+            <span><input readonly inputmode="none"></span>
+            <span><input readonly inputmode="none"></span>
+        </div>
+
+        <div class="input-caption">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M3 9h18v10H3V9zm0-2a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h18a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2H3zm0-4h18v2H3V3z" fill="currentColor"/>
+            </svg>
+            Введите код с наклейки
+        </div>
+
+        <div id="error-message">Код неверный</div>
+
+        <div class="keyboard">
+            <div class="keyboard-row">
+                <button class="key">1</button>
+                <button class="key">2</button>
+                <button class="key">3</button>
             </div>
-            <div class="hg-row">
-                <div class="hg-button" data-skbtn="4">4</div>
-                <div class="hg-button" data-skbtn="5">5</div>
-                <div class="hg-button" data-skbtn="6">6</div>
+            <div class="keyboard-row">
+                <button class="key">4</button>
+                <button class="key">5</button>
+                <button class="key">6</button>
             </div>
-            <div class="hg-row">
-                <div class="hg-button" data-skbtn="7">7</div>
-                <div class="hg-button" data-skbtn="8">8</div>
-                <div class="hg-button" data-skbtn="9">9</div>
+            <div class="keyboard-row">
+                <button class="key">7</button>
+                <button class="key">8</button>
+                <button class="key">9</button>
             </div>
-            <div class="hg-row">
-                <div class="hg-button hg-functionBtn" data-skbtn="{qr}">
-                    <span>Сканировать</span>
-                    <svg aria-hidden="true" focusable="false" data-prefix="far" data-icon="qrcode" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
-                        <path fill="currentColor" d="M104 103.1C112.8 103.1 120 111.2 120 119.1V135.1C120 144.8 112.8 151.1 104 151.1H88C79.16 151.1 72 144.8 72 135.1V119.1C72 111.2 79.16 103.1 88 103.1H104zM0 79.1C0 53.49 21.49 31.1 48 31.1H144C170.5 31.1 192 53.49 192 79.1V175.1C192 202.5 170.5 223.1 144 223.1H48C21.49 223.1 0 202.5 0 175.1V79.1zM48 175.1H144V79.1H48V175.1zM72 375.1C72 367.2 79.16 359.1 88 359.1H104C112.8 359.1 120 367.2 120 375.1V391.1C120 400.8 112.8 407.1 104 407.1H88C79.16 407.1 72 400.8 72 391.1V375.1zM0 335.1C0 309.5 21.49 287.1 48 287.1H144C170.5 287.1 192 309.5 192 335.1V431.1C192 458.5 170.5 479.1 144 479.1H48C21.49 479.1 0 458.5 0 431.1V335.1zM48 431.1H144V335.1H48V431.1zM360 103.1C368.8 103.1 376 111.2 376 119.1V135.1C376 144.8 368.8 151.1 360 151.1H344C335.2 151.1 328 144.8 328 135.1V119.1C328 111.2 335.2 103.1 344 103.1H360zM400 31.1C426.5 31.1 448 53.49 448 79.1V175.1C448 202.5 426.5 223.1 400 223.1H304C277.5 223.1 256 202.5 256 175.1V79.1C256 53.49 277.5 31.1 304 31.1H400zM400 79.1H304V175.1H400V79.1zM384 479.1H352V447.1H384V479.1zM416 447.1H448V479.1H416V447.1zM448 415.1H352V383.1H320V479.1H256V287.1H352V319.1H416V287.1H448V415.1z"></path>
+            <div class="keyboard-row">
+                <button class="key function">
+                    Сканировать
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 9h18v10H3V9zm0-2a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h18a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2H3zm0-4h18v2H3V3z" fill="currentColor"/>
                     </svg>
-                </div>
-                <div class="hg-button" data-skbtn="0">0</div>
-                <div class="hg-button hg-functionBtn" data-skbtn="{bksp}">⌫</div>
+                </button>
+                <button class="key">0</button>
+                <button class="key function">⌫</button>
             </div>
         </div>
     </div>
@@ -182,8 +239,7 @@
         let code = "";
         const inputs = document.querySelectorAll('#code-input input');
         const errorMessage = document.getElementById('error-message');
-        // Замените YOUR_COMPUTER_IP на IP-адрес вашего компьютера
-        const FASTAPI_URL = "http://YOUR_COMPUTER_IP:8000/check-code";
+        const FASTAPI_URL = "http://localhost:8000/check-code";
         const BASE_WEB_APP_URL = "https://competidora-cmd.github.io/telegram-mini-app/";
 
         function addDigit(digit) {
@@ -197,7 +253,6 @@
         }
 
         async function checkCode() {
-            console.log("Sending code to FastAPI:", code);
             try {
                 const response = await fetch(FASTAPI_URL, {
                     method: 'POST',
@@ -206,27 +261,12 @@
                     },
                     body: JSON.stringify({ code: code })
                 });
-                console.log("Response status:", response.status);
-                console.log("Response headers:", response.headers);
                 if (!response.ok) {
-                    const errorData = await response.json();
-                    console.log("Error response data:", errorData);
-                    throw new Error(errorData.detail || 'Код не найден');
+                    throw new Error('Код не найден');
                 }
                 const result = await response.json();
-                console.log("Response data:", result);
                 const ticket = result.ticket;
-                // Отправка данных билета в бот
-                const ticketData = JSON.stringify({
-                    code: ticket.code,
-                    carrier: ticket.carrier,
-                    route: ticket.route,
-                    vehicle: ticket.vehicle,
-                    cost: ticket.cost
-                });
-                console.log("Sending data to bot:", ticketData);
-                Telegram.WebApp.sendData(ticketData);
-                // Перенаправление на ticket.html
+                // Формирование URL для ticket.html
                 const ticketUrl = `${BASE_WEB_APP_URL}ticket.html?` +
                     `code=${encodeURIComponent(ticket.code)}&` +
                     `carrier=${encodeURIComponent(ticket.carrier)}&` +
@@ -235,10 +275,9 @@
                     `cost=${encodeURIComponent(ticket.cost)}&` +
                     `purchase_date=${encodeURIComponent(ticket.purchase_date)}&` +
                     `purchase_time=${encodeURIComponent(ticket.purchase_time)}`;
-                console.log("Redirecting to:", ticketUrl);
+                // Перенаправление на ticket.html
                 window.location.href = ticketUrl;
             } catch (error) {
-                console.error("Error during code check:", error.message);
                 errorMessage.style.display = 'block';
                 setTimeout(() => {
                     errorMessage.style.display = 'none';
@@ -259,13 +298,13 @@
             });
         }
 
-        document.querySelectorAll('.hg-button').forEach(button => {
-            const skbtn = button.getAttribute('data-skbtn');
+        document.querySelectorAll('.key').forEach(button => {
+            const skbtn = button.textContent;
             if (skbtn && !isNaN(skbtn)) {
                 button.addEventListener('click', () => addDigit(skbtn));
-            } else if (skbtn === '{bksp}') {
+            } else if (skbtn === '⌫') {
                 button.addEventListener('click', resetCode);
-            } else if (skbtn === '{qr}') {
+            } else if (skbtn === 'Сканировать') {
                 button.addEventListener('click', () => alert('Функция сканирования не реализована'));
             }
         });
