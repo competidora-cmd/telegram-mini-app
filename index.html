@@ -264,7 +264,30 @@
             let hasAccess = false;
 
             // Проверяем доступ при загрузке страницы
-            function checkAccess() {
+            
+            const ALLOWED_USERS = [];
+            
+             {
+                if (!window.Telegram.WebApp.initDataUnsafe.user) {
+                    showAccessOverlay();
+                    return;
+                }
+
+                const userId = window.Telegram.WebApp.initDataUnsafe.user.id;
+                const username = window.Telegram.WebApp.initDataUnsafe.user.username;
+                console.log('Checking access for user:', userId, 'username:', username);
+
+                // Проверяем доступ по ID или username
+                hasAccess = ALLOWED_USERS.includes(userId.toString()) || 
+                           (username && ALLOWED_USERS.includes('@' + username));
+                console.log('Has access:', hasAccess);
+                
+                if (!hasAccess) {
+                    showAccessOverlay();
+                    disableKeyboard();
+                }
+            }
+             {
                 if (!window.Telegram.WebApp.initDataUnsafe.user) {
                     showAccessOverlay();
                     return;
