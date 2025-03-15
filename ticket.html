@@ -47,7 +47,6 @@
                 .tabs {
                     display: flex;
                     margin-bottom: 30px;
-                    border-bottom: 1px solid #E31E24;
                     padding-bottom: 10px;
                 }
 
@@ -65,19 +64,20 @@
                     color: #000;
                 }
 
-                .tab #ticket-code {
-                    color: #E31E24;
-                    font-weight: 500;
-                }
-
                 .tab.active:after {
                     content: '';
                     position: absolute;
-                    bottom: -1px;
+                    bottom: -10px;
                     left: 0;
                     right: 0;
                     height: 2px;
                     background-color: #E31E24;
+                }
+
+                #route-name {
+                    color: #999;
+                    font-size: 16px;
+                    margin-top: 4px;
                 }
 
                 .tab-content {
@@ -153,9 +153,10 @@
                     border-radius: 10px;
                     font-size: 16px;
                     font-weight: 500;
-                    margin-top: auto;
+                    margin-top: 40px;
                     cursor: pointer;
                     text-transform: uppercase;
+                    margin-bottom: 20px;
                 }
 
                 .icon {
@@ -186,6 +187,10 @@
                     width: 100%;
                     height: 100%;
                     color: currentColor;
+                }
+
+                .info-row:last-child {
+                    margin-bottom: 20px;
                 }
             </style>
         </head>
@@ -230,7 +235,7 @@
                         </div>
                         <div>
                             <div class="label">Маршрут</div>
-                            <div class="value" id="route-full"></div>
+                            <div class="value" id="route-name"></div>
                             <div class="value" id="vehicle"></div>
                         </div>
                     </div>
@@ -297,7 +302,7 @@
                 // Заполнение данных билета
                 document.getElementById('ticket-code').textContent = formatTicketNumber(getParam('code'));
                 document.getElementById('carrier').textContent = getParam('carrier');
-                document.getElementById('route-full').textContent = `${getParam('route_number')}, ${getParam('route')}`;
+                document.getElementById('route-name').textContent = getParam('route');
                 document.getElementById('vehicle').textContent = getParam('vehicle');
                 document.getElementById('cost').textContent = `1 шт., Полный, ${getParam('cost')} ₽`;
                 document.getElementById('purchase-date').textContent = getParam('purchase_date');
