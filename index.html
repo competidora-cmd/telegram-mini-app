@@ -254,6 +254,7 @@
 
         async function checkCode() {
             try {
+                console.log('Отправка кода:', code);
                 const response = await fetch(FASTAPI_URL, {
                     method: 'POST',
                     headers: {
@@ -261,11 +262,18 @@
                     },
                     body: JSON.stringify({ code: code })
                 });
+                console.log('Статус ответа:', response.status);
+                
                 if (!response.ok) {
-                    throw new Error('Код не найден');
+                    const errorData = await response.json();
+                    console.error('Ошибка:', errorData);
+                    throw new Error(errorData.detail || 'Код не найден');
                 }
+                
                 const result = await response.json();
+                console.log('Результат:', result);
                 const ticket = result.ticket;
+                
                 // Формирование URL для ticket.html
                 const ticketUrl = `${BASE_WEB_APP_URL}ticket.html?` +
                     `code=${encodeURIComponent(ticket.code)}&` +
@@ -275,9 +283,11 @@
                     `cost=${encodeURIComponent(ticket.cost)}&` +
                     `purchase_date=${encodeURIComponent(ticket.purchase_date)}&` +
                     `purchase_time=${encodeURIComponent(ticket.purchase_time)}`;
+                
                 // Перенаправление на ticket.html
                 window.location.href = ticketUrl;
             } catch (error) {
+                console.error('Ошибка при проверке кода:', error);
                 errorMessage.style.display = 'block';
                 setTimeout(() => {
                     errorMessage.style.display = 'none';
