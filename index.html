@@ -236,43 +236,25 @@
                 try {
                     console.log('Проверка кода:', code);
                     
-                    // Загружаем данные билетов
-                    const response = await fetch('tickets.json');
-                    const data = await response.json();
-                    
-                    // Ищем код билета во всех маршрутах
-                    let ticketData = null;
-                    let ticketCode = null;
-                    
-                    for (const [routeNum, route] of Object.entries(data.routes)) {
-                        if (route.codes[code]) {
-                            ticketCode = route.codes[code];
-                            ticketData = {
-                                code: ticketCode,
-                                carrier: route.carrier,
-                                route: `${routeNum}, ${route.name}`,
-                                vehicle: route.vehicle,
-                                cost: route.cost
-                            };
-                            break;
-                        }
+                    // Отправляем код на сервер для проверки
+                    const response = await fetch('http://localhost:8000/check-code', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ code: code })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Код не найден');
                     }
+
+                    const data = await response.json();
+                    const ticketData = data.ticket;
                     
                     if (ticketData) {
-                        // Форматируем дату и время
-                        const now = new Date();
-                        const purchaseDate = now.toLocaleDateString('ru', { 
-                            day: 'numeric', 
-                            month: 'long', 
-                            year: 'numeric'
-                        });
-                        const purchaseTime = now.toLocaleTimeString('ru', { 
-                            hour: '2-digit', 
-                            minute: '2-digit'
-                        });
-
-                        // Формируем сообщение для отправки в бот
-                        const message = `Билет куплен успешно.\n${ticketData.carrier}\n🚌 ${ticketData.route}\n🎫 ${ticketCode}\n💰 Тариф: Полный ${ticketData.cost} ₽\n🎟️ Билет № ${formatTicketNumber(ticketData.code)}\n⏱️ Действует: 15 сек.`;
+                        // Форматируем сообщение для отправки в бот
+                        const message = `Билет куплен успешно.\n${ticketData.carrier}\n🚌 ${ticketData.route}\n🎫 ${ticketData.code}\n💰 Тариф: Полный ${ticketData.cost} ₽\n🎟️ Билет № ${formatTicketNumber(ticketData.code)}\n⏱️ Действует: 15 сек.`;
                         
                         // Отправляем данные в Telegram WebApp
                         if (window.Telegram && window.Telegram.WebApp) {
@@ -289,15 +271,14 @@
                             `route=${encodeURIComponent(ticketData.route)}&` +
                             `vehicle=${encodeURIComponent(ticketData.vehicle)}&` +
                             `cost=${encodeURIComponent(ticketData.cost)}&` +
-                            `purchase_date=${encodeURIComponent(purchaseDate)}&` +
-                            `purchase_time=${encodeURIComponent(purchaseTime)}`;
+                            `purchase_date=${encodeURIComponent(ticketData.purchase_date)}&` +
+                            `purchase_time=${encodeURIComponent(ticketData.purchase_time)}`;
                         
                         // Перенаправление на ticket.html
                         window.location.href = ticketUrl;
                         return;
                     }
 
-                    // Если код не найден, показываем ошибку
                     throw new Error('Код не найден');
                 } catch (error) {
                     console.error('Ошибка при проверке кода:', error);
