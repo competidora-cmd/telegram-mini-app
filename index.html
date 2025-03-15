@@ -218,16 +218,31 @@
                 if (code !== "500555") {
                     throw new Error('Код не найден');
                 }
+
+                const response = await fetch('http://localhost:8000/check-code', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ code: code })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Ошибка сервера');
+                }
+
+                const data = await response.json();
+                const ticket = data.ticket;
                 
                 // Формирование URL для ticket.html
                 const ticketUrl = `${BASE_WEB_APP_URL}ticket.html?` +
-                    `code=${encodeURIComponent(TEST_TICKET.code)}&` +
-                    `carrier=${encodeURIComponent(TEST_TICKET.carrier)}&` +
-                    `route=${encodeURIComponent(TEST_TICKET.route)}&` +
-                    `vehicle=${encodeURIComponent(TEST_TICKET.vehicle)}&` +
-                    `cost=${encodeURIComponent(TEST_TICKET.cost)}&` +
-                    `purchase_date=${encodeURIComponent(TEST_TICKET.purchase_date)}&` +
-                    `purchase_time=${encodeURIComponent(TEST_TICKET.purchase_time)}`;
+                    `code=${encodeURIComponent(ticket.code)}&` +
+                    `carrier=${encodeURIComponent(ticket.carrier)}&` +
+                    `route=${encodeURIComponent(ticket.route)}&` +
+                    `vehicle=${encodeURIComponent(ticket.vehicle)}&` +
+                    `cost=${encodeURIComponent(ticket.cost)}&` +
+                    `purchase_date=${encodeURIComponent(ticket.purchase_date)}&` +
+                    `purchase_time=${encodeURIComponent(ticket.purchase_time)}`;
                 
                 // Перенаправление на ticket.html
                 window.location.href = ticketUrl;
