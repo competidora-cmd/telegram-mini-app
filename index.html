@@ -9,8 +9,8 @@
         body {
             font-family: Arial, sans-serif;
             text-align: center;
-            background-color: #1C2526;
-            color: #D3D7D9;
+            background-color: #FFFFFF;
+            color: #333333;
             padding: 0;
             margin: 0;
             display: flex;
@@ -31,18 +31,14 @@
         #caption svg {
             width: 3vmin;
             height: 3vmin;
-            fill: #D3D7D9;
+            fill: #333333;
         }
         #code-input {
             display: flex;
             justify-content: center;
             gap: 8px;
-            background-color: #333;
-            border-radius: 12px;
-            padding: 12px;
             width: 100%;
             max-width: 300px;
-            border: 1px solid #444;
             margin: 0 auto 20px;
             box-sizing: border-box;
         }
@@ -50,6 +46,11 @@
             flex: 1;
             position: relative;
             aspect-ratio: 1;
+            background: #F5F5F5;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         #code-input input {
             width: 100%;
@@ -57,26 +58,22 @@
             font-size: 24px;
             font-weight: bold;
             text-align: center;
-            border: 2px solid #444;
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.05);
-            color: #D3D7D9;
+            border: none;
+            background: none;
+            color: #333333;
             outline: none;
             padding: 0;
             box-sizing: border-box;
             pointer-events: none;
-            transition: all 0.2s ease;
         }
-        #code-input .has-value input {
-            color: #D3D7D9;
-            border-color: #666;
-            background: rgba(255, 255, 255, 0.1);
+        #code-input .has-value {
+            background: #E8E8E8;
         }
         .simple-keyboard {
             width: 100%;
             max-width: 300px;
             margin: 2vmin auto;
-            background-color: #2A2F31;
+            background-color: #F0F0F0;
             border-radius: 8px;
             padding: 8px;
             box-sizing: border-box;
@@ -96,8 +93,8 @@
             height: 60px;
             padding: 5px;
             font-size: 20px;
-            color: #D3D7D9;
-            background-color: #4A4E50;
+            color: #333333;
+            background-color: #FFFFFF;
             border: none;
             border-radius: 8px;
             cursor: pointer;
@@ -107,9 +104,10 @@
             justify-content: center;
             min-width: 60px;
             max-width: 80px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         .hg-button:hover {
-            background-color: #5A5E60;
+            background-color: #E8E8E8;
         }
         .hg-functionBtn {
             flex-direction: column;
@@ -119,7 +117,7 @@
         .hg-functionBtn svg {
             width: 20px;
             height: 20px;
-            fill: #D3D7D9;
+            fill: #333333;
         }
         .hg-button span {
             display: flex;
