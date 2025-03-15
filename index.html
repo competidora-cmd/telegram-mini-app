@@ -1,223 +1,15 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Городской Транспорт</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            background-color: white;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .main-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            padding: 20px;
-            gap: 40px;
-        }
-
-        #code-input {
-            display: flex;
-            justify-content: center;
-            gap: 8px;
-            margin-top: 20px;
-        }
-
-        #code-input span {
-            width: 44px;
-            height: 44px;
-            border: 1.5px solid #D1D1D6;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: white;
-        }
-
-        #code-input input {
-            width: 100%;
-            height: 100%;
-            font-size: 22px;
-            font-weight: 400;
-            text-align: center;
-            border: none;
-            background: none;
-            color: #000;
-            outline: none;
-            padding: 0;
-            pointer-events: none;
-        }
-
-        .input-caption {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            color: #000;
-            font-size: 22px;
-            font-weight: 400;
-            margin-top: 60px;
-        }
-
-        .input-caption svg {
-            width: 22px;
-            height: 22px;
-        }
-
-        .keyboard {
-            padding: 0 6px;
-            margin-top: auto;
-        }
-
-        .keyboard-row {
-            display: flex;
-            justify-content: center;
-            gap: 6px;
-            margin-bottom: 6px;
-        }
-
-        .key {
-            flex: 1;
-            height: 42px;
-            background: #F2F2F7;
-            border: none;
-            border-radius: 10px;
-            font-size: 22px;
-            color: #000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            min-width: 80px;
-            font-weight: 400;
-        }
-
-        .key.function {
-            font-size: 15px;
-            flex-direction: column;
-            gap: 2px;
-        }
-
-        .key.function svg {
-            width: 18px;
-            height: 18px;
-            margin-top: 2px;
-        }
-
-        #error-message {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(227, 30, 36, 0.9);
-            color: white;
-            padding: 15px 25px;
-            border-radius: 12px;
-            font-size: 16px;
-            display: none;
-            z-index: 1000;
-            text-align: center;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-    </style>
-</head>
-<body>
-    <div class="main-content">
-        <div class="input-caption">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M3 9h18v10H3V9zm0-2a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h18a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2H3zm0-4h18v2H3V3z" fill="currentColor"/>
-            </svg>
-            Введите код с наклейки
-        </div>
-
-        <div id="code-input">
-            <span><input readonly inputmode="none"></span>
-            <span><input readonly inputmode="none"></span>
-            <span><input readonly inputmode="none"></span>
-            <span><input readonly inputmode="none"></span>
-            <span><input readonly inputmode="none"></span>
-            <span><input readonly inputmode="none"></span>
-        </div>
-
-        <div id="error-message">Код неверный</div>
-
-        <div class="keyboard">
-            <div class="keyboard-row">
-                <button class="key">1</button>
-                <button class="key">2</button>
-                <button class="key">3</button>
-            </div>
-            <div class="keyboard-row">
-                <button class="key">4</button>
-                <button class="key">5</button>
-                <button class="key">6</button>
-            </div>
-            <div class="keyboard-row">
-                <button class="key">7</button>
-                <button class="key">8</button>
-                <button class="key">9</button>
-            </div>
-            <div class="keyboard-row">
-                <button class="key function">
-                    Сканировать
-                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M3 9h18v10H3V9zm0-2a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h18a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2H3zm0-4h18v2H3V3z" fill="currentColor"/>
-                    </svg>
-                </button>
-                <button class="key">0</button>
-                <button class="key function">⌫</button>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        let code = "";
-        const inputs = document.querySelectorAll('#code-input input');
-        const errorMessage = document.getElementById('error-message');
-        const BASE_WEB_APP_URL = "https://competidora-cmd.github.io/telegram-mini-app/";
-
-        // Тестовый билет для кода 500555
-        const TEST_TICKET = {
-            code: "965 769 046",
-            carrier: "МП Городской транспорт",
-            route: "1 мкрн. Северный - мкрн. Тихие зори",
-            vehicle: "т490то124",
-            cost: "40,00",
-            purchase_time: new Date().toLocaleTimeString('ru', { hour: '2-digit', minute: '2-digit' }),
-            expiration_time: new Date(Date.now() + 60 * 60 * 1000).toLocaleTimeString('ru', { hour: '2-digit', minute: '2-digit' })
-        };
-
-        function addDigit(digit) {
-            if (code.length < 6) {
-                code += digit;
-                updateDisplay();
-                if (code.length === 6) {
-                    checkCode();
-                }
-            }
-        }
-
+// ... existing code ...
         async function checkCode() {
             try {
                 console.log('Проверка кода:', code);
-                console.log('Ожидаемый код:', "500555");
-                console.log('Совпадение:', code === "500555");
                 
-                if (code === "500555") {
+                // Загружаем данные билетов
+                const response = await fetch('codes.json');
+                const tickets = await response.json();
+                
+                // Проверяем существование кода
+                if (tickets[code]) {
+                    const ticketData = tickets[code];
                     // Текущая дата и время
                     const now = new Date();
                     const purchaseDate = now.toLocaleDateString('ru', { 
@@ -232,11 +24,11 @@
 
                     // Формирование URL для ticket.html
                     const ticketUrl = `${BASE_WEB_APP_URL}ticket.html?` +
-                        `code=${encodeURIComponent(TEST_TICKET.code)}&` +
-                        `carrier=${encodeURIComponent(TEST_TICKET.carrier)}&` +
-                        `route=${encodeURIComponent(TEST_TICKET.route)}&` +
-                        `vehicle=${encodeURIComponent(TEST_TICKET.vehicle)}&` +
-                        `cost=${encodeURIComponent(TEST_TICKET.cost)}&` +
+                        `code=${encodeURIComponent(ticketData.code)}&` +
+                        `carrier=${encodeURIComponent(ticketData.carrier)}&` +
+                        `route=${encodeURIComponent(ticketData.route)}&` +
+                        `vehicle=${encodeURIComponent(ticketData.vehicle)}&` +
+                        `cost=${encodeURIComponent(ticketData.cost)}&` +
                         `purchase_date=${encodeURIComponent(purchaseDate)}&` +
                         `purchase_time=${encodeURIComponent(purchaseTime)}`;
                     
@@ -245,15 +37,19 @@
                     return;
                 }
 
-                // Если код не 500555, показываем ошибку
+                // Если код не найден, показываем ошибку
                 throw new Error('Код не найден');
             } catch (error) {
                 console.error('Ошибка при проверке кода:', error);
+                const errorMessage = document.getElementById('error-message');
                 errorMessage.style.display = 'block';
                 errorMessage.style.opacity = '1';
-                code = "";
+                
+                // Очищаем код и обновляем отображение
+                code = '';
                 updateDisplay();
                 
+                // Скрываем сообщение об ошибке через 1 секунду
                 setTimeout(() => {
                     errorMessage.style.opacity = '0';
                     setTimeout(() => {
@@ -262,31 +58,4 @@
                 }, 1000);
             }
         }
-
-        function resetCode() {
-            code = code.slice(0, -1);
-            updateDisplay();
-        }
-
-        function updateDisplay() {
-            inputs.forEach((input, index) => {
-                input.value = code[index] || '';
-                input.parentElement.classList.toggle('has-value', !!code[index]);
-            });
-        }
-
-        document.querySelectorAll('.key').forEach(button => {
-            const skbtn = button.textContent;
-            if (skbtn && !isNaN(skbtn)) {
-                button.addEventListener('click', () => addDigit(skbtn));
-            } else if (skbtn === '⌫') {
-                button.addEventListener('click', resetCode);
-            } else if (skbtn === 'Сканировать') {
-                button.addEventListener('click', () => alert('Функция сканирования не реализована'));
-            }
-        });
-
-        Telegram.WebApp.ready();
-    </script>
-</body>
-</html>
+// ... existing code ...
