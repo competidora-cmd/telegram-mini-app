@@ -190,6 +190,16 @@
         const errorMessage = document.getElementById('error-message');
         const BASE_WEB_APP_URL = "https://competidora-cmd.github.io/telegram-mini-app/";
 
+        function addDigit(digit) {
+            if (code.length < 6) {
+                code += digit;
+                updateDisplay();
+                if (code.length === 6) {
+                    checkCode();
+                }
+            }
+        }
+
         async function checkCode() {
             try {
                 console.log('Проверка кода:', code);
