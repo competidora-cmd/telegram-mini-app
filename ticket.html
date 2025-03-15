@@ -63,6 +63,11 @@
             color: #000;
         }
 
+        .tab #ticket-code {
+            color: #E31E24;
+            font-weight: 500;
+        }
+
         .tab.active:after {
             content: '';
             position: absolute;
@@ -166,7 +171,9 @@
 <body>
     <div class="container">
         <div class="tabs">
-            <div class="tab active" data-tab="ticket">Билет</div>
+            <div class="tab active" data-tab="ticket">
+                <span>📄 <span id="ticket-code"></span></span>
+            </div>
             <div class="tab" data-tab="control">Контроль</div>
         </div>
 
