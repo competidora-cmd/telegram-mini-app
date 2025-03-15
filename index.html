@@ -1,0 +1,120 @@
+<!DOCTYPE html>  
+<html lang="ru">  
+<head>  
+    <meta charset="UTF-8">  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+    <title>Mini App для ввода кода</title>  
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>  
+    <style>  
+        body {  
+            font-family: Arial, sans-serif;  
+            text-align: center;  
+            background-color: #f5f5f5;  
+            padding: 20px;  
+            margin: 0;  
+        }  
+        h1 {  
+            font-size: 20px;  
+            color: #000;  
+            margin-bottom: 20px;  
+        }  
+        .code-display {  
+            display: flex;  
+            justify-content: center;  
+            gap: 10px;  
+            margin: 20px 0;  
+        }  
+        .code-cell {  
+            width: 40px;  
+            height: 50px;  
+            border: 2px solid #ccc;  
+            border-radius: 5px;  
+            font-size: 24px;  
+            display: flex;  
+            align-items: center;  
+            justify-content: center;  
+            background-color: #fff;  
+        }  
+        p {  
+            font-size: 16px;  
+            color: #000;  
+            margin-bottom: 20px;  
+        }  
+        .keyboard {  
+            display: grid;  
+            grid-template-columns: repeat(3, 1fr);  
+            gap: 10px;  
+            max-width: 300px;  
+            margin: 0 auto;  
+        }  
+        button {  
+            padding: 15px;  
+            font-size: 18px;  
+            color: #000;  
+            background-color: #e0e0e0;  
+            border: 1px solid #ccc;  
+            border-radius: 10px;  
+            cursor: pointer;  
+        }  
+        button.special {  
+            display: flex;  
+            align-items: center;  
+            justify-content: center;  
+            gap: 5px;  
+        }  
+        .icon-qr, .icon-reset {  
+            font-size: 18px;  
+        }  
+    </style>  
+</head>  
+<body>  
+    <h1>Городской Транспорт</h1>  
+    <div class="code-display" id="codeDisplay">  
+        <div class="code-cell"></div><div class="code-cell"></div><div class="code-cell"></div>  
+        <div class="code-cell"></div><div class="code-cell"></div><div class="code-cell"></div>  
+    </div>  
+    <p>Введите код с наклейки</p>  
+    <div class="keyboard">  
+        <button onclick="addDigit('1')">1</button>  
+        <button onclick="addDigit('2')">2</button>  
+        <button onclick="addDigit('3')">3</button>  
+        <button onclick="addDigit('4')">4</button>  
+        <button onclick="addDigit('5')">5</button>  
+        <button onclick="addDigit('6')">6</button>  
+        <button onclick="addDigit('7')">7</button>  
+        <button onclick="addDigit('8')">8</button>  
+        <button onclick="addDigit('9')">9</button>  
+        <button class="special" onclick="alert('Функция сканирования не реализована')"><span class="icon-qr">📷</span> Сканировать</button>  
+        <button onclick="addDigit('0')">0</button>  
+        <button class="special" onclick="resetCode()"><span class="icon-reset">↩</span> Сброс</button>  
+    </div>  
+
+    <script>  
+        let code = "";  
+        const cells = document.querySelectorAll('.code-cell');  
+
+        function addDigit(digit) {  
+            if (code.length < 6) {  
+                code += digit;  
+                updateDisplay();  
+                if (code.length === 6) {  
+                    Telegram.WebApp.sendData(code);  
+                }  
+            }  
+        }  
+
+        function resetCode() {  
+            code = "";  
+            updateDisplay();  
+        }  
+
+        function updateDisplay() {  
+            cells.forEach((cell, index) => {  
+                cell.textContent = code[index] || '';  
+            });  
+        }  
+
+        Telegram.WebApp.ready();  
+    </script>  
+</body>  
+</html>  
