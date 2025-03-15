@@ -271,6 +271,17 @@
                             minute: '2-digit'
                         });
 
+                        // Отправляем сообщение в чат с ботом
+                        const message = `Билет куплен успешно.\n${ticketData.carrier}\n🚌 ${ticketData.route}\n🎫 ${ticketCode}\n💰 Тариф: Полный ${ticketData.cost} ₽\n🎟️ Билет № ${formatTicketNumber(ticketData.code)}\n⏱️ Действует: 15 сек.`;
+                        
+                        if (window.Telegram && window.Telegram.WebApp) {
+                            window.Telegram.WebApp.sendData(JSON.stringify({
+                                action: 'ticket_purchased',
+                                message: message,
+                                timestamp: `${purchaseTime}`
+                            }));
+                        }
+
                         // Формирование URL для ticket.html
                         const ticketUrl = `${BASE_WEB_APP_URL}ticket.html?` +
                             `code=${encodeURIComponent(ticketData.code)}&` +
