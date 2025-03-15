@@ -74,7 +74,7 @@
             padding: 0;
             box-sizing: border-box;
             pointer-events: none;
-            readonly: true; /* Исправлено с readonyl */
+            readonly: true;
         }
         .simple-keyboard {
             width: 100%;
@@ -182,7 +182,8 @@
         let code = "";
         const inputs = document.querySelectorAll('#code-input input');
         const errorMessage = document.getElementById('error-message');
-        const FASTAPI_URL = "http://localhost:8000/check-code";
+        // Замените YOUR_COMPUTER_IP на IP-адрес вашего компьютера
+        const FASTAPI_URL = "http://YOUR_COMPUTER_IP:8000/check-code";
         const BASE_WEB_APP_URL = "https://competidora-cmd.github.io/telegram-mini-app/";
 
         function addDigit(digit) {
@@ -206,8 +207,10 @@
                     body: JSON.stringify({ code: code })
                 });
                 console.log("Response status:", response.status);
+                console.log("Response headers:", response.headers);
                 if (!response.ok) {
                     const errorData = await response.json();
+                    console.log("Error response data:", errorData);
                     throw new Error(errorData.detail || 'Код не найден');
                 }
                 const result = await response.json();
@@ -221,7 +224,7 @@
                     vehicle: ticket.vehicle,
                     cost: ticket.cost
                 });
-                console.log("Sending data to bot:", ticketData); // Логирование отправки данных
+                console.log("Sending data to bot:", ticketData);
                 Telegram.WebApp.sendData(ticketData);
                 // Перенаправление на ticket.html
                 const ticketUrl = `${BASE_WEB_APP_URL}ticket.html?` +
