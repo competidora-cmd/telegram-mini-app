@@ -44,6 +44,56 @@
             touch-action: pan-y;
         }
 
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            color: #999;
+            position: relative;
+        }
+
+        .tab.active {
+            color: #000;
+        }
+
+        .tab.active:after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: #E31E24;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        #qr-code {
+            width: 100%;
+            max-width: 300px;
+            margin: 20px auto;
+            display: block;
+        }
+
+        .control-info {
+            text-align: center;
+            margin: 20px 0;
+            color: #666;
+        }
+
         .timer {
             text-align: center;
             font-size: 24px;
@@ -115,71 +165,86 @@
 </head>
 <body>
     <div class="container">
-        <div class="timer" id="countdown">
-            Действует: 15 сек.
+        <div class="tabs">
+            <div class="tab active" data-tab="ticket">Билет</div>
+            <div class="tab" data-tab="control">Контроль</div>
         </div>
 
-        <div class="ticket-number">
-            <div class="icon">📄</div>
-            <span id="ticket-code"></span>
+        <div class="tab-content active" id="ticket-content">
+            <div class="timer" id="countdown">
+                Действует: 15 сек.
+            </div>
+
+            <div class="ticket-number">
+                <div class="icon">📄</div>
+                <span id="ticket-code"></span>
+            </div>
+
+            <div class="info-row">
+                <div class="icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
+                        <path fill="currentColor" d="M319.7 352.5L224 416l-95.7-63.49C57.05 355.2 0 413.4 0 485.3C0 500.1 11.94 512 26.66 512H421.3C436.1 512 448 500.1 448 485.3C448 413.4 390.1 355.2 319.7 352.5zM50.69 464c8.043-31.21 33.37-55.43 65.56-61.89L209.5 464H50.69zM238.5 464l93.28-61.89c32.19 6.461 57.52 30.68 65.56 61.89H238.5z"/>
+                    </svg>
+                </div>
+                <div>
+                    <div class="label">Перевозчик</div>
+                    <div class="value" id="carrier"></div>
+                </div>
+            </div>
+
+            <div class="info-row">
+                <div class="icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                        <path fill="currentColor" d="M144 336C144 318.3 158.3 304 176 304C193.7 304 208 318.3 208 336C208 353.7 193.7 368 176 368C158.3 368 144 353.7 144 336zM368 336C368 318.3 382.3 304 400 304C417.7 304 432 318.3 432 336C432 353.7 417.7 368 400 368C382.3 368 368 353.7 368 336zM74.2 70.03C99.86 38.75 167.8 0 288 0C416.6 0 478 38.63 502.4 70.55C509.9 80.32 512 91.48 512 100.4V128C529.7 128 544 142.3 544 160V224C544 241.7 529.7 256 512 256V376C512 400.1 499.3 422.1 480 435.9V488C480 501.3 469.3 512 456 512C442.7 512 432 501.3 432 488V448H144V488C144 501.3 133.3 512 120 512C106.7 512 96 501.3 96 488V435.9C76.7 422.1 64 400.1 64 376V256C46.33 256 32 241.7 32 224V160C32 142.3 46.33 128 64 128V100.4C64 91.58 66.05 79.97 74.2 70.03zM363.7 96H461.2C445.4 78.89 399.2 48 288 48C185.8 48 133.8 78.27 115.5 96H212.3C217.8 86.44 228.2 80 240 80H336C347.8 80 358.2 86.44 363.7 96zM464 144H312V224H464V144zM112 224H264V144H112V224zM112 272V376C112 389.3 122.7 400 136 400H440C453.3 400 464 389.3 464 376V272H112z"/>
+                    </svg>
+                </div>
+                <div>
+                    <div class="label">Маршрут</div>
+                    <div class="value" id="route"></div>
+                    <div class="value" id="vehicle"></div>
+                </div>
+            </div>
+
+            <div class="info-row">
+                <div class="icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512">
+                        <path fill="currentColor" d="M240 32C319.5 32 384 96.47 384 176C384 255.5 319.5 320 240 320H112V368H296C309.3 368 320 378.7 320 392C320 405.3 309.3 416 296 416H112V456C112 469.3 101.3 480 88 480C74.75 480 64 469.3 64 456V416H24C10.75 416 0 405.3 0 392C0 378.7 10.75 368 24 368H64V320H24C10.75 320 0 309.3 0 296C0 282.7 10.75 272 24 272H64V79.31C64 53.18 85.18 32 111.3 32H240zM336 176C336 122.1 293 80 240 80H112V272H240C293 272 336 229 336 176z"/>
+                    </svg>
+                </div>
+                <div>
+                    <div class="label">Стоимость</div>
+                    <div class="value" id="cost"></div>
+                </div>
+            </div>
+
+            <div class="info-row">
+                <div class="icon">📅</div>
+                <div>
+                    <div class="label">Дата покупки</div>
+                    <div class="value" id="purchase-date"></div>
+                </div>
+            </div>
+
+            <div class="info-row">
+                <div class="icon">🕒</div>
+                <div>
+                    <div class="label">Время покупки</div>
+                    <div class="value" id="purchase-time"></div>
+                </div>
+            </div>
         </div>
 
-        <div class="info-row">
-            <div class="icon">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
-                    <path fill="currentColor" d="M319.7 352.5L224 416l-95.7-63.49C57.05 355.2 0 413.4 0 485.3C0 500.1 11.94 512 26.66 512H421.3C436.1 512 448 500.1 448 485.3C448 413.4 390.1 355.2 319.7 352.5zM50.69 464c8.043-31.21 33.37-55.43 65.56-61.89L209.5 464H50.69zM238.5 464l93.28-61.89c32.19 6.461 57.52 30.68 65.56 61.89H238.5z"/>
-                </svg>
-            </div>
-            <div>
-                <div class="label">Перевозчик</div>
-                <div class="value" id="carrier"></div>
+        <div class="tab-content" id="control-content">
+            <img id="qr-code" alt="QR код для проверки">
+            <div class="control-info">
+                Предъявите QR-код контролёру для проверки билета
             </div>
         </div>
 
-        <div class="info-row">
-            <div class="icon">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
-                    <path fill="currentColor" d="M144 336C144 318.3 158.3 304 176 304C193.7 304 208 318.3 208 336C208 353.7 193.7 368 176 368C158.3 368 144 353.7 144 336zM368 336C368 318.3 382.3 304 400 304C417.7 304 432 318.3 432 336C432 353.7 417.7 368 400 368C382.3 368 368 353.7 368 336zM74.2 70.03C99.86 38.75 167.8 0 288 0C416.6 0 478 38.63 502.4 70.55C509.9 80.32 512 91.48 512 100.4V128C529.7 128 544 142.3 544 160V224C544 241.7 529.7 256 512 256V376C512 400.1 499.3 422.1 480 435.9V488C480 501.3 469.3 512 456 512C442.7 512 432 501.3 432 488V448H144V488C144 501.3 133.3 512 120 512C106.7 512 96 501.3 96 488V435.9C76.7 422.1 64 400.1 64 376V256C46.33 256 32 241.7 32 224V160C32 142.3 46.33 128 64 128V100.4C64 91.58 66.05 79.97 74.2 70.03zM363.7 96H461.2C445.4 78.89 399.2 48 288 48C185.8 48 133.8 78.27 115.5 96H212.3C217.8 86.44 228.2 80 240 80H336C347.8 80 358.2 86.44 363.7 96zM464 144H312V224H464V144zM112 224H264V144H112V224zM112 272V376C112 389.3 122.7 400 136 400H440C453.3 400 464 389.3 464 376V272H112z"></path>
-                </svg>
-            </div>
-            <div>
-                <div class="label">Маршрут</div>
-                <div class="value" id="route"></div>
-                <div class="value" id="vehicle"></div>
-            </div>
-        </div>
-
-        <div class="info-row">
-            <div class="icon">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512">
-                    <path fill="currentColor" d="M240 32C319.5 32 384 96.47 384 176C384 255.5 319.5 320 240 320H112V368H296C309.3 368 320 378.7 320 392C320 405.3 309.3 416 296 416H112V456C112 469.3 101.3 480 88 480C74.75 480 64 469.3 64 456V416H24C10.75 416 0 405.3 0 392C0 378.7 10.75 368 24 368H64V320H24C10.75 320 0 309.3 0 296C0 282.7 10.75 272 24 272H64V79.31C64 53.18 85.18 32 111.3 32H240zM336 176C336 122.1 293 80 240 80H112V272H240C293 272 336 229 336 176z"/>
-                </svg>
-            </div>
-            <div>
-                <div class="label">Стоимость</div>
-                <div class="value" id="cost"></div>
-            </div>
-        </div>
-
-        <div class="info-row">
-            <div class="icon">📅</div>
-            <div>
-                <div class="label">Дата покупки</div>
-                <div class="value" id="purchase-date"></div>
-            </div>
-        </div>
-
-        <div class="info-row">
-            <div class="icon">🕒</div>
-            <div>
-                <div class="label">Время покупки</div>
-                <div class="value" id="purchase-time"></div>
-            </div>
-        </div>
-
-        <button class="close-button" onclick="window.close()">ЗАКРЫТЬ</button>
+        <button class="close-button" onclick="closeApp()">ЗАКРЫТЬ</button>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script>
         // Инициализация Telegram WebApp
         const tg = window.Telegram.WebApp;
@@ -212,10 +277,50 @@
             
             if (timeLeft <= 0) {
                 clearInterval(timer);
-                // Закрываем Mini App
-                tg.close();
+                closeApp();
             }
         }, 1000);
+
+        // Обработка вкладок
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                tab.classList.add('active');
+                document.getElementById(`${tab.dataset.tab}-content`).classList.add('active');
+            });
+        });
+
+        // Генерация случайного QR-кода
+        function generateRandomString(length) {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let result = '';
+            for (let i = 0; i < length; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return result;
+        }
+
+        // Создаем QR-код
+        const qrData = generateRandomString(32);
+        new QRCode(document.getElementById("qr-code"), {
+            text: qrData,
+            width: 256,
+            height: 256,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+        });
+
+        // Функция закрытия приложения
+        function closeApp() {
+            if (window.Telegram && window.Telegram.WebApp) {
+                window.Telegram.WebApp.close();
+            } else {
+                window.close();
+            }
+        }
 
         // Предотвращение масштабирования
         document.addEventListener('touchmove', function(event) {
