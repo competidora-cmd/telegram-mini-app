@@ -67,15 +67,23 @@
             color: #D3D7D9;
         }
         .simple-keyboard {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 4px;
-            width: 280px;
+            width: 422px;
             margin: 2vmin auto;
             background-color: #2A2F31;
             border-radius: 8px;
-            padding: 8px;
             box-sizing: border-box;
+        }
+        .hg-rows {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 255px;
+            padding: 8px;
+        }
+        .hg-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 4px;
         }
         .hg-button {
             width: 80px;
