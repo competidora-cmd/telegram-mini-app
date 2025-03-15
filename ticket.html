@@ -342,7 +342,12 @@
                 const formattedTicketNumber = formatTicketNumber(getParam('code'));
                 document.getElementById('ticket-number').textContent = formattedTicketNumber;
                 document.getElementById('carrier').textContent = getParam('carrier');
-                document.getElementById('route-name').textContent = getParam('route');
+                
+                // Получаем полный маршрут и разделяем его на номер и название
+                const fullRoute = getParam('route');
+                const routeNameOnly = fullRoute.split(', ')[1] || fullRoute;
+                document.getElementById('route-name').textContent = routeNameOnly;
+                
                 document.getElementById('vehicle').textContent = getParam('vehicle');
                 document.getElementById('cost').textContent = `1 шт., Полный, ${getParam('cost')} ₽`;
                 document.getElementById('purchase-date').textContent = getParam('purchase_date');
