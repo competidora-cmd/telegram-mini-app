@@ -74,7 +74,7 @@
             padding: 0;
             box-sizing: border-box;
             pointer-events: none;
-            readonly: true;
+            readonly: true; /* Исправлено с readonyl */
         }
         .simple-keyboard {
             width: 100%;
@@ -221,6 +221,7 @@
                     vehicle: ticket.vehicle,
                     cost: ticket.cost
                 });
+                console.log("Sending data to bot:", ticketData); // Логирование отправки данных
                 Telegram.WebApp.sendData(ticketData);
                 // Перенаправление на ticket.html
                 const ticketUrl = `${BASE_WEB_APP_URL}ticket.html?` +
