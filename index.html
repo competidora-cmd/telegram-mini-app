@@ -26,7 +26,7 @@
             display: flex;
             flex-direction: column;
             padding: 4vh 4vw;
-            gap: 6vh;
+            gap: 8vh;
         }
 
         #code-input {
@@ -37,8 +37,8 @@
         }
 
         #code-input span {
-            width: min(12vw, 16vh);
-            height: min(12vw, 16vh);
+            width: min(14vw, 18vh);
+            height: min(18vw, 22vh);
             border: 1.5px solid #D1D1D6;
             border-radius: 4px;
             display: flex;
@@ -50,7 +50,7 @@
         #code-input input {
             width: 100%;
             height: 100%;
-            font-size: min(6vw, 8vh);
+            font-size: min(8vw, 10vh);
             font-weight: 400;
             text-align: center;
             border: none;
@@ -67,18 +67,24 @@
             justify-content: center;
             gap: 2vw;
             color: #000;
-            font-size: min(4vw, 5vh);
+            font-size: min(5vw, 6vh);
             font-weight: 400;
+            margin-bottom: 4vh;
         }
 
         .input-caption svg {
-            width: min(4vw, 5vh);
-            height: min(4vw, 5vh);
+            width: min(5vw, 6vh);
+            height: min(5vw, 6vh);
+        }
+
+        .keyboard-container {
+            background: #F2F2F7;
+            border-radius: 12px;
+            padding: 2vh 3vw;
+            margin: 0 -1vw;
         }
 
         .keyboard {
-            padding: 0 4vw;
-            margin-top: auto;
             width: 100%;
         }
 
@@ -89,13 +95,17 @@
             margin-bottom: 2vw;
         }
 
+        .keyboard-row:last-child {
+            margin-bottom: 0;
+        }
+
         .key {
             flex: 1;
-            height: min(15vw, 20vh);
-            background: #F2F2F7;
+            height: min(16vw, 20vh);
+            background: white;
             border: none;
             border-radius: 4px;
-            font-size: min(7vw, 9vh);
+            font-size: min(8vw, 10vh);
             color: #000;
             display: flex;
             align-items: center;
@@ -105,14 +115,14 @@
         }
 
         .key.function {
-            font-size: min(3vw, 4vh);
+            font-size: min(3.5vw, 4.5vh);
             flex-direction: column;
             gap: 1vh;
         }
 
         .key.function svg {
-            width: min(6vw, 8vh);
-            height: min(6vw, 8vh);
+            width: min(7vw, 9vh);
+            height: min(7vw, 9vh);
             margin-top: 1vh;
         }
 
@@ -131,6 +141,10 @@
             text-align: center;
             opacity: 0;
             transition: opacity 0.3s ease;
+        }
+
+        .key.backspace {
+            font-size: min(6vw, 8vh);
         }
     </style>
 </head>
@@ -152,35 +166,37 @@
             Введите код с наклейки
         </div>
 
-        <div id="error-message">Код неверный</div>
-
-        <div class="keyboard">
-            <div class="keyboard-row">
-                <button class="key">1</button>
-                <button class="key">2</button>
-                <button class="key">3</button>
-            </div>
-            <div class="keyboard-row">
-                <button class="key">4</button>
-                <button class="key">5</button>
-                <button class="key">6</button>
-            </div>
-            <div class="keyboard-row">
-                <button class="key">7</button>
-                <button class="key">8</button>
-                <button class="key">9</button>
-            </div>
-            <div class="keyboard-row">
-                <button class="key function">
-                    Сканировать
-                    <svg viewBox="0 0 448 480" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path fill="currentColor" d="M104 103.1C112.8 103.1 120 111.2 120 119.1V135.1C120 144.8 112.8 151.1 104 151.1H88C79.16 151.1 72 144.8 72 135.1V119.1C72 111.2 79.16 103.1 88 103.1H104zM0 79.1C0 53.49 21.49 31.1 48 31.1H144C170.5 31.1 192 53.49 192 79.1V175.1C192 202.5 170.5 223.1 144 223.1H48C21.49 223.1 0 202.5 0 175.1V79.1zM48 175.1H144V79.1H48V175.1zM72 375.1C72 367.2 79.16 359.1 88 359.1H104C112.8 359.1 120 367.2 120 375.1V391.1C120 400.8 112.8 407.1 104 407.1H88C79.16 407.1 72 400.8 72 391.1V375.1zM0 335.1C0 309.5 21.49 287.1 48 287.1H144C170.5 287.1 192 309.5 192 335.1V431.1C192 458.5 170.5 479.1 144 479.1H48C21.49 479.1 0 458.5 0 431.1V335.1zM48 431.1H144V335.1H48V431.1zM360 103.1C368.8 103.1 376 111.2 376 119.1V135.1C376 144.8 368.8 151.1 360 151.1H344C335.2 151.1 328 144.8 328 135.1V119.1C328 111.2 335.2 103.1 344 103.1H360zM400 31.1C426.5 31.1 448 53.49 448 79.1V175.1C448 202.5 426.5 223.1 400 223.1H304C277.5 223.1 256 202.5 256 175.1V79.1C256 53.49 277.5 31.1 304 31.1H400zM400 79.1H304V175.1H400V79.1zM384 479.1H352V447.1H384V479.1zM416 447.1H448V479.1H416V447.1zM448 415.1H352V383.1H320V479.1H256V287.1H352V319.1H416V287.1H448V415.1z"/>
-                    </svg>
-                </button>
-                <button class="key">0</button>
-                <button class="key function">⌫</button>
+        <div class="keyboard-container">
+            <div class="keyboard">
+                <div class="keyboard-row">
+                    <button class="key">1</button>
+                    <button class="key">2</button>
+                    <button class="key">3</button>
+                </div>
+                <div class="keyboard-row">
+                    <button class="key">4</button>
+                    <button class="key">5</button>
+                    <button class="key">6</button>
+                </div>
+                <div class="keyboard-row">
+                    <button class="key">7</button>
+                    <button class="key">8</button>
+                    <button class="key">9</button>
+                </div>
+                <div class="keyboard-row">
+                    <button class="key function">
+                        Сканировать
+                        <svg viewBox="0 0 448 480" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path fill="currentColor" d="M104 103.1C112.8 103.1 120 111.2 120 119.1V135.1C120 144.8 112.8 151.1 104 151.1H88C79.16 151.1 72 144.8 72 135.1V119.1C72 111.2 79.16 103.1 88 103.1H104zM0 79.1C0 53.49 21.49 31.1 48 31.1H144C170.5 31.1 192 53.49 192 79.1V175.1C192 202.5 170.5 223.1 144 223.1H48C21.49 223.1 0 202.5 0 175.1V79.1zM48 175.1H144V79.1H48V175.1zM72 375.1C72 367.2 79.16 359.1 88 359.1H104C112.8 359.1 120 367.2 120 375.1V391.1C120 400.8 112.8 407.1 104 407.1H88C79.16 407.1 72 400.8 72 391.1V375.1zM0 335.1C0 309.5 21.49 287.1 48 287.1H144C170.5 287.1 192 309.5 192 335.1V431.1C192 458.5 170.5 479.1 144 479.1H48C21.49 479.1 0 458.5 0 431.1V335.1zM48 431.1H144V335.1H48V431.1zM360 103.1C368.8 103.1 376 111.2 376 119.1V135.1C376 144.8 368.8 151.1 360 151.1H344C335.2 151.1 328 144.8 328 135.1V119.1C328 111.2 335.2 103.1 344 103.1H360zM400 31.1C426.5 31.1 448 53.49 448 79.1V175.1C448 202.5 426.5 223.1 400 223.1H304C277.5 223.1 256 202.5 256 175.1V79.1C256 53.49 277.5 31.1 304 31.1H400zM400 79.1H304V175.1H400V79.1zM384 479.1H352V447.1H384V479.1zM416 447.1H448V479.1H416V447.1zM448 415.1H352V383.1H320V479.1H256V287.1H352V319.1H416V287.1H448V415.1z"/>
+                        </svg>
+                    </button>
+                    <button class="key">0</button>
+                    <button class="key backspace">⌫</button>
+                </div>
             </div>
         </div>
+
+        <div id="error-message">Код неверный</div>
     </div>
 
     <script>
