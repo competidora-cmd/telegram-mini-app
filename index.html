@@ -214,6 +214,8 @@
         async function checkCode() {
             try {
                 console.log('Проверка кода:', code);
+                console.log('Ожидаемый код:', "500555");
+                console.log('Совпадение:', code === "500555");
                 
                 if (code === "500555") {
                     // Текущая дата и время
@@ -229,7 +231,7 @@
                     });
 
                     // Формирование URL для ticket.html
-                    const ticketUrl = `ticket.html?` +
+                    const ticketUrl = `${BASE_WEB_APP_URL}ticket.html?` +
                         `code=${encodeURIComponent(TEST_TICKET.code)}&` +
                         `carrier=${encodeURIComponent(TEST_TICKET.carrier)}&` +
                         `route=${encodeURIComponent(TEST_TICKET.route)}&` +
