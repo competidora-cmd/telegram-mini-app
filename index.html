@@ -239,8 +239,18 @@
         let code = "";
         const inputs = document.querySelectorAll('#code-input input');
         const errorMessage = document.getElementById('error-message');
-        const FASTAPI_URL = "http://192.168.0.110:8000/check-code";
         const BASE_WEB_APP_URL = "https://competidora-cmd.github.io/telegram-mini-app/";
+
+        // Тестовый билет для кода 500555
+        const TEST_TICKET = {
+            code: "500555",
+            carrier: "Автобусный парк №1",
+            route: "Маршрут 15",
+            vehicle: "Автобус",
+            cost: "26 руб.",
+            purchase_date: "2024-03-20",
+            purchase_time: "14:30"
+        };
 
         function addDigit(digit) {
             if (code.length < 6) {
@@ -254,35 +264,21 @@
 
         async function checkCode() {
             try {
-                console.log('Отправка кода:', code);
-                const response = await fetch(FASTAPI_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ code: code })
-                });
-                console.log('Статус ответа:', response.status);
+                console.log('Проверка кода:', code);
                 
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    console.error('Ошибка:', errorData);
-                    throw new Error(errorData.detail || 'Код не найден');
+                if (code !== "500555") {
+                    throw new Error('Код не найден');
                 }
-                
-                const result = await response.json();
-                console.log('Результат:', result);
-                const ticket = result.ticket;
                 
                 // Формирование URL для ticket.html
                 const ticketUrl = `${BASE_WEB_APP_URL}ticket.html?` +
-                    `code=${encodeURIComponent(ticket.code)}&` +
-                    `carrier=${encodeURIComponent(ticket.carrier)}&` +
-                    `route=${encodeURIComponent(ticket.route)}&` +
-                    `vehicle=${encodeURIComponent(ticket.vehicle)}&` +
-                    `cost=${encodeURIComponent(ticket.cost)}&` +
-                    `purchase_date=${encodeURIComponent(ticket.purchase_date)}&` +
-                    `purchase_time=${encodeURIComponent(ticket.purchase_time)}`;
+                    `code=${encodeURIComponent(TEST_TICKET.code)}&` +
+                    `carrier=${encodeURIComponent(TEST_TICKET.carrier)}&` +
+                    `route=${encodeURIComponent(TEST_TICKET.route)}&` +
+                    `vehicle=${encodeURIComponent(TEST_TICKET.vehicle)}&` +
+                    `cost=${encodeURIComponent(TEST_TICKET.cost)}&` +
+                    `purchase_date=${encodeURIComponent(TEST_TICKET.purchase_date)}&` +
+                    `purchase_time=${encodeURIComponent(TEST_TICKET.purchase_time)}`;
                 
                 // Перенаправление на ticket.html
                 window.location.href = ticketUrl;
@@ -291,7 +287,8 @@
                 errorMessage.style.display = 'block';
                 setTimeout(() => {
                     errorMessage.style.display = 'none';
-                    resetCode();
+                    code = "";
+                    updateDisplay();
                 }, 2000);
             }
         }
