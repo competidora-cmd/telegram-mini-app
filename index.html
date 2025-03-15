@@ -9,8 +9,8 @@
         body {
             font-family: Arial, sans-serif;
             text-align: center;
-            background-color: #FFFFFF;
-            color: #333333;
+            background-color: #1C2526;
+            color: #D3D7D9;
             padding: 0;
             margin: 0;
             display: flex;
@@ -24,7 +24,7 @@
             overflow: hidden;
         }
         #caption {
-            font-size: 28px;
+            font-size: 20px;
             font-weight: 500;
             margin: 24px 0;
             display: flex;
@@ -32,11 +32,12 @@
             justify-content: center;
             gap: 12px;
             padding: 0 20px;
+            color: #D3D7D9;
         }
         #caption svg {
-            width: 28px;
-            height: 28px;
-            fill: #333333;
+            width: 20px;
+            height: 20px;
+            fill: #D3D7D9;
         }
         #code-input {
             display: flex;
@@ -49,9 +50,9 @@
         }
         #code-input span {
             flex: 1;
-            position: relative;
-            aspect-ratio: 1;
-            background: #F5F5F5;
+            width: 40px;
+            height: 40px;
+            background: #2A2F31;
             border-radius: 8px;
             display: flex;
             align-items: center;
@@ -60,25 +61,26 @@
         #code-input input {
             width: 100%;
             height: 100%;
-            font-size: 24px;
+            font-size: 18px;
             font-weight: bold;
             text-align: center;
             border: none;
             background: none;
-            color: #333333;
+            color: #D3D7D9;
             outline: none;
             padding: 0;
             box-sizing: border-box;
             pointer-events: none;
+            readonly: true;
         }
         #code-input .has-value {
-            background: #E8E8E8;
+            background: #333;
         }
         .simple-keyboard {
             width: 100%;
             max-width: 300px;
             margin: 2vmin auto;
-            background-color: #F0F0F0;
+            background-color: #2A2F31;
             border-radius: 8px;
             padding: 8px;
             box-sizing: border-box;
@@ -98,8 +100,8 @@
             height: 60px;
             padding: 5px;
             font-size: 20px;
-            color: #333333;
-            background-color: #FFFFFF;
+            color: #D3D7D9;
+            background-color: #4A4E50;
             border: none;
             border-radius: 8px;
             cursor: pointer;
@@ -109,10 +111,10 @@
             justify-content: center;
             min-width: 60px;
             max-width: 80px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-sizing: border-box;
         }
         .hg-button:hover {
-            background-color: #E8E8E8;
+            background-color: #5A5E60;
         }
         .hg-functionBtn {
             flex-direction: column;
@@ -122,7 +124,7 @@
         .hg-functionBtn svg {
             width: 20px;
             height: 20px;
-            fill: #333333;
+            fill: #D3D7D9;
         }
         .hg-button span {
             display: flex;
@@ -130,6 +132,12 @@
             justify-content: center;
             width: 100%;
             height: 100%;
+        }
+        #error-message {
+            color: #FF5555;
+            font-size: 16px;
+            margin: 10px 0;
+            display: none;
         }
     </style>
 </head>
@@ -140,6 +148,7 @@
         </svg>
         Введите код с наклейки
     </div>
+    <div id="error-message">Код неверный</div>
     <div id="code-input">
         <span class="empty"><input readonly inputmode="none"></span>
         <span class="empty"><input readonly inputmode="none"></span>
@@ -181,14 +190,51 @@
     <script>
         let code = "";
         const inputs = document.querySelectorAll('#code-input input');
+        const errorMessage = document.getElementById('error-message');
+        const FASTAPI_URL = "http://localhost:8000/check-code";
+        const BASE_WEB_APP_URL = "https://competidora-cmd.github.io/telegram-mini-app/";
 
         function addDigit(digit) {
             if (code.length < 6) {
                 code += digit;
                 updateDisplay();
                 if (code.length === 6) {
-                    Telegram.WebApp.sendData(code);
+                    checkCode();
                 }
+            }
+        }
+
+        async function checkCode() {
+            try {
+                const response = await fetch(FASTAPI_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ code: code })
+                });
+                if (!response.ok) {
+                    throw new Error('Код не найден');
+                }
+                const result = await response.json();
+                const ticket = result.ticket;
+                // Формирование URL для ticket.html
+                const ticketUrl = `${BASE_WEB_APP_URL}ticket.html?` +
+                    `code=${encodeURIComponent(ticket.code)}&` +
+                    `carrier=${encodeURIComponent(ticket.carrier)}&` +
+                    `route=${encodeURIComponent(ticket.route)}&` +
+                    `vehicle=${encodeURIComponent(ticket.vehicle)}&` +
+                    `cost=${encodeURIComponent(ticket.cost)}&` +
+                    `purchase_date=${encodeURIComponent(ticket.purchase_date)}&` +
+                    `purchase_time=${encodeURIComponent(ticket.purchase_time)}`;
+                // Перенаправление на ticket.html
+                window.location.href = ticketUrl;
+            } catch (error) {
+                errorMessage.style.display = 'block';
+                setTimeout(() => {
+                    errorMessage.style.display = 'none';
+                    resetCode();
+                }, 2000);
             }
         }
 
