@@ -220,9 +220,10 @@
         }
 
         .route-name {
-            font-size: 16px;
-            font-weight: 500;
-            color: #000;
+            font-size: 14px;
+            font-weight: 400;
+            color: #999;
+            margin-bottom: 4px;
         }
 
         .route-number {
@@ -327,7 +328,6 @@
                     <div class="info-value" id="purchase-time">09:03</div>
                 </div>
             </div>
-            <div class="year-footer" id="vehicle-number">2028</div>
         </div>
 
         <div class="tab-content" id="control-content">
@@ -335,7 +335,6 @@
                 Для проверки билета покажите QR-код контролеру
             </div>
             <img id="qr-code" src="" alt="QR-код">
-            <div class="year-footer" id="vehicle-number-control">2028</div>
         </div>
     </div>
 
@@ -439,10 +438,6 @@
         document.getElementById('purchase-date').textContent = purchaseDate;
         document.getElementById('purchase-time').textContent = purchaseTime;
         
-        // Заполняем номер vehicle внизу страницы
-        document.getElementById('vehicle-number').textContent = vehicle;
-        document.getElementById('vehicle-number-control').textContent = vehicle;
-
         // Генерируем QR-код
         const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(code)}`;
         document.getElementById('qr-code').src = qrCodeUrl;
