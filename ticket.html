@@ -2,14 +2,16 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Городской Транспорт</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            touch-action: manipulation;
         }
 
         body {
@@ -33,6 +35,7 @@
             font-size: 24px;
             font-weight: bold;
             margin: 20px 0;
+            color: #E31E24;
         }
 
         .ticket-number {
@@ -98,37 +101,37 @@
 </head>
 <body>
     <div class="container">
-        <div class="timer">
-            Действует: 10 сек.
+        <div class="timer" id="countdown">
+            Действует: 15 сек.
         </div>
 
         <div class="ticket-number">
             <div class="icon">📄</div>
-            <span>965 724 424</span>
+            <span id="ticket-code"></span>
         </div>
 
         <div class="info-row">
             <div class="icon">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
-                    <path fill="currentColor" d="M319.7 352.5L224 416l-95.7-63.49C57.05 355.2 0 413.4 0 485.3C0 500.1 11.94 512 26.66 512H421.3C436.1 512 448 500.1 448 485.3C448 413.4 390.1 355.2 319.7 352.5zM50.69 464c8.043-31.21 33.37-55.43 65.56-61.89L209.5 464H50.69zM238.5 464l93.28-61.89c32.19 6.461 57.52 30.68 65.56 61.89H238.5zM78.54 102.4v44.04C119.1 164.9 169.4 176 224 176s104.9-11.08 145.5-29.55V102.4l21.96-22.3c4.564-4.635 7.129-10.93 7.129-17.48c0-11.35-7.602-21.24-18.44-23.99l-148.3-37.67c-5.096-1.295-10.43-1.295-15.52 0l-148.3 37.67C57.06 41.39 49.46 51.28 49.46 62.62c0 6.555 2.564 12.85 7.129 17.48L78.54 102.4zM161.7 72.85c3.969-7.875 13.56-11.09 21.47-7.156L224 86.13l40.84-20.44c7.938-3.969 17.5-.7505 21.47 7.156c3.938 7.906 .75 17.5-7.156 21.47l-48 23.1C228.9 119.4 226.4 120 224 120S219.1 119.4 216.8 118.3l-48-23.1C160.9 90.35 157.8 80.75 161.7 72.85zM224 272c-41.23 0-74.9-31.51-79.15-71.64C128.1 197.1 112 192.8 96.45 187.5C96.4 189.1 96 190.5 96 192c0 70.69 57.31 128 127.1 128s127.1-57.31 127.1-128c0-1.525-.358-2.941-.4108-4.453C336 192.8 319.9 197.1 303.2 200.4C298.9 240.5 265.2 272 224 272z"/>
+                    <path fill="currentColor" d="M319.7 352.5L224 416l-95.7-63.49C57.05 355.2 0 413.4 0 485.3C0 500.1 11.94 512 26.66 512H421.3C436.1 512 448 500.1 448 485.3C448 413.4 390.1 355.2 319.7 352.5zM50.69 464c8.043-31.21 33.37-55.43 65.56-61.89L209.5 464H50.69zM238.5 464l93.28-61.89c32.19 6.461 57.52 30.68 65.56 61.89H238.5z"/>
                 </svg>
             </div>
             <div>
                 <div class="label">Перевозчик</div>
-                <div class="value">ИП Патрин Н. Н.</div>
+                <div class="value" id="carrier"></div>
             </div>
         </div>
 
         <div class="info-row">
             <div class="icon">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
-                    <path fill="currentColor" d="M319.7 352.5L224 416l-95.7-63.49C57.05 355.2 0 413.4 0 485.3C0 500.1 11.94 512 26.66 512H421.3C436.1 512 448 500.1 448 485.3C448 413.4 390.1 355.2 319.7 352.5zM50.69 464c8.043-31.21 33.37-55.43 65.56-61.89L209.5 464H50.69zM238.5 464l93.28-61.89c32.19 6.461 57.52 30.68 65.56 61.89H238.5zM78.54 102.4v44.04C119.1 164.9 169.4 176 224 176s104.9-11.08 145.5-29.55V102.4l21.96-22.3c4.564-4.635 7.129-10.93 7.129-17.48c0-11.35-7.602-21.24-18.44-23.99l-148.3-37.67c-5.096-1.295-10.43-1.295-15.52 0l-148.3 37.67C57.06 41.39 49.46 51.28 49.46 62.62c0 6.555 2.564 12.85 7.129 17.48L78.54 102.4zM161.7 72.85c3.969-7.875 13.56-11.09 21.47-7.156L224 86.13l40.84-20.44c7.938-3.969 17.5-.7505 21.47 7.156c3.938 7.906 .75 17.5-7.156 21.47l-48 23.1C228.9 119.4 226.4 120 224 120S219.1 119.4 216.8 118.3l-48-23.1C160.9 90.35 157.8 80.75 161.7 72.85zM224 272c-41.23 0-74.9-31.51-79.15-71.64C128.1 197.1 112 192.8 96.45 187.5C96.4 189.1 96 190.5 96 192c0 70.69 57.31 128 127.1 128s127.1-57.31 127.1-128c0-1.525-.358-2.941-.4108-4.453C336 192.8 319.9 197.1 303.2 200.4C298.9 240.5 265.2 272 224 272z"/>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+                    <path fill="currentColor" d="M144 336C144 318.3 158.3 304 176 304C193.7 304 208 318.3 208 336C208 353.7 193.7 368 176 368C158.3 368 144 353.7 144 336zM368 336C368 318.3 382.3 304 400 304C417.7 304 432 318.3 432 336C432 353.7 417.7 368 400 368C382.3 368 368 353.7 368 336zM74.2 70.03C99.86 38.75 167.8 0 288 0C416.6 0 478 38.63 502.4 70.55C509.9 80.32 512 91.48 512 100.4V128C529.7 128 544 142.3 544 160V224C544 241.7 529.7 256 512 256V376C512 400.1 499.3 422.1 480 435.9V488C480 501.3 469.3 512 456 512C442.7 512 432 501.3 432 488V448H144V488C144 501.3 133.3 512 120 512C106.7 512 96 501.3 96 488V435.9C76.7 422.1 64 400.1 64 376V256C46.33 256 32 241.7 32 224V160C32 142.3 46.33 128 64 128V100.4C64 91.58 66.05 79.97 74.2 70.03zM363.7 96H461.2C445.4 78.89 399.2 48 288 48C185.8 48 133.8 78.27 115.5 96H212.3C217.8 86.44 228.2 80 240 80H336C347.8 80 358.2 86.44 363.7 96zM464 144H312V224H464V144zM112 224H264V144H112V224zM112 272V376C112 389.3 122.7 400 136 400H440C453.3 400 464 389.3 464 376V272H112z"></path>
                 </svg>
             </div>
             <div>
-                <div class="label">Красфарма (60 лет Октября) - Х/К</div>
-                <div class="value">Енисей</div>
-                <div class="value">p471тм124</div>
+                <div class="label">Маршрут</div>
+                <div class="value" id="route"></div>
+                <div class="value" id="vehicle"></div>
             </div>
         </div>
 
@@ -140,7 +143,7 @@
             </div>
             <div>
                 <div class="label">Стоимость</div>
-                <div class="value">1 шт., Полный, 44.00 ₽</div>
+                <div class="value" id="cost"></div>
             </div>
         </div>
 
@@ -148,7 +151,7 @@
             <div class="icon">📅</div>
             <div>
                 <div class="label">Дата покупки</div>
-                <div class="value">15 марта 2025 г.</div>
+                <div class="value" id="purchase-date"></div>
             </div>
         </div>
 
@@ -156,11 +159,56 @@
             <div class="icon">🕒</div>
             <div>
                 <div class="label">Время покупки</div>
-                <div class="value">09:03</div>
+                <div class="value" id="purchase-time"></div>
             </div>
         </div>
 
-        <button class="close-button">ЗАКРЫТЬ</button>
+        <button class="close-button" onclick="window.close()">ЗАКРЫТЬ</button>
     </div>
+
+    <script>
+        // Инициализация Telegram WebApp
+        const tg = window.Telegram.WebApp;
+        
+        // Получение параметров из URL
+        const urlParams = new URLSearchParams(window.location.search);
+        
+        // Заполнение данных билета
+        document.getElementById('ticket-code').textContent = urlParams.get('code') || '';
+        document.getElementById('carrier').textContent = urlParams.get('carrier') || '';
+        document.getElementById('route').textContent = urlParams.get('route') || '';
+        document.getElementById('vehicle').textContent = urlParams.get('vehicle') || '';
+        document.getElementById('cost').textContent = `1 шт., Полный, ${urlParams.get('cost') || ''} ₽`;
+        document.getElementById('purchase-date').textContent = urlParams.get('purchase_date') || '';
+        document.getElementById('purchase-time').textContent = urlParams.get('purchase_time') || '';
+
+        // Таймер обратного отсчета
+        let timeLeft = 15;
+        const countdownElement = document.getElementById('countdown');
+
+        const timer = setInterval(() => {
+            timeLeft--;
+            countdownElement.textContent = `Действует: ${timeLeft} сек.`;
+            
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                // Закрываем Mini App
+                tg.close();
+            }
+        }, 1000);
+
+        // Отключаем масштабирование
+        document.addEventListener('touchstart', function(event) {
+            if (event.touches.length > 1) {
+                event.preventDefault();
+            }
+        }, { passive: false });
+
+        document.addEventListener('touchend', function(event) {
+            if (event.touches.length > 1) {
+                event.preventDefault();
+            }
+        }, { passive: false });
+    </script>
 </body>
 </html>
