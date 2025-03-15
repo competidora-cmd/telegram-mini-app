@@ -223,12 +223,12 @@
             font-size: 14px;
             font-weight: 400;
             color: #999;
-            margin-bottom: 4px;
+            margin-bottom: 8px;
         }
 
         .route-number {
-            font-size: 16px;
-            font-weight: 500;
+            font-size: 20px;
+            font-weight: 600;
             color: #000;
             margin-top: 4px;
         }
@@ -424,15 +424,9 @@
         document.getElementById('ticket-number-tab').textContent = formatTicketNumber(code);
         document.getElementById('carrier').textContent = carrier;
         
-        // Разделяем маршрут на название и номер (если есть)
-        const routeParts = route.split(', ');
-        if (routeParts.length > 1) {
-            document.getElementById('route-name').textContent = routeParts[0];
-            document.getElementById('route-number').textContent = routeParts[1];
-        } else {
-            document.getElementById('route-name').textContent = route;
-            document.getElementById('route-number').textContent = vehicle;
-        }
+        // Устанавливаем маршрут в формате "номер, название маршрута"
+        document.getElementById('route-name').textContent = "6, Студенческий городок - Утиный плёс";
+        document.getElementById('route-number').textContent = vehicle;
         
         document.getElementById('cost').textContent = `1 шт., Полный, ${cost} ₽`;
         document.getElementById('purchase-date').textContent = purchaseDate;
