@@ -26,7 +26,7 @@
                 }
 
         body {
-                    background-color: #f5f5f5;
+                    background-color: white;
                     display: flex;
                     flex-direction: column;
                     min-height: 100vh;
@@ -35,13 +35,18 @@
                 .container {
                     max-width: 400px;
                     margin: 0 auto;
-                    padding: 16px;
+                    padding: 16px 16px 0 16px;
                     background-color: white;
-                    border-radius: 20px;
-                    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
+                    display: flex;
+                    flex-direction: column;
+                    min-height: 100vh;
+                }
+
+                .button-container {
+                    background-color: #f5f5f5;
+                    padding: 16px;
+                    margin: 0 -16px;
+                    margin-top: auto;
                 }
 
                 .tabs {
@@ -56,7 +61,11 @@
                     cursor: pointer;
                     color: #999;
                     position: relative;
-                    font-size: 16px;
+                    font-size: 18px;
+                }
+
+                .tab[data-tab="control"] {
+                    color: #000;
                 }
 
                 .tab.active {
@@ -107,9 +116,9 @@
 
                 .timer {
                     text-align: center;
-                    font-size: 24px;
-            font-weight: bold;
-                    margin-bottom: 20px;
+                    font-size: 28px;
+                    font-weight: bold;
+                    margin-bottom: 25px;
                     color: #000000;
                 }
 
@@ -138,27 +147,25 @@
 
                 .info-row .label {
                     color: #999;
-                    font-size: 14px;
-                    margin-bottom: 2px;
+                    font-size: 16px;
+                    margin-bottom: 4px;
                 }
 
                 .info-row .value {
-                    font-size: 16px;
+                    font-size: 18px;
                     font-weight: 500;
-            color: #000;
-        }
+                    color: #000;
+                }
 
                 .close-button {
                     background-color: #E31E24;
                     color: white;
                     border: none;
-                    padding: 12px;
+                    padding: 16px;
                     width: 100%;
                     border-radius: 8px;
-                    font-size: 14px;
+                    font-size: 16px;
                     font-weight: 500;
-                    margin-top: auto;
-                    margin-bottom: 0;
                     cursor: pointer;
                     text-transform: uppercase;
                 }
@@ -301,7 +308,9 @@
                     </div>
                 </div>
 
-                <button class="close-button" onclick="closeApp()">ЗАКРЫТЬ</button>
+                <div class="button-container">
+                    <button class="close-button" onclick="closeApp()">ЗАКРЫТЬ</button>
+                </div>
     </div>
 
             <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
