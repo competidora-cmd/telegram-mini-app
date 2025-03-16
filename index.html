@@ -409,12 +409,15 @@
                 let foundTicket = null;
                 for (const [routeId, routeData] of Object.entries(data.routes)) {
                     if (routeData.codes && routeData.codes[code]) {
+                        // Форматируем стоимость, убирая букву 'a' если она есть
+                        const formattedCost = routeData.cost.toString().replace(/^a/, '');
+                        
                         foundTicket = {
-                            code: formatTicketNumber(routeData.codes[code]),
-                            carrier: routeData.carrier,
-                            route: routeData.name,
-                            vehicle: routeData.vehicle,
-                            cost: routeData.cost,
+                            code: routeData.codes[code],
+                            carrier: routeData.carrier || 'Не указан',
+                            route: routeData.name || 'Не указан',
+                            vehicle: routeData.vehicle || 'Не указан',
+                            cost: formattedCost,
                             purchase_date: formatDate(appStartTime),
                             purchase_time: formatTime(appStartTime)
                         };
