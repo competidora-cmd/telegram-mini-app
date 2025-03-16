@@ -344,6 +344,80 @@
 
         }
 
+
+
+        .cost-selector {
+
+            display: flex;
+
+            gap: 12px;
+
+            margin-top: 8px;
+
+        }
+
+
+
+        .cost-option {
+
+            flex: 1;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            padding: 12px;
+
+            background: #F7F7F7;
+
+            border-radius: 10px;
+
+            cursor: pointer;
+
+            transition: all 0.2s;
+
+        }
+
+
+
+        .cost-option input {
+
+            display: none;
+
+        }
+
+
+
+        .cost-option span {
+
+            font-size: 17px;
+
+            color: #8E8E93;
+
+            transition: all 0.2s;
+
+        }
+
+
+
+        .cost-option input:checked + span {
+
+            color: #000;
+
+            font-weight: 500;
+
+        }
+
+
+
+        .cost-option:has(input:checked) {
+
+            background: rgba(227, 30, 36, 0.1);
+
+        }
+
     </style>
 
 </head>
@@ -388,6 +462,20 @@
                 <label for="vehicleNumber">Номер транспортного средства</label>
                 <input type="text" id="vehicleNumber" placeholder="например: р471тм124">
                 <div class="error" id="vehicleNumberError">Пожалуйста, укажите номер ТС</div>
+            </div>
+
+            <div class="form-group">
+                <label>Стоимость</label>
+                <div class="cost-selector">
+                    <label class="cost-option">
+                        <input type="radio" name="cost" value="44.00" checked>
+                        <span>44.00₽</span>
+                    </label>
+                    <label class="cost-option">
+                        <input type="radio" name="cost" value="40.00">
+                        <span>40.00₽</span>
+                    </label>
+                </div>
             </div>
 
             <button onclick="generateTicket()">Создать билет</button>
@@ -498,13 +586,16 @@
             const now = new Date();
             const routeNumber = document.getElementById('routeNumber').value;
             const routePath = document.getElementById('routePath').value;
+            const carrier = document.getElementById('carrier').value;
+            const vehicleNumber = document.getElementById('vehicleNumber').value;
+            const cost = document.querySelector('input[name="cost"]:checked').value;
 
             const ticketData = {
                 code: generateRandomTicketNumber(),
-                carrier: document.getElementById('carrier').value,
+                carrier: carrier,
                 route: `${routeNumber} ${routePath}`,
-                vehicle: document.getElementById('vehicleNumber').value,
-                cost: "44.00",
+                vehicle: vehicleNumber,
+                cost: cost,
                 purchase_date: formatDate(now),
                 purchase_time: formatTime(now)
             };
