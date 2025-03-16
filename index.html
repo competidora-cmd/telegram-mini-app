@@ -228,7 +228,7 @@
 
         async function checkCode() {
             try {
-                const response = await fetch('https://competidora-cmd.github.io/telegram-mini-app/check-code', {
+                const response = await fetch('http://localhost:8000/check-code', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
