@@ -701,19 +701,27 @@
 
         // Заполняем данные билета
 
-        document.getElementById('ticket-number').textContent = urlParams.get('code');
+        document.getElementById('ticket-number-tab').textContent = urlParams.get('code');
 
         document.getElementById('carrier-name').textContent = urlParams.get('carrier');
 
         document.getElementById('route-name').textContent = urlParams.get('route');
 
-        document.getElementById('vehicle-number').textContent = urlParams.get('vehicle');
+        document.getElementById('vehicle').textContent = urlParams.get('vehicle');
 
         document.getElementById('ticket-cost').textContent = `1 шт., Полный - ${urlParams.get('cost')}₽`;
 
         document.getElementById('purchase-date').textContent = urlParams.get('purchase_date');
 
         document.getElementById('purchase-time').textContent = urlParams.get('purchase_time');
+
+
+
+        // Генерируем QR-код
+
+        const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(urlParams.get('code'))}`;
+
+        document.getElementById('qr-code').src = qrCodeUrl;
 
 
 
@@ -779,11 +787,7 @@
 
         document.getElementById('close-button').addEventListener('click', () => {
 
-            if (window.Telegram && window.Telegram.WebApp) {
-
-                window.Telegram.WebApp.close();
-
-            }
+            window.location.href = 'index.html';
 
         });
 
