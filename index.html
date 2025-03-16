@@ -502,7 +502,9 @@
 
                 } else {
 
-                    showError('Неверный код');
+                    const errorData = await response.json();
+
+                    showError(errorData.detail || 'Неверный код');
 
                 }
 
@@ -510,7 +512,15 @@
 
                 console.error('Ошибка:', error);
 
-                showError('Произошла ошибка');
+                if (!window.navigator.onLine) {
+
+                    showError('Нет подключения к интернету');
+
+                } else {
+
+                    showError('Неверный код');
+
+                }
 
             }
 
@@ -544,7 +554,7 @@
 
                 }, 300);
 
-            }, 1000);
+            }, 2000);
 
         }
 
