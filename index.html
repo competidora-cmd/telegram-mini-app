@@ -673,72 +673,71 @@
         let tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Переключение вкладок
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                
-                tab.classList.add('active');
-                document.getElementById(`${tab.dataset.tab}-content`).classList.add('active');
-
-                if (tab.dataset.tab === 'saved') {
-                    loadSavedTickets();
-                }
-            });
-        });
-
+        // Функция генерации случайного номера билета
         function generateRandomTicketNumber() {
-            const num = Math.floor(100000000 + Math.random() * 900000000).toString();
-            return `${num.slice(0, 3)} ${num.slice(3, 6)} ${num.slice(6)}`;
+            return Math.floor(Math.random() * 900000000 + 100000000).toString();
         }
 
+        // Форматирование даты
         function formatDate(date) {
-            const day = String(date.getDate()).padStart(2, '0');
-            const month = date.toLocaleString('ru', { month: 'long' });
+            const day = date.getDate().toString().padStart(2, '0');
+            const months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+            const month = months[date.getMonth()];
             const year = date.getFullYear();
             return `${day} ${month} ${year} г.`;
         }
 
+        // Форматирование времени
         function formatTime(date) {
-            return date.toLocaleTimeString('ru', { hour: '2-digit', minute: '2-digit' });
+            return date.toTimeString().slice(0, 5);
         }
 
-        function validateForm() {
+        // Создание билета
+        function generateTicket() {
             const routeNumber = document.getElementById('routeNumber').value;
-            const routePath = document.getElementById('routePath').value;
             const carrier = document.getElementById('carrier').value;
-            const vehicleNumber = document.getElementById('vehicleNumber').value;
+            const route = document.getElementById('route').value;
+            const vehicle = document.getElementById('vehicle').value;
+            const cost = document.querySelector('input[name="cost"]:checked').value;
 
-            let isValid = true;
-            document.querySelectorAll('.error').forEach(error => error.style.display = 'none');
-
-            if (!routeNumber || routeNumber < 1 || routeNumber > 99) {
-                document.getElementById('routeNumberError').style.display = 'block';
-                isValid = false;
-            }
-            if (!routePath.trim()) {
-                document.getElementById('routePathError').style.display = 'block';
-                isValid = false;
-            }
-            if (!carrier.trim()) {
-                document.getElementById('carrierError').style.display = 'block';
-                isValid = false;
-            }
-            if (!vehicleNumber.trim()) {
-                document.getElementById('vehicleNumberError').style.display = 'block';
-                isValid = false;
+            if (!routeNumber || !carrier || !route || !vehicle) {
+                alert('Пожалуйста, заполните все поля');
+                return;
             }
 
-            return isValid;
-        }
+            if (routeNumber < 1 || routeNumber > 99) {
+                alert('Номер маршрута должен быть от 1 до 99');
+                return;
+            }
 
-        function saveTicket(ticketData) {
+            const now = new Date();
+            const ticketData = {
+                code: generateRandomTicketNumber(),
+                routeNumber: routeNumber,
+                carrier: carrier,
+                route: route,
+                vehicle: vehicle,
+                cost: cost,
+                purchase_date: formatDate(now),
+                purchase_time: formatTime(now)
+            };
+
+            // Сохраняем билет
             let savedTickets = JSON.parse(localStorage.getItem('savedTickets') || '[]');
             savedTickets.push(ticketData);
             localStorage.setItem('savedTickets', JSON.stringify(savedTickets));
+
+            // Формируем URL для ticket.html
+            const params = new URLSearchParams();
+            Object.entries(ticketData).forEach(([key, value]) => {
+                params.append(key, value);
+            });
+
+            // Открываем билет
+            window.location.href = 'ticket.html?' + params.toString();
         }
 
+        // Загрузка сохраненных билетов
         function loadSavedTickets() {
             const savedTickets = JSON.parse(localStorage.getItem('savedTickets') || '[]');
             const container = document.getElementById('saved-tickets-list');
@@ -782,11 +781,26 @@
             });
         }
 
+        // Открытие сохраненного билета
+        function openSavedTicket(index) {
+            const savedTickets = JSON.parse(localStorage.getItem('savedTickets') || '[]');
+            const ticket = savedTickets[index];
+            
+            const params = new URLSearchParams();
+            Object.entries(ticket).forEach(([key, value]) => {
+                params.append(key, value);
+            });
+
+            window.location.href = 'ticket.html?' + params.toString();
+        }
+
+        // Переключение формы редактирования
         function toggleEditForm(index) {
             const form = document.getElementById(`edit-form-${index}`);
             form.classList.toggle('active');
         }
 
+        // Сохранение отредактированного билета
         function saveEditedTicket(index) {
             const savedTickets = JSON.parse(localStorage.getItem('savedTickets') || '[]');
             const ticket = savedTickets[index];
@@ -808,69 +822,24 @@
             toggleEditForm(index);
         }
 
-        function generateTicket() {
-            const routeNumber = document.getElementById('routeNumber').value;
-            const carrier = document.getElementById('carrier').value;
-            const route = document.getElementById('route').value;
-            const vehicle = document.getElementById('vehicle').value;
-            const cost = document.querySelector('input[name="cost"]:checked').value;
-
-            if (!routeNumber || !carrier || !route || !vehicle) {
-                alert('Пожалуйста, заполните все поля');
-                return;
-            }
-
-            if (routeNumber < 1 || routeNumber > 99) {
-                alert('Номер маршрута должен быть от 1 до 99');
-                return;
-            }
-
-            const now = new Date();
-            const ticketData = {
-                code: generateRandomTicketNumber(),
-                routeNumber: routeNumber,
-                carrier: carrier,
-                route: route,
-                vehicle: vehicle,
-                cost: cost,
-                purchase_date: formatDate(now),
-                purchase_time: formatTime(now)
-            };
-
-            // Сохраняем билет
-            let savedTickets = JSON.parse(localStorage.getItem('savedTickets') || '[]');
-            savedTickets.push(ticketData);
-            localStorage.setItem('savedTickets', JSON.stringify(savedTickets));
-
-            // Открываем билет
-            const params = new URLSearchParams({
-                code: ticketData.code,
-                carrier: ticketData.carrier,
-                route: ticketData.route,
-                vehicle: ticketData.vehicle,
-                cost: ticketData.cost,
-                purchase_date: ticketData.purchase_date,
-                purchase_time: ticketData.purchase_time
+        // Переключение вкладок
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.tab + '-content').classList.add('active');
+                
+                if (tab.dataset.tab === 'saved') {
+                    loadSavedTickets();
+                }
             });
+        });
 
-            window.location.href = `ticket.html?${params.toString()}`;
-        }
-
-        function openSavedTicket(index) {
-            const savedTickets = JSON.parse(localStorage.getItem('savedTickets') || '[]');
-            const ticket = savedTickets[index];
-            
-            const params = new URLSearchParams({
-                code: ticket.code,
-                carrier: ticket.carrier,
-                route: ticket.route,
-                vehicle: ticket.vehicle,
-                cost: ticket.cost,
-                purchase_date: ticket.purchase_date,
-                purchase_time: ticket.purchase_time
-            });
-
-            window.location.href = `ticket.html?${params.toString()}`;
+        // Загрузка сохраненных билетов при старте
+        if (document.querySelector('.tab[data-tab="saved"]').classList.contains('active')) {
+            loadSavedTickets();
         }
     </script>
 </body>
