@@ -56,18 +56,23 @@
             border-bottom: 1px solid #E0E0E0;
             margin-bottom: 15px;
             padding: 0 16px;
+            justify-content: center;
         }
 
         .tab {
-            padding: 12px 0;
-            margin-right: 24px;
+            padding: 16px 0;
+            margin-right: 32px;
             text-align: center;
             cursor: pointer;
             color: #999;
             position: relative;
-            font-size: 16px;
+            font-size: 18px;
             display: flex;
             align-items: center;
+        }
+
+        .tab:last-child {
+            margin-right: 0;
         }
 
         .tab.active {
@@ -79,7 +84,7 @@
         }
 
         .tab span {
-            font-size: 16px;
+            font-size: 18px;
             font-weight: 500;
         }
 
@@ -123,14 +128,14 @@
 
         .info-row {
             display: flex;
-            padding: 16px 0;
+            padding: 20px 0;
             border-bottom: 1px solid #E0E0E0;
         }
 
         .info-icon {
-            width: 24px;
-            height: 24px;
-            margin-right: 16px;
+            width: 28px;
+            height: 28px;
+            margin-right: 20px;
             color: #000;
             display: flex;
             align-items: center;
@@ -143,13 +148,13 @@
 
         .info-label {
             color: #999;
-            font-size: 14px;
-            margin-bottom: 4px;
+            font-size: 16px;
+            margin-bottom: 6px;
         }
 
         .info-value {
             color: #000;
-            font-size: 16px;
+            font-size: 18px;
             font-weight: 500;
         }
 
@@ -191,9 +196,9 @@
         }
 
         .tab-icon {
-            width: 20px;
-            height: 20px;
-            margin-right: 8px;
+            width: 24px;
+            height: 24px;
+            margin-right: 12px;
         }
 
         .tab-icon svg {
@@ -208,8 +213,8 @@
         .icon-rub svg,
         .icon-calendar svg,
         .icon-clock svg {
-            width: 24px;
-            height: 24px;
+            width: 28px;
+            height: 28px;
             fill: currentColor;
         }
 
@@ -220,14 +225,14 @@
         }
 
         .route-name {
-            font-size: 14px;
+            font-size: 16px;
             font-weight: 400;
             color: #999;
             margin-bottom: 8px;
         }
 
         .route-number {
-            font-size: 20px;
+            font-size: 22px;
             font-weight: 600;
             color: #000;
             margin-top: 4px;
@@ -351,7 +356,7 @@
         const GITHUB_REPO = "competidora-cmd/telegram-mini-app";
         const GITHUB_BRANCH = "main";
 
-        // Проверяем обновления при запуске
+        // Тихая проверка обновлений при запуске
         checkForUpdates();
 
         // Функция для проверки обновлений с GitHub
@@ -362,7 +367,8 @@
                 // Получаем последний коммит в репозитории
                 const response = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/commits/${GITHUB_BRANCH}`);
                 if (!response.ok) {
-                    throw new Error('Не удалось получить информацию о последнем коммите');
+                    console.log('Не удалось получить информацию о последнем коммите');
+                    return;
                 }
                 
                 const commitData = await response.json();
@@ -372,20 +378,14 @@
                 const savedCommitSha = localStorage.getItem('lastCommitSha');
                 
                 if (savedCommitSha !== lastCommitSha) {
-                    console.log('Обнаружены обновления, синхронизация...');
-                    
-                    // Сохраняем новый SHA
+                    console.log('Обнаружены обновления, тихая синхронизация...');
                     localStorage.setItem('lastCommitSha', lastCommitSha);
-                    
-                    // Если есть обновления, перезагружаем страницу для получения последней версии
-                    if (confirm('Доступна новая версия приложения. Обновить сейчас?')) {
-                        window.location.reload(true);
-                    }
+                    window.location.reload(true);
                 } else {
                     console.log('Обновлений нет, используется последняя версия');
                 }
             } catch (error) {
-                console.error('Ошибка при проверке обновлений:', error);
+                console.log('Ошибка при проверке обновлений:', error);
             }
         }
 
@@ -393,7 +393,7 @@
         const urlParams = new URLSearchParams(window.location.search);
         const code = urlParams.get('code') || '965724424';
         const carrier = urlParams.get('carrier') || 'ИП Патрин Н. Н.';
-        const route = urlParams.get('route') || 'Красфарма (60 лет Октября) - Х/К Енисей';
+        const route = urlParams.get('route') || '6, Студенческий городок - Утиный плёс';
         const vehicle = urlParams.get('vehicle') || 'р471тм124';
         const cost = urlParams.get('cost') || '44.00';
         
@@ -425,7 +425,7 @@
         document.getElementById('carrier').textContent = carrier;
         
         // Устанавливаем маршрут в формате "номер, название маршрута"
-        document.getElementById('route-name').textContent = "6, Студенческий городок - Утиный плёс";
+        document.getElementById('route-name').textContent = route;
         document.getElementById('route-number').textContent = vehicle;
         
         document.getElementById('cost').textContent = `1 шт., Полный, ${cost} ₽`;
@@ -475,7 +475,6 @@
                 setTimeout(updateCountdown, 1000);
             } else {
                 countdownElement.textContent = 'Время истекло';
-                // Закрываем приложение через 1 секунду после истечения времени
                 setTimeout(() => {
                     if (window.Telegram && window.Telegram.WebApp) {
                         window.Telegram.WebApp.close();
