@@ -6,7 +6,7 @@
 
     <meta charset="UTF-8">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
 
     <title>Городской Транспорт</title>
 
@@ -26,41 +26,23 @@
 
             -webkit-tap-highlight-color: transparent;
 
-            -webkit-touch-callout: none;
-
-            -webkit-user-select: none;
-
-            user-select: none;
-
-        }
-
-
-
-        html, body {
-
-            overflow: hidden;
-
-            position: fixed;
-
-            width: 100%;
-
-            height: 100%;
-
-            background-color: white;
-
-            -webkit-text-size-adjust: none;
-
         }
 
 
 
         body {
 
+            background: #fff;
+
+            min-height: 100vh;
+
+            padding: 20px;
+
+            margin: 0;
+
             display: flex;
 
             flex-direction: column;
-
-            min-height: 100vh;
 
         }
 
@@ -68,35 +50,11 @@
 
         .container {
 
+            max-width: 600px;
+
+            margin: 0 auto;
+
             width: 100%;
-
-            padding: 0;
-
-            background-color: white;
-
-            display: flex;
-
-            flex-direction: column;
-
-            flex: 1;
-
-            overflow-y: auto;
-
-            padding-bottom: calc(80px + env(safe-area-inset-bottom));
-
-        }
-
-
-
-        .timer {
-
-            text-align: center;
-
-            font-size: 32px;
-
-            margin: 20px 0;
-
-            color: #000;
 
         }
 
@@ -106,13 +64,9 @@
 
             display: flex;
 
+            margin-bottom: 20px;
+
             border-bottom: 1px solid #E0E0E0;
-
-            margin-bottom: 16px;
-
-            padding: 0 16px;
-
-            justify-content: center;
 
         }
 
@@ -122,15 +76,9 @@
 
             flex: 1;
 
-            padding: 16px 0;
+            padding: 16px;
 
-            display: flex;
-
-            align-items: center;
-
-            justify-content: center;
-
-            gap: 8px;
+            text-align: center;
 
             color: #8E8E93;
 
@@ -170,21 +118,9 @@
 
 
 
-        .tab-icon {
-
-            width: 24px;
-
-            height: 24px;
-
-        }
-
-
-
         .tab-content {
 
             display: none;
-
-            padding: 0 16px;
 
         }
 
@@ -198,65 +134,21 @@
 
 
 
-        .info-row {
+        .form-group {
 
-            display: flex;
-
-            align-items: center;
-
-            padding: 16px 0;
-
-            border-bottom: 1px solid #E0E0E0;
+            margin-bottom: 20px;
 
         }
 
 
 
-        .info-row:last-child {
+        label {
 
-            border-bottom: none;
+            display: block;
 
-        }
+            margin-bottom: 8px;
 
-
-
-        .info-icon {
-
-            width: 24px;
-
-            height: 24px;
-
-            margin-right: 12px;
-
-            color: #8E8E93;
-
-        }
-
-
-
-        .info-content {
-
-            flex: 1;
-
-        }
-
-
-
-        .info-label {
-
-            font-size: 15px;
-
-            color: #8E8E93;
-
-            margin-bottom: 4px;
-
-        }
-
-
-
-        .info-value {
-
-            font-size: 17px;
+            font-weight: 500;
 
             color: #000;
 
@@ -264,39 +156,99 @@
 
 
 
-        .ticket-number {
+        input, select {
 
-            color: #E31E24;
+            width: 100%;
 
-            font-size: 20px;
+            padding: 12px;
 
-            font-weight: 500;
+            border: 1.5px solid #D1D1D6;
+
+            border-radius: 12px;
+
+            font-size: 16px;
+
+            background: #fff;
 
         }
 
 
 
-        .close-button {
+        input:focus, select:focus {
 
-            position: fixed;
+            outline: none;
 
-            bottom: 16px;
+            border-color: #E31E24;
 
-            left: 16px;
+        }
 
-            right: 16px;
 
-            background: #E31E24;
 
-            color: white;
+        button {
 
-            border: none;
+            width: 100%;
 
             padding: 16px;
 
-            border-radius: 14px;
+            background: #E31E24;
 
-            font-size: 17px;
+            border: none;
+
+            border-radius: 12px;
+
+            color: white;
+
+            font-size: 16px;
+
+            font-weight: 500;
+
+            cursor: pointer;
+
+            margin-top: 20px;
+
+        }
+
+
+
+        .error {
+
+            color: #E31E24;
+
+            font-size: 14px;
+
+            margin-top: 4px;
+
+            display: none;
+
+        }
+
+
+
+        .saved-tickets {
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 12px;
+
+        }
+
+
+
+        .ticket-item {
+
+            background: #F7F7F9;
+
+            border-radius: 12px;
+
+            padding: 16px;
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
 
             cursor: pointer;
 
@@ -304,77 +256,41 @@
 
 
 
-        #qr-code {
+        .ticket-info {
 
-            width: 240px;
-
-            height: 240px;
-
-            margin: 20px auto;
-
-            display: block;
+            flex: 1;
 
         }
 
 
 
-        .control-info {
-
-            text-align: center;
-
-            margin: 20px 0;
-
-            color: #000;
+        .ticket-number {
 
             font-size: 17px;
 
-        }
-
-
-
-        .vehicle-number {
-
-            font-size: 24px;
-
             font-weight: 500;
 
-            margin-top: 4px;
+            color: #000;
+
+            margin-bottom: 4px;
 
         }
 
 
 
-        .info-label {
+        .ticket-route {
 
             font-size: 15px;
 
             color: #8E8E93;
 
-            margin-bottom: 4px;
-
-            line-height: 1.3;
-
         }
 
 
 
-        .route-info {
+        .ticket-arrow {
 
-            padding: 8px 0;
-
-        }
-
-
-
-        .vehicle-number {
-
-            font-size: 28px;
-
-            font-weight: 500;
-
-            margin-top: 8px;
-
-            letter-spacing: 1px;
+            color: #8E8E93;
 
         }
 
@@ -383,303 +299,173 @@
 </head>
 
 <body>
-
     <div class="container">
-
-        <div class="timer" id="timer">Действует: 15 сек.</div>
-
-
-
         <div class="tabs">
-
-            <div class="tab active" data-tab="ticket">
-
-                <div class="tab-icon">
-
-                    <svg viewBox="0 0 576 512" xmlns="http://www.w3.org/2000/svg">
-
-                        <path fill="currentColor" d="M320 48H63.1C55.16 48 47.1 55.16 47.1 64V448C47.1 456.8 55.16 464 63.1 464H284.5C296.5 482.4 311.9 498.5 329.7 511.3C326.6 511.7 323.3 512 320 512H64C28.65 512 0 483.3 0 448V64C0 28.65 28.65 0 64 0H320C355.3 0 384 28.65 384 64V198.6C366.8 203.5 350.6 210.9 336 220.5V63.1C336 55.16 328.8 47.1 320 47.1L320 48zM95.1 152C95.1 138.7 106.7 128 119.1 128H263.1C277.3 128 287.1 138.7 287.1 152C287.1 165.3 277.3 176 263.1 176H119.1C106.7 176 95.1 165.3 95.1 152zM263.1 224C277.3 224 287.1 234.7 287.1 248C287.1 261.3 277.3 272 263.1 272H119.1C106.7 272 95.1 261.3 95.1 248C95.1 234.7 106.7 224 119.1 224H263.1zM167.1 320C181.3 320 191.1 330.7 191.1 344C191.1 357.3 181.3 368 167.1 368H119.1C106.7 368 95.1 357.3 95.1 344C95.1 330.7 106.7 320 119.1 320H167.1zM576 368C576 447.5 511.5 512 432 512C352.5 512 287.1 447.5 287.1 368C287.1 288.5 352.5 224 432 224C511.5 224 576 288.5 576 368zM476.7 324.7L416 385.4L387.3 356.7C381.1 350.4 370.9 350.4 364.7 356.7C358.4 362.9 358.4 373.1 364.7 379.3L404.7 419.3C410.9 425.6 421.1 425.6 427.3 419.3L499.3 347.3C505.6 341.1 505.6 330.9 499.3 324.7C493.1 318.4 482.9 318.4 476.7 324.7H476.7z"/>
-
-                    </svg>
-
-                </div>
-
-                <span class="ticket-number" id="ticket-number"></span>
-
-            </div>
-
-            <div class="tab" data-tab="control">
-
-                <div class="tab-icon">
-
-                    <svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg">
-
-                        <path fill="currentColor" d="M319.7 352.5L224 416l-95.7-63.49C57.05 355.2 0 413.4 0 485.3C0 500.1 11.94 512 26.66 512H421.3C436.1 512 448 500.1 448 485.3C448 413.4 390.1 355.2 319.7 352.5zM50.69 464c8.043-31.21 33.37-55.43 65.56-61.89L209.5 464H50.69zM238.5 464l93.28-61.89c32.19 6.461 57.52 30.68 65.56 61.89H238.5zM78.54 102.4v44.04C119.1 164.9 169.4 176 224 176s104.9-11.08 145.5-29.55V102.4l21.96-22.3c4.564-4.635 7.129-10.93 7.129-17.48c0-11.35-7.602-21.24-18.44-23.99l-148.3-37.67c-5.096-1.295-10.43-1.295-15.52 0l-148.3 37.67C57.06 41.39 49.46 51.28 49.46 62.62c0 6.555 2.564 12.85 7.129 17.48L78.54 102.4zM161.7 72.85c3.969-7.875 13.56-11.09 21.47-7.156L224 86.13l40.84-20.44c7.938-3.969 17.5-.7505 21.47 7.156c3.938 7.906 .75 17.5-7.156 21.47l-48 23.1C228.9 119.4 226.4 120 224 120S219.1 119.4 216.8 118.3l-48-23.1C160.9 90.35 157.8 80.75 161.7 72.85zM224 272c-41.23 0-74.9-31.51-79.15-71.64C128.1 197.1 112 192.8 96.45 187.5C96.4 189.1 96 190.5 96 192c0 70.69 57.31 128 127.1 128s127.1-57.31 127.1-128c0-1.525-.358-2.941-.4108-4.453C336 192.8 319.9 197.1 303.2 200.4C298.9 240.5 265.2 272 224 272z"/>
-
-                    </svg>
-
-                </div>
-
-                <span>Контроль</span>
-
-            </div>
-
+            <div class="tab active" data-tab="constructor">Конструктор</div>
+            <div class="tab" data-tab="saved">Сохраненные</div>
         </div>
 
-
-
-        <div class="tab-content active" id="ticket-content">
-
-            <div class="info-row">
-
-                <div class="info-icon">
-
-                    <svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg">
-
-                        <path fill="currentColor" d="M319.7 352.5L224 416l-95.7-63.49C57.05 355.2 0 413.4 0 485.3C0 500.1 11.94 512 26.66 512H421.3C436.1 512 448 500.1 448 485.3C448 413.4 390.1 355.2 319.7 352.5zM50.69 464c8.043-31.21 33.37-55.43 65.56-61.89L209.5 464H50.69zM238.5 464l93.28-61.89c32.19 6.461 57.52 30.68 65.56 61.89H238.5zM78.54 102.4v44.04C119.1 164.9 169.4 176 224 176s104.9-11.08 145.5-29.55V102.4l21.96-22.3c4.564-4.635 7.129-10.93 7.129-17.48c0-11.35-7.602-21.24-18.44-23.99l-148.3-37.67c-5.096-1.295-10.43-1.295-15.52 0l-148.3 37.67C57.06 41.39 49.46 51.28 49.46 62.62c0 6.555 2.564 12.85 7.129 17.48L78.54 102.4zM161.7 72.85c3.969-7.875 13.56-11.09 21.47-7.156L224 86.13l40.84-20.44c7.938-3.969 17.5-.7505 21.47 7.156c3.938 7.906 .75 17.5-7.156 21.47l-48 23.1C228.9 119.4 226.4 120 224 120S219.1 119.4 216.8 118.3l-48-23.1C160.9 90.35 157.8 80.75 161.7 72.85zM224 272c-41.23 0-74.9-31.51-79.15-71.64C128.1 197.1 112 192.8 96.45 187.5C96.4 189.1 96 190.5 96 192c0 70.69 57.31 128 127.1 128s127.1-57.31 127.1-128c0-1.525-.358-2.941-.4108-4.453C336 192.8 319.9 197.1 303.2 200.4C298.9 240.5 265.2 272 224 272z"/>
-
-                    </svg>
-
-                </div>
-
-                <div class="info-content">
-
-                    <div class="info-label">Перевозчик</div>
-
-                    <div class="info-value" id="carrier"></div>
-
-                </div>
-
+        <div class="tab-content active" id="constructor-content">
+            <div class="form-group">
+                <label for="routeNumber">Номер маршрута</label>
+                <input type="number" id="routeNumber" min="1" max="99" placeholder="Введите номер (1-99)">
+                <div class="error" id="routeNumberError">Номер маршрута должен быть от 1 до 99</div>
             </div>
 
-
-
-            <div class="info-row">
-
-                <div class="info-icon">
-
-                    <svg viewBox="0 0 544 512" xmlns="http://www.w3.org/2000/svg">
-
-                        <path fill="currentColor" d="M144 336C144 318.3 158.3 304 176 304C193.7 304 208 318.3 208 336C208 353.7 193.7 368 176 368C158.3 368 144 353.7 144 336zM368 336C368 318.3 382.3 304 400 304C417.7 304 432 318.3 432 336C432 353.7 417.7 368 400 368C382.3 368 368 353.7 368 336zM74.2 70.03C99.86 38.75 167.8 0 288 0C416.6 0 478 38.63 502.4 70.55C509.9 80.32 512 91.48 512 100.4V128C529.7 128 544 142.3 544 160V224C544 241.7 529.7 256 512 256V376C512 400.1 499.3 422.1 480 435.9V488C480 501.3 469.3 512 456 512C442.7 512 432 501.3 432 488V448H144V488C144 501.3 133.3 512 120 512C106.7 512 96 501.3 96 488V435.9C76.7 422.1 64 400.1 64 376V256C46.33 256 32 241.7 32 224V160C32 142.3 46.33 128 64 128V100.4C64 91.58 66.05 79.97 74.2 70.03zM363.7 96H461.2C445.4 78.89 399.2 48 288 48C185.8 48 133.8 78.27 115.5 96H212.3C217.8 86.44 228.2 80 240 80H336C347.8 80 358.2 86.44 363.7 96zM464 144H312V224H464V144zM112 224H264V144H112V224zM112 272V376C112 389.3 122.7 400 136 400H440C453.3 400 464 389.3 464 376V272H112z"/>
-
-                    </svg>
-
-                </div>
-
-                <div class="info-content route-info">
-
-                    <div class="info-label" id="route"></div>
-
-                    <div class="info-value vehicle-number" id="vehicle"></div>
-
-                </div>
-
+            <div class="form-group">
+                <label for="routePath">Маршрут</label>
+                <input type="text" id="routePath" placeholder="например: Красфарма (60 лет Октября) - Х/К Енисей">
+                <div class="error" id="routePathError">Пожалуйста, укажите маршрут</div>
             </div>
 
-
-
-            <div class="info-row">
-
-                <div class="info-icon">
-
-                    <svg viewBox="0 0 384 512" xmlns="http://www.w3.org/2000/svg">
-
-                        <path fill="currentColor" d="M240 32C319.5 32 384 96.47 384 176C384 255.5 319.5 320 240 320H112V368H296C309.3 368 320 378.7 320 392C320 405.3 309.3 416 296 416H112V456C112 469.3 101.3 480 88 480C74.75 480 64 469.3 64 456V416H24C10.75 416 0 405.3 0 392C0 378.7 10.75 368 24 368H64V320H24C10.75 320 0 309.3 0 296C0 282.7 10.75 272 24 272H64V79.31C64 53.18 85.18 32 111.3 32H240zM336 176C336 122.1 293 80 240 80H112V272H240C293 272 336 229 336 176z"/>
-
-                    </svg>
-
-                </div>
-
-                <div class="info-content">
-
-                    <div class="info-label">Стоимость</div>
-
-                    <div class="info-value" id="cost"></div>
-
-                </div>
-
+            <div class="form-group">
+                <label for="carrier">Перевозчик</label>
+                <input type="text" id="carrier" placeholder="например: ИП Патрин Н. Н.">
+                <div class="error" id="carrierError">Пожалуйста, укажите перевозчика</div>
             </div>
 
-
-
-            <div class="info-row">
-
-                <div class="info-icon">
-
-                    <svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg">
-
-                        <path fill="currentColor" d="M128 0c17.7 0 32 14.3 32 32V64H288V32c0-17.7 14.3-32 32-32s32 14.3 32 32V64h48c26.5 0 48 21.5 48 48v48H0V112C0 85.5 21.5 64 48 64H96V32c0-17.7 14.3-32 32-32zM0 192H448V464c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V192zm64 80v32c0 8.8 7.2 16 16 16h32c8.8 0 16-7.2 16-16V272c0-8.8-7.2-16-16-16H80c-8.8 0-16 7.2-16 16zm128 0v32c0 8.8 7.2 16 16 16h32c8.8 0 16-7.2 16-16V272c0-8.8-7.2-16-16-16H208c-8.8 0-16 7.2-16 16zm144-16c-8.8 0-16 7.2-16 16v32c0 8.8 7.2 16 16 16h32c8.8 0 16-7.2 16-16V272c0-8.8-7.2-16-16-16H336zM64 400v32c0 8.8 7.2 16 16 16h32c8.8 0 16-7.2 16-16V400c0-8.8-7.2-16-16-16H80c-8.8 0-16 7.2-16 16zm144-16c-8.8 0-16 7.2-16 16v32c0 8.8 7.2 16 16 16h32c8.8 0 16-7.2 16-16V400c0-8.8-7.2-16-16-16H208zm144 0c-8.8 0-16 7.2-16 16v32c0 8.8 7.2 16 16 16h32c8.8 0 16-7.2 16-16V400c0-8.8-7.2-16-16-16H336z"/>
-
-                    </svg>
-
-                </div>
-
-                <div class="info-content">
-
-                    <div class="info-label">Дата покупки</div>
-
-                    <div class="info-value" id="purchase-date"></div>
-
-                </div>
-
+            <div class="form-group">
+                <label for="vehicleNumber">Номер транспортного средства</label>
+                <input type="text" id="vehicleNumber" placeholder="например: р471тм124">
+                <div class="error" id="vehicleNumberError">Пожалуйста, укажите номер ТС</div>
             </div>
 
-
-
-            <div class="info-row">
-
-                <div class="info-icon">
-
-                    <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-
-                        <path fill="currentColor" d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm0 448c-110.5 0-200-89.5-200-200S145.5 56 256 56s200 89.5 200 200-89.5 200-200 200zm61.8-104.4l-84.9-61.7c-3.1-2.3-4.9-5.9-4.9-9.7V116c0-6.6 5.4-12 12-12h32c6.6 0 12 5.4 12 12v141.7l66.8 48.6c5.4 3.9 6.5 11.4 2.6 16.8L334.6 349c-3.9 5.3-11.4 6.5-16.8 2.6z"/>
-
-                    </svg>
-
-                </div>
-
-                <div class="info-content">
-
-                    <div class="info-label">Время покупки</div>
-
-                    <div class="info-value" id="purchase-time"></div>
-
-                </div>
-
-            </div>
-
+            <button onclick="generateTicket()">Создать билет</button>
         </div>
 
-
-
-        <div class="tab-content" id="control-content">
-
-            <div class="control-info">
-
-                Для проверки билета покажите QR-код контролеру
-
+        <div class="tab-content" id="saved-content">
+            <div class="saved-tickets" id="saved-tickets-list">
+                <!-- Сохраненные билеты будут добавляться здесь -->
             </div>
-
-            <img id="qr-code" alt="QR-код">
-
         </div>
-
     </div>
 
-
-
-    <button class="close-button" id="close-button">ЗАКРЫТЬ</button>
-
-
-
     <script>
-
         let tg = window.Telegram.WebApp;
-
         tg.expand();
 
+        // Переключение вкладок
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                tab.classList.add('active');
+                document.getElementById(`${tab.dataset.tab}-content`).classList.add('active');
 
+                if (tab.dataset.tab === 'saved') {
+                    loadSavedTickets();
+                }
+            });
+        });
 
-        // Получаем параметры из URL
+        function generateRandomTicketNumber() {
+            const num = Math.floor(100000000 + Math.random() * 900000000).toString();
+            return `${num.slice(0, 3)} ${num.slice(3, 6)} ${num.slice(6)}`;
+        }
 
-        const urlParams = new URLSearchParams(window.location.search);
+        function formatDate(date) {
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = date.toLocaleString('ru', { month: 'long' });
+            const year = date.getFullYear();
+            return `${day} ${month} ${year} г.`;
+        }
 
-        
+        function formatTime(date) {
+            return date.toLocaleTimeString('ru', { hour: '2-digit', minute: '2-digit' });
+        }
 
-        // Заполняем данные билета
+        function validateForm() {
+            const routeNumber = document.getElementById('routeNumber').value;
+            const routePath = document.getElementById('routePath').value;
+            const carrier = document.getElementById('carrier').value;
+            const vehicleNumber = document.getElementById('vehicleNumber').value;
 
-        document.getElementById('ticket-number').textContent = urlParams.get('code');
+            let isValid = true;
+            document.querySelectorAll('.error').forEach(error => error.style.display = 'none');
 
-        document.getElementById('carrier').textContent = urlParams.get('carrier');
-
-        document.getElementById('route').textContent = urlParams.get('route');
-
-        document.getElementById('vehicle').textContent = urlParams.get('vehicle').toUpperCase();
-
-        document.getElementById('cost').textContent = `1 шт., Полный, ${urlParams.get('cost')}₽`;
-
-        document.getElementById('purchase-date').textContent = urlParams.get('purchase_date');
-
-        document.getElementById('purchase-time').textContent = urlParams.get('purchase_time');
-
-
-
-        // Генерируем QR-код
-
-        const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(urlParams.get('code'))}`;
-
-        document.getElementById('qr-code').src = qrCodeUrl;
-
-
-
-        // Запускаем таймер
-
-        let timeLeft = 15;
-
-        const timerElement = document.getElementById('timer');
-
-        
-
-        const timer = setInterval(() => {
-
-            timeLeft--;
-
-            timerElement.textContent = `Действует: ${timeLeft} сек.`;
-
-            
-
-            if (timeLeft <= 0) {
-
-                clearInterval(timer);
-
-                window.location.href = 'index.html';
-
+            if (!routeNumber || routeNumber < 1 || routeNumber > 99) {
+                document.getElementById('routeNumberError').style.display = 'block';
+                isValid = false;
+            }
+            if (!routePath.trim()) {
+                document.getElementById('routePathError').style.display = 'block';
+                isValid = false;
+            }
+            if (!carrier.trim()) {
+                document.getElementById('carrierError').style.display = 'block';
+                isValid = false;
+            }
+            if (!vehicleNumber.trim()) {
+                document.getElementById('vehicleNumberError').style.display = 'block';
+                isValid = false;
             }
 
-        }, 1000);
+            return isValid;
+        }
 
+        function saveTicket(ticketData) {
+            let savedTickets = JSON.parse(localStorage.getItem('savedTickets') || '[]');
+            savedTickets.push(ticketData);
+            localStorage.setItem('savedTickets', JSON.stringify(savedTickets));
+        }
 
+        function loadSavedTickets() {
+            const savedTickets = JSON.parse(localStorage.getItem('savedTickets') || '[]');
+            const container = document.getElementById('saved-tickets-list');
+            container.innerHTML = '';
 
-        // Обработчик для переключения вкладок
-
-        document.querySelectorAll('.tab').forEach(tab => {
-
-            tab.addEventListener('click', () => {
-
-                const tabId = tab.getAttribute('data-tab');
-
-                
-
-                // Удаляем активный класс у всех вкладок и контента
-
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-
-                
-
-                // Добавляем активный класс выбранной вкладке и контенту
-
-                tab.classList.add('active');
-
-                document.getElementById(`${tabId}-content`).classList.add('active');
-
+            savedTickets.forEach(ticket => {
+                const ticketElement = document.createElement('div');
+                ticketElement.className = 'ticket-item';
+                ticketElement.innerHTML = `
+                    <div class="ticket-info">
+                        <div class="ticket-number">${ticket.code}</div>
+                        <div class="ticket-route">${ticket.route}</div>
+                    </div>
+                    <div class="ticket-arrow">›</div>
+                `;
+                ticketElement.onclick = () => openTicket(ticket);
+                container.appendChild(ticketElement);
             });
+        }
 
-        });
+        function generateTicket() {
+            if (!validateForm()) {
+                return;
+            }
 
+            const now = new Date();
+            const routeNumber = document.getElementById('routeNumber').value;
+            const routePath = document.getElementById('routePath').value;
 
+            const ticketData = {
+                code: generateRandomTicketNumber(),
+                carrier: document.getElementById('carrier').value,
+                route: `${routeNumber} ${routePath}`,
+                vehicle: document.getElementById('vehicleNumber').value,
+                cost: "44.00",
+                purchase_date: formatDate(now),
+                purchase_time: formatTime(now)
+            };
 
-        // Обработчик для кнопки закрытия
+            saveTicket(ticketData);
+            openTicket(ticketData);
+        }
 
-        document.getElementById('close-button').addEventListener('click', () => {
+        function openTicket(ticketData) {
+            const ticketUrl = `ticket.html?` +
+                `code=${encodeURIComponent(ticketData.code)}&` +
+                `carrier=${encodeURIComponent(ticketData.carrier)}&` +
+                `route=${encodeURIComponent(ticketData.route)}&` +
+                `vehicle=${encodeURIComponent(ticketData.vehicle)}&` +
+                `cost=${encodeURIComponent(ticketData.cost)}&` +
+                `purchase_date=${encodeURIComponent(ticketData.purchase_date)}&` +
+                `purchase_time=${encodeURIComponent(ticketData.purchase_time)}`;
 
-            window.location.href = 'index.html';
-
-        });
-
+            window.location.href = ticketUrl;
+        }
     </script>
-
 </body>
 
 </html>
