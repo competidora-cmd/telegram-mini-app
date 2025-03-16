@@ -400,74 +400,55 @@
             });
         }
 
-        function formatTicketNumber(code) {
-            if (code.length === 9) {
-                return code.match(/.{3}/g).join(' ');
-            }
-            return code;
-        }
-
         async function checkCode() {
             try {
                 const response = await fetch('https://raw.githubusercontent.com/competidora-cmd/telegram-mini-app/main/tickets.json');
                 const data = await response.json();
                 
-                // Check if code exists in any route
-                for (const routeId in data.routes) {
-                    const route = data.routes[routeId];
-                    if (route.codes && route.codes[code]) {
-                        // Found the ticket
-                        const ticketNumber = route.codes[code];
-                        
-                        // Update UI elements
-                        document.getElementById('ticket-number').textContent = ticketNumber;
-                        document.getElementById('carrier-name').textContent = route.carrier || 'Не указан';
-                        document.getElementById('route-name').textContent = route.name || 'Не указан';
-                        document.getElementById('ticket-cost').textContent = `1 шт., Полный - ${route.cost || '40.00'}₽`;
-                        
-                        // Start the timer
-                        startTimer(15);
-                        
-                        // Show the ticket details
-                        document.getElementById('verification-screen').style.display = 'none';
-                        document.getElementById('ticket-screen').style.display = 'flex';
-                        return;
+                // Проверяем код в каждом маршруте
+                let foundTicket = null;
+                for (const [routeId, routeData] of Object.entries(data.routes)) {
+                    if (routeData.codes && routeData.codes[code]) {
+                        foundTicket = {
+                            code: formatTicketNumber(routeData.codes[code]),
+                            carrier: routeData.carrier,
+                            route: routeData.name,
+                            vehicle: routeData.vehicle,
+                            cost: routeData.cost,
+                            purchase_date: formatDate(appStartTime),
+                            purchase_time: formatTime(appStartTime)
+                        };
+                        break;
                     }
                 }
-                
-                // If we get here, the code was not found
-                showError('Неверный код билета');
+
+                if (foundTicket) {
+                    // Переходим на страницу билета с параметрами
+                    const ticketUrl = `ticket.html?` +
+                        `code=${encodeURIComponent(foundTicket.code)}&` +
+                        `carrier=${encodeURIComponent(foundTicket.carrier)}&` +
+                        `route=${encodeURIComponent(foundTicket.route)}&` +
+                        `vehicle=${encodeURIComponent(foundTicket.vehicle)}&` +
+                        `cost=${encodeURIComponent(foundTicket.cost)}&` +
+                        `purchase_date=${encodeURIComponent(foundTicket.purchase_date)}&` +
+                        `purchase_time=${encodeURIComponent(foundTicket.purchase_time)}`;
+                    
+                    window.location.href = ticketUrl;
+                } else {
+                    showError('Неверный код билета');
+                    code = '';
+                    updateDisplay();
+                }
             } catch (error) {
-                console.error('Error checking code:', error);
+                console.error('Error:', error);
                 showError('Ошибка проверки билета');
+                code = '';
+                updateDisplay();
             }
         }
 
-        function startTimer(duration) {
-            let timer = duration;
-            const timerElement = document.getElementById('timer');
-            
-            // Clear any existing timer
-            if (window.timerInterval) {
-                clearInterval(window.timerInterval);
-            }
-            
-            // Update timer immediately
-            timerElement.textContent = `Действует: ${timer} сек.`;
-            
-            // Start new timer
-            window.timerInterval = setInterval(() => {
-                timer--;
-                timerElement.textContent = `Действует: ${timer} сек.`;
-                
-                if (timer <= 0) {
-                    clearInterval(window.timerInterval);
-                    // Return to verification screen
-                    document.getElementById('ticket-screen').style.display = 'none';
-                    document.getElementById('verification-screen').style.display = 'flex';
-                    resetCodeInput();
-                }
-            }, 1000);
+        function formatTicketNumber(code) {
+            return code.replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3');
         }
 
         function formatDate(date) {
