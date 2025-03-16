@@ -532,6 +532,10 @@
 
                     showError(data.detail || 'Неверный код');
 
+                    code = '';
+
+                    updateDisplay();
+
                 }
 
             } catch (error) {
@@ -542,15 +546,15 @@
 
                     showError('Нет подключения к интернету');
 
-                } else if (error.message.includes('Failed to fetch')) {
-
-                    showError('Ошибка подключения к серверу. Убедитесь, что сервер запущен.');
-
                 } else {
 
-                    showError('Произошла ошибка при проверке кода');
+                    showError('Произошла ошибка при проверке кода. Убедитесь, что сервер запущен.');
 
                 }
+
+                code = '';
+
+                updateDisplay();
 
             }
 
@@ -567,12 +571,6 @@
             errorMessage.style.display = 'block';
 
             errorMessage.style.opacity = '1';
-
-            
-
-            code = '';
-
-            updateDisplay();
 
             
 
