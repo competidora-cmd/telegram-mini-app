@@ -58,11 +58,11 @@
 
             text-align: center;
 
-            font-size: 32px;
+            font-size: 24px;
 
             font-weight: 400;
 
-            margin: 32px 0;
+            margin: 20px 0;
 
             color: #000;
 
@@ -75,6 +75,8 @@
             display: flex;
 
             align-items: center;
+
+            justify-content: center;
 
             padding: 0 16px;
 
@@ -739,8 +741,15 @@
         // Получаем параметры из URL
         const urlParams = new URLSearchParams(window.location.search);
         
+        // Форматируем номер билета в формат XXX XXX XXX
+        const formatTicketNumber = (number) => {
+            if (!number) return '';
+            const cleaned = number.replace(/\s/g, '');
+            return cleaned.replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3');
+        };
+        
         // Заполняем данные билета
-        document.getElementById('ticket-number').textContent = urlParams.get('code');
+        document.getElementById('ticket-number').textContent = formatTicketNumber(urlParams.get('code'));
         document.getElementById('carrier').textContent = urlParams.get('carrier');
         document.getElementById('route').textContent = urlParams.get('route');
         document.getElementById('vehicle').textContent = urlParams.get('vehicle');
@@ -764,7 +773,8 @@
         const qrOverlay = document.getElementById('qrOverlay');
         let qrCode = null;
 
-        controlSection.addEventListener('click', () => {
+        // Исправленный обработчик клика для вкладки "Контроль"
+        function showQR() {
             if (!qrCode) {
                 const qrData = {
                     ticket: urlParams.get('code'),
@@ -786,7 +796,10 @@
             qrOverlay.style.display = 'flex';
             controlSection.classList.add('active');
             ticketNumber.classList.remove('active');
-        });
+        }
+
+        // Добавляем обработчик события напрямую
+        controlSection.onclick = showQR;
 
         function hideQR() {
             qrOverlay.style.display = 'none';
