@@ -710,16 +710,14 @@
                 return;
             }
 
-            const now = new Date();
+            // Не сохраняем дату и время в объекте билета
             const ticketData = {
                 code: generateRandomTicketNumber(),
                 routeNumber: routeNumber,
                 carrier: carrier,
                 route: route,
                 vehicle: vehicle,
-                cost: cost,
-                purchase_date: formatDate(now),
-                purchase_time: formatTime(now)
+                cost: cost
             };
 
             // Сохраняем билет
@@ -785,12 +783,12 @@
         function openSavedTicket(index) {
             const savedTickets = JSON.parse(localStorage.getItem('savedTickets') || '[]');
             const ticket = savedTickets[index];
-            
             const params = new URLSearchParams();
             Object.entries(ticket).forEach(([key, value]) => {
                 params.append(key, value);
             });
 
+            // Открываем билет (дата и время будут установлены в ticket.html)
             window.location.href = 'ticket.html?' + params.toString();
         }
 
