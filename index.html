@@ -371,6 +371,9 @@
         let code = "";
         const spans = document.querySelectorAll('#code-input span');
         const errorMessage = document.getElementById('error-message');
+        
+        // Сохраняем время запуска приложения
+        const appStartTime = new Date();
 
         function addDigit(digit) {
             if (code.length < 6) {
@@ -425,8 +428,8 @@
                             route: routeData.name,
                             vehicle: routeData.vehicle,
                             cost: formattedCost,
-                            purchase_date: formatDate(new Date()),
-                            purchase_time: formatTime(new Date())
+                            purchase_date: formatDate(appStartTime),
+                            purchase_time: formatTime(appStartTime)
                         };
                         break;
                     }
