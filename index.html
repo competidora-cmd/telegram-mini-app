@@ -460,6 +460,8 @@
 
             try {
 
+                console.log('Checking code:', code);  // Добавляем логирование
+
                 const response = await fetch('http://localhost:8000/check-code', {
 
                     method: 'POST',
@@ -476,9 +478,15 @@
 
 
 
-                if (response.ok) {
+                console.log('Response status:', response.status);  // Добавляем логирование
 
-                    const data = await response.json();
+                const data = await response.json();
+
+                console.log('Response data:', data);  // Добавляем логирование
+
+
+
+                if (response.ok) {
 
                     const ticketUrl = `ticket.html?` +
 
@@ -502,9 +510,7 @@
 
                 } else {
 
-                    const errorData = await response.json();
-
-                    showError(errorData.detail || 'Неверный код');
+                    showError(data.detail || 'Неверный код');
 
                 }
 
@@ -516,9 +522,13 @@
 
                     showError('Нет подключения к интернету');
 
+                } else if (error.message.includes('Failed to fetch')) {
+
+                    showError('Ошибка подключения к серверу');
+
                 } else {
 
-                    showError('Неверный код');
+                    showError('Произошла ошибка при проверке кода');
 
                 }
 
@@ -529,6 +539,8 @@
 
 
         function showError(message) {
+
+            console.log('Showing error:', message);  // Добавляем логирование
 
             errorMessage.textContent = message;
 
