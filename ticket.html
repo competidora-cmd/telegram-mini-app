@@ -748,14 +748,35 @@
             return cleaned.replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3');
         };
         
-        // Заполняем данные билета
+        // Форматирование даты
+        function formatDate(date) {
+            const day = date.getDate().toString().padStart(2, '0');
+            const months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+            const month = months[date.getMonth()];
+            const year = date.getFullYear();
+            return `${day} ${month} ${year} г.`;
+        }
+
+        // Форматирование времени
+        function formatTime(date) {
+            return date.toTimeString().slice(0, 5);
+        }
+        
+        // Получаем текущую дату и время
+        const now = new Date();
+        const currentDate = formatDate(now);
+        const currentTime = formatTime(now);
+        
+        // Заполняем данные билета с актуальной датой и временем
         document.getElementById('ticket-number').textContent = formatTicketNumber(urlParams.get('code'));
         document.getElementById('carrier').textContent = urlParams.get('carrier');
         document.getElementById('route').textContent = urlParams.get('route');
         document.getElementById('vehicle').textContent = urlParams.get('vehicle');
         document.getElementById('cost').textContent = urlParams.get('cost') ? `1 шт., Полный, ${urlParams.get('cost')}₽` : '1 шт., Полный, 44.00₽';
-        document.getElementById('purchase-date').textContent = urlParams.get('purchase_date');
-        document.getElementById('purchase-time').textContent = urlParams.get('purchase_time');
+        
+        // Всегда используем текущую дату и время
+        document.getElementById('purchase-date').textContent = currentDate;
+        document.getElementById('purchase-time').textContent = currentTime;
 
         // Генерация случайного QR-кода
         function generateRandomString(length) {
