@@ -292,6 +292,20 @@
 
 
 
+        .qr-title {
+
+            font-size: 17px;
+
+            font-weight: 400;
+
+            color: #000;
+
+            margin-bottom: 24px;
+
+        }
+
+
+
         .qr-container {
 
             background: white;
@@ -663,13 +677,11 @@
 
 
     <div class="bottom-background"></div>
-
-    <button class="close-button" onclick="window.location.href='index.html'">Закрыть</button>
-
-
+    <button class="close-button" onclick="closeMiniApp()">Закрыть</button>
 
     <div class="qr-overlay" id="qrOverlay">
         <div class="qr-container">
+            <div class="qr-title">Отсканируйте QR-код для проверки</div>
             <img id="qrCode" class="qr-code">
             <button class="qr-close" onclick="hideQR()">Закрыть</button>
         </div>
