@@ -574,6 +574,28 @@
 
         }
 
+
+
+        .route-info .info-value#route-name {
+
+            font-size: 17px;
+
+            color: #000000;
+
+            margin-bottom: 4px;
+
+        }
+
+
+
+        .route-info .info-value#route-number {
+
+            font-size: 17px;
+
+            color: #000000;
+
+        }
+
     </style>
 
 </head>
@@ -650,8 +672,8 @@
                 </div>
                 <div class="info-content">
                     <div class="info-label">Маршрут</div>
-                    <div class="info-value" id="route"></div>
-                    <div class="info-value" id="vehicle"></div>
+                    <div class="info-value" id="route-name"></div>
+                    <div class="info-value" id="route-number"></div>
                 </div>
             </div>
 
@@ -936,6 +958,23 @@
             updateTimer();
 
         }
+
+
+
+        // В JavaScript изменим обработку маршрута
+
+        const routeName = route.split(',')[1] ? route.split(',')[1].trim() : route;
+
+        const routeNumber = route.split(',')[0] ? route.split(',')[0].trim() : '';
+        
+
+
+
+        document.getElementById('route-name').textContent = routeName;
+
+        document.getElementById('route-number').textContent = routeNumber;
+
+        document.getElementById('vehicle').textContent = vehicle;
 
     </script>
 
