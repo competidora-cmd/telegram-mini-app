@@ -512,68 +512,19 @@
             <button class="key" onclick="addDigit('7')">7</button>
             <button class="key" onclick="addDigit('8')">8</button>
             <button class="key" onclick="addDigit('9')">9</button>
-            <button class="key function" id="createTicketBtn" onclick="toggleConstructor()">
+            <button class="key function" onclick="scanCode()">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                    <path d="M12 4V20M4 12H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M4 4H20V16H4V4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 16V20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M8 20H16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
-                Создать билет
+                Сканировать
             </button>
             <button class="key" onclick="addDigit('0')">0</button>
             <button class="key backspace" onclick="resetCode()">⌫</button>
         </div>
 
         <div id="error-message"></div>
-
-        <div class="ticket-constructor" id="ticketConstructor">
-            <div class="ticket-example">
-                <h3>Образец билета</h3>
-                <p>Маршрут: <span>44 Красфарма (60 лет Октября) - Х/К Енисей</span></p>
-                <p>Перевозчик: <span>ИП Патрин Н. Н.</span></p>
-                <p>Гос. номер: <span>р471тм124</span></p>
-                <p>Стоимость: <span>44.00₽</span></p>
-            </div>
-            <div class="input-group">
-                <label>Номер маршрута (1-99)</label>
-                <input type="number" id="routeNumberInput" min="1" max="99" placeholder="Например: 44" />
-                <div class="error-message" id="routeNumberError">Введите номер маршрута от 1 до 99</div>
-            </div>
-            <div class="input-group">
-                <label>Путь маршрута</label>
-                <input type="text" id="routePathInput" placeholder="Например: Красфарма (60 лет Октября) - Х/К Енисей" />
-                <div class="error-message" id="routePathError">Введите путь маршрута</div>
-            </div>
-            <div class="input-group">
-                <label>Перевозчик</label>
-                <input type="text" id="carrierInput" placeholder="Например: ИП Патрин Н. Н." />
-                <div class="error-message" id="carrierError">Введите название перевозчика</div>
-            </div>
-            <div class="input-group">
-                <label>Гос. номер</label>
-                <input type="text" id="vehicleInput" placeholder="Формат: р471тм124" />
-                <div class="error-message" id="vehicleError">Введите гос. номер в формате р471тм124</div>
-            </div>
-            <div class="input-group">
-                <label>Стоимость</label>
-                <select id="costSelect">
-                    <option value="40.00">40.00₽</option>
-                    <option value="44.00">44.00₽</option>
-                </select>
-            </div>
-            <div class="action-buttons">
-                <button id="saveTicketBtn">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                        <path d="M16.6667 5L7.50004 14.1667L3.33337 10" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    Сохранить
-                </button>
-                <button id="cancelTicketBtn" onclick="toggleConstructor()">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                        <path d="M15 5L5 15M5 5L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                    </svg>
-                    Отмена
-                </button>
-            </div>
-        </div>
     </div>
 
     <script>
@@ -615,7 +566,6 @@
 
         async function checkCode() {
             try {
-                // Проверяем существующие билеты
                 if (code === "511988") {
                     const ticketData = {
                         code: "965 724 424",
@@ -628,17 +578,6 @@
                     };
                     redirectToTicket(ticketData);
                     return;
-                }
-
-                // Проверяем, является ли код зашифрованными данными билета
-                try {
-                    const decodedData = decodeTicketData(code);
-                    if (decodedData) {
-                        redirectToTicket(decodedData);
-                        return;
-                    }
-                } catch (e) {
-                    console.error('Error decoding ticket:', e);
                 }
 
                 showError('Неверный код билета');
@@ -663,46 +602,6 @@
                 `purchase_time=${encodeURIComponent(ticketData.purchase_time)}`;
             
             window.location.href = ticketUrl;
-        }
-
-        // Функция для кодирования данных билета в код
-        function encodeTicketData(data) {
-            // Создаем строку из данных билета
-            const str = `${data.route_number}|${data.route_path}|${data.carrier}|${data.vehicle}|${data.cost}`;
-            // Кодируем в base64
-            const encoded = btoa(str);
-            // Берем первые 6 символов как код билета
-            return encoded.slice(0, 6);
-        }
-
-        // Функция для декодирования кода в данные билета
-        function decodeTicketData(code) {
-            try {
-                // Добавляем паддинг для корректного декодирования base64
-                const paddedCode = code.padEnd(Math.ceil(code.length / 4) * 4, '=');
-                const decoded = atob(paddedCode);
-                const [routeNumber, routePath, carrier, vehicle, cost] = decoded.split('|');
-
-                if (!routeNumber || !routePath || !carrier || !vehicle || !cost) {
-                    return null;
-                }
-
-                return {
-                    code: generateRandomNumber(),
-                    carrier: carrier,
-                    route: `${routeNumber} ${routePath}`,
-                    vehicle: vehicle,
-                    cost: cost,
-                    purchase_date: formatDate(new Date()),
-                    purchase_time: formatTime(new Date())
-                };
-            } catch (e) {
-                return null;
-            }
-        }
-
-        function formatTicketNumber(code) {
-            return code.replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3');
         }
 
         function formatDate(date) {
@@ -748,171 +647,9 @@
             }, 2000);
         }
 
-        // Добавляем валидацию полей
-        function validateField(input, errorElement, condition, message) {
-            if (!condition(input.value)) {
-                errorElement.textContent = message;
-                errorElement.classList.add('visible');
-                input.style.borderColor = '#FF3B30';
-                return false;
-            }
-            errorElement.classList.remove('visible');
-            input.style.borderColor = '#E5E5EA';
-            return true;
-        }
-
-        const routeNumberInput = document.getElementById('routeNumberInput');
-        const routePathInput = document.getElementById('routePathInput');
-        const carrierInput = document.getElementById('carrierInput');
-        const vehicleInput = document.getElementById('vehicleInput');
-        const costSelect = document.getElementById('costSelect');
-
-        routeNumberInput.addEventListener('input', () => {
-            validateField(
-                routeNumberInput,
-                document.getElementById('routeNumberError'),
-                value => value >= 1 && value <= 99,
-                'Введите номер маршрута от 1 до 99'
-            );
-        });
-
-        routePathInput.addEventListener('input', () => {
-            validateField(
-                routePathInput,
-                document.getElementById('routePathError'),
-                value => value.trim().length > 0,
-                'Введите путь маршрута'
-            );
-        });
-
-        carrierInput.addEventListener('input', () => {
-            validateField(
-                carrierInput,
-                document.getElementById('carrierError'),
-                value => value.trim().length > 0,
-                'Введите название перевозчика'
-            );
-        });
-
-        vehicleInput.addEventListener('input', () => {
-            validateField(
-                vehicleInput,
-                document.getElementById('vehicleError'),
-                value => /^[а-я]\d{3}[а-я]{2}\d{3}$/.test(value.trim().toLowerCase()),
-                'Введите гос. номер в формате р471тм124'
-            );
-        });
-
-        function toggleConstructor() {
-            const constructor = document.getElementById('ticketConstructor');
-            constructor.classList.toggle('active');
-            
-            // Очищаем поля при закрытии
-            if (!constructor.classList.contains('active')) {
-                clearConstructorInputs();
-            }
-        }
-
-        function clearConstructorInputs() {
-            document.getElementById('routeNumberInput').value = '';
-            document.getElementById('routePathInput').value = '';
-            document.getElementById('carrierInput').value = '';
-            document.getElementById('vehicleInput').value = '';
-            document.getElementById('costSelect').value = '40.00';
-            
-            // Сбрасываем стили ошибок
-            document.querySelectorAll('.error-message').forEach(error => {
-                error.classList.remove('visible');
-            });
-            document.querySelectorAll('.input-group input').forEach(input => {
-                input.style.borderColor = '#E5E5EA';
-            });
-        }
-
-        // Обновляем обработчик сохранения билета
-        document.getElementById('saveTicketBtn').addEventListener('click', async () => {
-            const routeNumberValid = validateField(
-                routeNumberInput,
-                document.getElementById('routeNumberError'),
-                value => value >= 1 && value <= 99,
-                'Введите номер маршрута от 1 до 99'
-            );
-
-            const routePathValid = validateField(
-                routePathInput,
-                document.getElementById('routePathError'),
-                value => value.trim().length > 0,
-                'Введите путь маршрута'
-            );
-
-            const carrierValid = validateField(
-                carrierInput,
-                document.getElementById('carrierError'),
-                value => value.trim().length > 0,
-                'Введите название перевозчика'
-            );
-
-            const vehicleValid = validateField(
-                vehicleInput,
-                document.getElementById('vehicleError'),
-                value => /^[а-я]\d{3}[а-я]{2}\d{3}$/.test(value.trim().toLowerCase()),
-                'Введите гос. номер в формате р471тм124'
-            );
-
-            if (!routeNumberValid || !routePathValid || !carrierValid || !vehicleValid) {
-                return;
-            }
-
-            try {
-                // Создаем данные билета
-                const ticketData = {
-                    route_number: routeNumberInput.value,
-                    route_path: routePathInput.value,
-                    carrier: carrierInput.value.trim(),
-                    vehicle: vehicleInput.value.trim().toLowerCase(),
-                    cost: costSelect.value
-                };
-
-                // Генерируем код билета из данных
-                const ticketCode = encodeTicketData(ticketData);
-
-                // Показываем код билета пользователю
-                showSuccess(`Билет создан! Код: ${ticketCode}`);
-                
-                // Очищаем конструктор
-                toggleConstructor();
-                clearConstructorInputs();
-                
-                // Автоматически вставляем код в поле ввода
-                code = ticketCode;
-                updateDisplay();
-                checkCode();
-            } catch (error) {
-                console.error('Error creating ticket:', error);
-                showError('Ошибка при создании билета. Попробуйте позже.');
-            }
-        });
-
         function generateRandomNumber() {
             const num = Math.floor(100000000 + Math.random() * 900000000).toString();
             return `${num.slice(0, 3)} ${num.slice(3, 6)} ${num.slice(6)}`;
-        }
-
-        function showSuccess(message) {
-            const errorMessage = document.getElementById('error-message');
-            errorMessage.textContent = message;
-            errorMessage.style.background = '#4CAF50';
-            errorMessage.style.color = 'white';
-            errorMessage.style.padding = '16px';
-            errorMessage.style.borderRadius = '8px';
-            errorMessage.style.display = 'block';
-            errorMessage.style.opacity = '1';
-            setTimeout(() => {
-                errorMessage.style.opacity = '0';
-                setTimeout(() => {
-                    errorMessage.style.display = 'none';
-                }, 300);
-            }, 3000);
         }
     </script>
 </body>
