@@ -386,7 +386,7 @@
 
     <div class="container">
 
-        <div class="timer" id="timer">45:00</div>
+        <div class="timer" id="timer">Действует: 15 сек.</div>
 
 
 
@@ -574,11 +574,9 @@
 
     <script>
 
-        // Инициализация Telegram WebApp
+        let tg = window.Telegram.WebApp;
 
-        window.Telegram.WebApp.ready();
-
-        window.Telegram.WebApp.expand();
+        tg.expand();
 
 
 
@@ -598,7 +596,7 @@
 
         document.getElementById('vehicle').textContent = urlParams.get('vehicle').toUpperCase();
 
-        document.getElementById('cost').textContent = `1 шт., Полный - ${urlParams.get('cost')}₽`;
+        document.getElementById('cost').textContent = `1 шт., Полный, ${urlParams.get('cost')}₽`;
 
         document.getElementById('purchase-date').textContent = urlParams.get('purchase_date');
 
@@ -616,37 +614,29 @@
 
         // Запускаем таймер
 
-        let timeLeft = 45 * 60; // 45 minutes in seconds
+        let timeLeft = 15;
 
         const timerElement = document.getElementById('timer');
 
         
 
-        function updateTimer() {
+        const timer = setInterval(() => {
 
-            const minutes = Math.floor(timeLeft / 60);
+            timeLeft--;
 
-            const seconds = timeLeft % 60;
-
-            timerElement.textContent = 
-
-                `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            timerElement.textContent = `Действует: ${timeLeft} сек.`;
 
             
 
-            if (timeLeft > 0) {
+            if (timeLeft <= 0) {
 
-                timeLeft--;
+                clearInterval(timer);
 
-                setTimeout(updateTimer, 1000);
+                window.location.href = 'index.html';
 
             }
 
-        }
-
-
-
-        updateTimer();
+        }, 1000);
 
 
 
