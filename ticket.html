@@ -60,7 +60,7 @@
 
             font-size: 32px;
 
-            font-weight: 500;
+            font-weight: 600;
 
             margin: 24px 0;
 
@@ -76,13 +76,13 @@
 
             align-items: center;
 
-            justify-content: space-between;
-
             padding: 0 16px;
 
             margin-bottom: 24px;
 
             position: relative;
+
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 
         }
 
@@ -136,9 +136,33 @@
 
             gap: 12px;
 
-            flex: 1;
+            width: 50%;
 
-            padding: 4px 0;
+            padding: 12px 0;
+
+            position: relative;
+
+        }
+
+
+
+        .ticket-number::after {
+
+            content: '';
+
+            position: absolute;
+
+            bottom: -1px;
+
+            left: -16px;
+
+            width: calc(100% + 16px);
+
+            height: 1px;
+
+            background: #E31E24;
+
+            opacity: 1;
 
         }
 
@@ -162,7 +186,7 @@
 
             font-weight: 500;
 
-            color: #000;
+            color: #E31E24;
 
         }
 
@@ -176,29 +200,67 @@
 
             gap: 8px;
 
+            width: 50%;
+
+            justify-content: flex-end;
+
             color: #8E8E93;
 
             cursor: pointer;
 
-            padding: 4px 0;
+            padding: 12px 0;
 
-            transition: all 0.2s;
-
-        }
-
-
-
-        .control-section.active ~ .ticket-header::after {
-
-            left: 50%;
+            position: relative;
 
         }
 
 
 
-        .control-section.active ~ .ticket-header::before {
+        .control-section svg {
+
+            width: 24px;
+
+            height: 24px;
+
+            color: #8E8E93;
+
+        }
+
+
+
+        .control-section span {
+
+            font-size: 17px;
+
+            font-weight: 400;
+
+        }
+
+
+
+        .control-section.active {
+
+            color: #000;
+
+        }
+
+
+
+        .control-section.active::after {
+
+            content: '';
+
+            position: absolute;
+
+            bottom: -1px;
 
             left: 0;
+
+            width: calc(100% + 16px);
+
+            height: 1px;
+
+            background: #E31E24;
 
         }
 
@@ -314,6 +376,8 @@
 
             flex-shrink: 0;
 
+            margin-top: 2px;
+
         }
 
 
@@ -334,6 +398,8 @@
 
             margin-bottom: 4px;
 
+            font-weight: 400;
+
         }
 
 
@@ -343,6 +409,8 @@
             font-size: 17px;
 
             color: #000;
+
+            font-weight: 400;
 
         }
 
@@ -356,6 +424,8 @@
 
             margin-top: 4px;
 
+            letter-spacing: 0.5px;
+
         }
 
 
@@ -364,7 +434,7 @@
 
             position: fixed;
 
-            bottom: calc(16px + env(safe-area-inset-bottom) + 5px);
+            bottom: calc(16px + env(safe-area-inset-bottom));
 
             left: 16px;
 
@@ -382,13 +452,15 @@
 
             font-size: 17px;
 
-            font-weight: 500;
+            font-weight: 600;
 
             cursor: pointer;
 
             z-index: 2;
 
             text-transform: uppercase;
+
+            letter-spacing: 0.5px;
 
         }
 
@@ -639,16 +711,19 @@
 
         // Показать/скрыть QR-код
         const controlSection = document.querySelector('.control-section');
+        const ticketNumber = document.querySelector('.ticket-number');
         const qrOverlay = document.getElementById('qrOverlay');
 
         controlSection.addEventListener('click', () => {
             qrOverlay.style.display = 'flex';
             controlSection.classList.add('active');
+            ticketNumber.classList.remove('active');
         });
 
         function hideQR() {
             qrOverlay.style.display = 'none';
             controlSection.classList.remove('active');
+            ticketNumber.classList.add('active');
         }
 
         // Закрыть QR при клике вне контейнера
@@ -657,6 +732,9 @@
                 hideQR();
             }
         });
+
+        // Активируем вкладку с билетом по умолчанию
+        ticketNumber.classList.add('active');
 
         // Запускаем таймер
         let timeLeft = 15;
