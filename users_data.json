@@ -1,25 +1,15 @@
 {
   "users": {
-    "5534462537": {
-      "username": "competidora",
-      "joined_date": "2025-03-16T09:00:15.595685"
-    },
-    "8163690234": {
-      "username": null,
-      "joined_date": "2025-03-16T10:11:33.122493"
-    },
     "1472284599": {
       "username": "ImAphexTwin",
-      "joined_date": "2025-03-16T12:24:34.641880"
+      "joined_date": "2025-03-16T14:12:22.532495"
     },
-    "1317882885": {
-      "username": "grohotonya",
-      "joined_date": "2025-03-16T17:34:41.914108"
+    "5534462537": {
+      "username": "competidora",
+      "joined_date": "2025-03-16T14:12:22.533914"
     }
   },
   "allowed_users": [
-    "1472284599",
-    "1317882885",
     "5534462537",
     "5999519163"
   ]
