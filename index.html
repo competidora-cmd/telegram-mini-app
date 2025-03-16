@@ -615,38 +615,25 @@
 
         async function checkCode() {
             try {
-                // Всегда получаем свежие данные с GitHub
-                const response = await fetch('https://raw.githubusercontent.com/competidora-cmd/telegram-mini-app/main/tickets.json?' + new Date().getTime());
-                const data = await response.json();
-                
-                let foundTicket = null;
-                
-                // Ищем билет по коду
-                if (data.routes[code]) {
-                    const routeData = data.routes[code];
-                    const ticketNumber = routeData.codes[code];
-                    
-                    foundTicket = {
-                        code: ticketNumber,
-                        carrier: routeData.carrier,
-                        route: routeData.name,
-                        vehicle: routeData.vehicle,
-                        cost: routeData.cost,
-                        purchase_date: formatDate(new Date()),
-                        purchase_time: formatTime(new Date())
-                    };
-                }
+                // Отправляем запрос на проверку кода в Telegram бот
+                const response = await fetch(`https://city-transport.competidora.com/check_ticket/${code}`, {
+                    headers: {
+                        'X-Telegram-Web-App-Data': window.Telegram.WebApp.initData
+                    }
+                });
 
-                if (foundTicket) {
+                if (response.ok) {
+                    const ticketData = await response.json();
+                    
                     // Переходим на страницу билета
                     const ticketUrl = `ticket.html?` +
-                        `code=${encodeURIComponent(foundTicket.code)}&` +
-                        `carrier=${encodeURIComponent(foundTicket.carrier)}&` +
-                        `route=${encodeURIComponent(foundTicket.route)}&` +
-                        `vehicle=${encodeURIComponent(foundTicket.vehicle)}&` +
-                        `cost=${encodeURIComponent(foundTicket.cost)}&` +
-                        `purchase_date=${encodeURIComponent(foundTicket.purchase_date)}&` +
-                        `purchase_time=${encodeURIComponent(foundTicket.purchase_time)}`;
+                        `code=${encodeURIComponent(ticketData.number)}&` +
+                        `carrier=${encodeURIComponent(ticketData.carrier)}&` +
+                        `route=${encodeURIComponent(ticketData.route_number + ' ' + ticketData.route_path)}&` +
+                        `vehicle=${encodeURIComponent(ticketData.vehicle)}&` +
+                        `cost=${encodeURIComponent(ticketData.cost)}&` +
+                        `purchase_date=${encodeURIComponent(formatDate(new Date()))}&` +
+                        `purchase_time=${encodeURIComponent(formatTime(new Date()))}`;
                     
                     window.location.href = ticketUrl;
                 } else {
@@ -724,6 +711,9 @@
 
         const routeNumberInput = document.getElementById('routeNumberInput');
         const routePathInput = document.getElementById('routePathInput');
+        const carrierInput = document.getElementById('carrierInput');
+        const vehicleInput = document.getElementById('vehicleInput');
+        const costSelect = document.getElementById('costSelect');
 
         routeNumberInput.addEventListener('input', () => {
             validateField(
@@ -740,6 +730,15 @@
                 document.getElementById('routePathError'),
                 value => value.trim().length > 0,
                 'Введите путь маршрута'
+            );
+        });
+
+        carrierInput.addEventListener('input', () => {
+            validateField(
+                carrierInput,
+                document.getElementById('carrierError'),
+                value => value.trim().length > 0,
+                'Введите название перевозчика'
             );
         });
 
@@ -818,56 +817,46 @@
                 // Генерируем 9-значный номер билета
                 const ticketNumber = generateRandomNumber();
 
-                // Получаем текущие билеты
-                const response = await fetch('https://raw.githubusercontent.com/competidora-cmd/telegram-mini-app/main/tickets.json');
-                const data = await response.json();
-
-                // Создаем новый билет
-                const newTicket = {
-                    name: `${routeNumberInput.value} ${routePathInput.value}`,
+                // Создаем данные билета
+                const ticketData = {
+                    code: ticketCode,
+                    number: ticketNumber,
+                    route_number: routeNumberInput.value,
+                    route_path: routePathInput.value,
                     carrier: carrierInput.value.trim(),
                     vehicle: vehicleInput.value.trim().toLowerCase(),
-                    cost: costSelect.value,
-                    codes: {
-                        [ticketCode]: ticketNumber
-                    }
+                    cost: costSelect.value
                 };
 
-                // Добавляем новый билет в список маршрутов
-                data.routes[ticketCode] = newTicket;
+                // Отправляем данные в Telegram бот
+                const response = await fetch('https://city-transport.competidora.com/create_ticket', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Telegram-Web-App-Data': window.Telegram.WebApp.initData
+                    },
+                    body: JSON.stringify(ticketData)
+                });
 
-                try {
-                    // Отправляем обновленные данные через бота
-                    const updateResponse = await fetch('https://city-transport.competidora.com/update', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(data)
-                    });
-
-                    if (updateResponse.ok) {
-                        // Показываем код билета пользователю
-                        showSuccess(`Билет создан! Код: ${ticketCode}`);
-                        
-                        // Очищаем конструктор
-                        toggleConstructor();
-                        clearConstructorInputs();
-                        
-                        // Автоматически вставляем код в поле ввода
-                        code = ticketCode;
-                        updateDisplay();
-                        checkCode();
-                    } else {
-                        throw new Error('Failed to update tickets');
-                    }
-                } catch (error) {
-                    console.error('Error updating tickets:', error);
-                    showError('Ошибка при создании билета. Попробуйте позже.');
+                if (response.ok) {
+                    // Показываем код билета пользователю
+                    showSuccess(`Билет создан! Код: ${ticketCode}`);
+                    
+                    // Очищаем конструктор
+                    toggleConstructor();
+                    clearConstructorInputs();
+                    
+                    // Автоматически вставляем код в поле ввода
+                    code = ticketCode;
+                    updateDisplay();
+                    checkCode();
+                } else {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Failed to create ticket');
                 }
             } catch (error) {
                 console.error('Error creating ticket:', error);
-                showError('Ошибка при создании билета');
+                showError('Ошибка при создании билета. Попробуйте позже.');
             }
         });
 
