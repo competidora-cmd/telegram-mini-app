@@ -596,7 +596,7 @@
 
         document.getElementById('route').textContent = urlParams.get('route');
 
-        document.getElementById('vehicle').textContent = urlParams.get('vehicle');
+        document.getElementById('vehicle').textContent = urlParams.get('vehicle').toUpperCase();
 
         document.getElementById('cost').textContent = `1 шт., Полный - ${urlParams.get('cost')}₽`;
 
