@@ -320,6 +320,52 @@
 
         }
 
+
+
+        .control-section {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+            color: #000000;
+
+            font-size: 17px;
+
+            font-weight: 400;
+
+        }
+
+
+
+        .control-section svg {
+
+            width: 20px;
+
+            height: 20px;
+
+            color: #000000;
+
+        }
+
+
+
+        .tg-timer {
+
+            color: #000000;
+
+            font-size: 17px;
+
+            font-weight: 400;
+
+            margin: 20px 0;
+
+            text-align: center;
+
+        }
+
     </style>
 
 </head>
@@ -520,9 +566,15 @@
 
                     if (routeData.codes && routeData.codes[code]) {
 
+                        // Форматируем стоимость, убирая букву 'a' если она есть
+
+                        const formattedCost = routeData.cost.toString().replace(/^a/, '');
+
+                        
+
                         foundTicket = {
 
-                            code: formatTicketNumber(routeData.codes[code]), // Форматируем номер билета
+                            code: formatTicketNumber(routeData.codes[code]),
 
                             carrier: routeData.carrier,
 
@@ -530,7 +582,7 @@
 
                             vehicle: routeData.vehicle,
 
-                            cost: routeData.cost.replace('a', ''), // Убираем букву 'a'
+                            cost: formattedCost,
 
                             purchase_date: formatDate(new Date()),
 
