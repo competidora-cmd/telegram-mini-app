@@ -797,81 +797,31 @@
 
         const urlParams = new URLSearchParams(window.location.search);
 
-        const code = urlParams.get('code') || '965724424';
+        const code = urlParams.get('code');
 
-        const carrier = urlParams.get('carrier') || 'ИП Патрин Н. Н.';
+        const carrier = urlParams.get('carrier');
 
-        const route = urlParams.get('route') || '6, Студенческий городок - Утиный плёс';
+        const route = urlParams.get('route');
 
-        const vehicle = urlParams.get('vehicle') || 'р471тм124';
+        const vehicle = urlParams.get('vehicle');
 
-        const cost = urlParams.get('cost') || '44.00';
+        const cost = urlParams.get('cost');
 
-        
+        const purchaseDate = urlParams.get('purchase_date');
 
-        // Получаем текущую дату и время
-
-        const now = new Date();
-
-        
-
-        // Форматируем дату в формате "день месяц год г."
-
-        function formatDate(date) {
-
-            const day = date.getDate();
-
-            const months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 
-
-                           'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
-
-            const month = months[date.getMonth()];
-
-            const year = date.getFullYear();
-
-            return `${day} ${month} ${year} г.`;
-
-        }
-
-        
-
-        // Форматируем время в формате "ЧЧ:ММ"
-
-        function formatTime(date) {
-
-            const hours = date.getHours().toString().padStart(2, '0');
-
-            const minutes = date.getMinutes().toString().padStart(2, '0');
-
-            return `${hours}:${minutes}`;
-
-        }
-
-        
-
-        const purchaseDate = urlParams.get('purchase_date') || formatDate(now);
-
-        const purchaseTime = urlParams.get('purchase_time') || formatTime(now);
+        const purchaseTime = urlParams.get('purchase_time');
 
 
 
-        // Заполняем информацию о билете
-
-        document.getElementById('ticket-number-tab').textContent = formatTicketNumber(code);
+        // Устанавливаем значения в элементы
 
         document.getElementById('carrier').textContent = carrier;
-
-        
-
-        // Устанавливаем маршрут в формате "номер, название маршрута"
 
         document.getElementById('route').textContent = route;
 
         document.getElementById('vehicle').textContent = vehicle;
 
-        
-
-        document.getElementById('cost').textContent = `1 шт., Полный, ${cost} ₽`;
+        document.getElementById('cost').textContent = cost;
 
         document.getElementById('purchase-date').textContent = purchaseDate;
 
@@ -931,59 +881,55 @@
 
 
 
-        // Функция для форматирования номера билета
+        // Запускаем таймер
 
-        function formatTicketNumber(code) {
-
-            if (!code) return '';
-
-            return code.toString().replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3');
-
-        }
+        startTimer();
 
 
 
-        // Обратный отсчет
+        function startTimer() {
 
-        let seconds = 15;
+            const timerElement = document.getElementById('countdown');
 
-        const countdownElement = document.getElementById('countdown');
+            let timeLeft = 15; // 15 секунд
 
-        
 
-        function updateCountdown() {
 
-            countdownElement.textContent = `Действует: ${seconds} сек.`;
+            function updateTimer() {
 
-            if (seconds > 0) {
+                timerElement.textContent = `Действует: ${timeLeft} сек.`;
 
-                seconds--;
+                
 
-                setTimeout(updateCountdown, 1000);
+                if (timeLeft > 0) {
 
-            } else {
+                    timeLeft--;
 
-                countdownElement.textContent = 'Время истекло';
+                    setTimeout(updateTimer, 1000);
 
-                setTimeout(() => {
+                } else {
 
-                    if (window.Telegram && window.Telegram.WebApp) {
+                    timerElement.textContent = 'Время истекло';
 
-                        window.Telegram.WebApp.close();
+                    setTimeout(() => {
 
-                    }
+                        if (window.Telegram && window.Telegram.WebApp) {
 
-                }, 1000);
+                            window.Telegram.WebApp.close();
+
+                        }
+
+                    }, 1000);
+
+                }
 
             }
 
+            
+
+            updateTimer();
+
         }
-
-        
-
-        // Запускаем обратный отсчет
-
-        updateCountdown();
 
     </script>
 
