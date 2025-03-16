@@ -313,7 +313,7 @@
         window.Telegram.WebApp.expand();
 
         let code = "";
-        const inputs = document.querySelectorAll('#code-input input');
+        const spans = document.querySelectorAll('#code-input span');
         const errorMessage = document.getElementById('error-message');
 
         function addDigit(digit) {
@@ -336,14 +336,12 @@
         }
 
         function updateDisplay() {
-            inputs.forEach((input, index) => {
-                input.value = code[index] || '';
-                input.parentElement.classList.toggle('has-value', !!code[index]);
+            spans.forEach((span, index) => {
+                span.textContent = code[index] || '';
             });
         }
 
         function formatTicketNumber(code) {
-            // Форматируем номер билета в формат XXX XXX XXX
             if (code.length === 9) {
                 return code.match(/.{3}/g).join(' ');
             }
@@ -406,7 +404,6 @@
             }
         }
 
-        // Добавляем функции форматирования даты и времени
         function formatDate(date) {
             const months = {
                 0: 'января',
