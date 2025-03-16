@@ -284,11 +284,19 @@
 
         .ticket-item {
 
-            background: #F7F7F9;
+            background: #fff;
+
+            border: 1px solid rgba(0, 0, 0, 0.1);
 
             border-radius: 12px;
 
             padding: 16px;
+
+        }
+
+
+
+        .ticket-info {
 
             display: flex;
 
@@ -296,13 +304,13 @@
 
             align-items: center;
 
-            cursor: pointer;
+            gap: 12px;
 
         }
 
 
 
-        .ticket-info {
+        .ticket-details {
 
             flex: 1;
 
@@ -312,11 +320,9 @@
 
         .ticket-number {
 
-            font-size: 17px;
+            font-size: 20px;
 
-            font-weight: 500;
-
-            color: #000;
+            color: #E31E24;
 
             margin-bottom: 4px;
 
@@ -334,13 +340,161 @@
 
 
 
-        .ticket-arrow {
+        .ticket-actions {
 
-            color: #8E8E93;
+            display: flex;
 
-            font-size: 24px;
+            gap: 8px;
 
-            margin-left: 8px;
+        }
+
+
+
+        .edit-btn, .open-btn {
+
+            padding: 8px 16px;
+
+            background: #F7F7F7;
+
+            border: none;
+
+            border-radius: 8px;
+
+            color: #000;
+
+            font-size: 15px;
+
+            cursor: pointer;
+
+            white-space: nowrap;
+
+            width: auto;
+
+            margin: 0;
+
+        }
+
+
+
+        .edit-form {
+
+            display: none;
+
+            margin-top: 12px;
+
+            padding-top: 12px;
+
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+
+        }
+
+
+
+        .edit-form.active {
+
+            display: block;
+
+        }
+
+
+
+        .edit-field {
+
+            width: 100%;
+
+            padding: 8px 12px;
+
+            margin-bottom: 8px;
+
+            border: 1px solid rgba(0, 0, 0, 0.1);
+
+            border-radius: 8px;
+
+            font-size: 15px;
+
+        }
+
+
+
+        .edit-actions {
+
+            display: flex;
+
+            gap: 8px;
+
+            margin-top: 12px;
+
+        }
+
+
+
+        .save-btn, .cancel-btn {
+
+            flex: 1;
+
+            padding: 8px 16px;
+
+            border-radius: 8px;
+
+            border: none;
+
+            font-size: 15px;
+
+            cursor: pointer;
+
+            margin: 0;
+
+        }
+
+
+
+        .save-btn {
+
+            background: #E31E24;
+
+            color: white;
+
+        }
+
+
+
+        .cancel-btn {
+
+            background: #F7F7F7;
+
+            color: #000;
+
+        }
+
+
+
+        @media (max-width: 380px) {
+
+            .ticket-info {
+
+                flex-direction: column;
+
+                align-items: flex-start;
+
+            }
+
+
+
+            .ticket-actions {
+
+                width: 100%;
+
+            }
+
+
+
+            .edit-btn, .open-btn {
+
+                flex: 1;
+
+                text-align: center;
+
+            }
 
         }
 
@@ -418,6 +572,44 @@
 
         }
 
+
+
+        .edit-field {
+
+            width: 100%;
+
+            padding: 12px;
+
+            margin-bottom: 12px;
+
+            border: 1px solid rgba(0, 0, 0, 0.1);
+
+            border-radius: 10px;
+
+            font-size: 15px;
+
+            background: #fff;
+
+        }
+
+
+
+        .edit-field::placeholder {
+
+            color: #8E8E93;
+
+        }
+
+
+
+        .edit-field:focus {
+
+            outline: none;
+
+            border-color: #E31E24;
+
+        }
+
     </style>
 
 </head>
@@ -441,31 +633,19 @@
 
         <div class="tab-content active" id="constructor-content">
             <div class="form-group">
-                <label for="routeNumber">Номер маршрута</label>
-                <input type="number" id="routeNumber" min="1" max="99" placeholder="Введите номер (1-99)">
-                <div class="error" id="routeNumberError">Номер маршрута должен быть от 1 до 99</div>
-            </div>
-
-            <div class="form-group">
-                <label for="routePath">Маршрут</label>
-                <input type="text" id="routePath" placeholder="например: Красфарма (60 лет Октября) - Х/К Енисей">
-                <div class="error" id="routePathError">Пожалуйста, укажите маршрут</div>
-            </div>
-
-            <div class="form-group">
                 <label for="carrier">Перевозчик</label>
-                <input type="text" id="carrier" placeholder="например: ИП Патрин Н. Н.">
-                <div class="error" id="carrierError">Пожалуйста, укажите перевозчика</div>
+                <input type="text" id="carrier" placeholder="Например: ИП Патрин Н. Н.">
             </div>
-
             <div class="form-group">
-                <label for="vehicleNumber">Номер транспортного средства</label>
-                <input type="text" id="vehicleNumber" placeholder="например: р471тм124">
-                <div class="error" id="vehicleNumberError">Пожалуйста, укажите номер ТС</div>
+                <label for="route">Маршрут</label>
+                <input type="text" id="route" placeholder="Например: Красфарма (60 лет Октября) - Х/К Енисей">
             </div>
-
             <div class="form-group">
-                <label>Стоимость</label>
+                <label for="vehicle">Гос. номер</label>
+                <input type="text" id="vehicle" placeholder="Например: р471тм124">
+            </div>
+            <div class="form-group">
+                <label for="cost">Стоимость</label>
                 <div class="cost-selector">
                     <label class="cost-option">
                         <input type="radio" name="cost" value="44.00" checked>
@@ -477,14 +657,11 @@
                     </label>
                 </div>
             </div>
-
             <button onclick="generateTicket()">Создать билет</button>
         </div>
 
         <div class="tab-content" id="saved-content">
-            <div class="saved-tickets" id="saved-tickets-list">
-                <!-- Сохраненные билеты будут добавляться здесь -->
-            </div>
+            <div id="saved-tickets-list" class="saved-tickets"></div>
         </div>
     </div>
 
@@ -563,19 +740,56 @@
             const container = document.getElementById('saved-tickets-list');
             container.innerHTML = '';
 
-            savedTickets.forEach(ticket => {
+            savedTickets.forEach((ticket, index) => {
                 const ticketElement = document.createElement('div');
                 ticketElement.className = 'ticket-item';
                 ticketElement.innerHTML = `
                     <div class="ticket-info">
-                        <div class="ticket-number">${ticket.code}</div>
-                        <div class="ticket-route">${ticket.route}</div>
+                        <div class="ticket-details">
+                            <div class="ticket-number">${ticket.code}</div>
+                            <div class="ticket-route">${ticket.route}</div>
+                        </div>
+                        <div class="ticket-actions">
+                            <button class="edit-btn" onclick="toggleEditForm(${index})">Изменить</button>
+                            <button class="open-btn" onclick="openTicket(${JSON.stringify(ticket)})">Открыть</button>
+                        </div>
                     </div>
-                    <div class="ticket-arrow">›</div>
+                    <div class="edit-form" id="edit-form-${index}">
+                        <input type="text" class="edit-field" id="edit-carrier-${index}" 
+                               value="${ticket.carrier}" 
+                               placeholder="Например: ИП Патрин Н. Н.">
+                        <input type="text" class="edit-field" id="edit-route-${index}" 
+                               value="${ticket.route}" 
+                               placeholder="Например: Красфарма (60 лет Октября) - Х/К Енисей">
+                        <input type="text" class="edit-field" id="edit-vehicle-${index}" 
+                               value="${ticket.vehicle}" 
+                               placeholder="Например: р471тм124">
+                        <div class="edit-actions">
+                            <button class="save-btn" onclick="saveEditedTicket(${index})">Сохранить</button>
+                            <button class="cancel-btn" onclick="toggleEditForm(${index})">Отмена</button>
+                        </div>
+                    </div>
                 `;
-                ticketElement.onclick = () => openTicket(ticket);
                 container.appendChild(ticketElement);
             });
+        }
+
+        function toggleEditForm(index) {
+            const form = document.getElementById(`edit-form-${index}`);
+            form.classList.toggle('active');
+        }
+
+        function saveEditedTicket(index) {
+            const savedTickets = JSON.parse(localStorage.getItem('savedTickets') || '[]');
+            const ticket = savedTickets[index];
+
+            ticket.carrier = document.getElementById(`edit-carrier-${index}`).value;
+            ticket.route = document.getElementById(`edit-route-${index}`).value;
+            ticket.vehicle = document.getElementById(`edit-vehicle-${index}`).value;
+
+            savedTickets[index] = ticket;
+            localStorage.setItem('savedTickets', JSON.stringify(savedTickets));
+            loadSavedTickets();
         }
 
         function generateTicket() {
