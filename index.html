@@ -318,6 +318,168 @@
 
         }
 
+        .ticket-constructor {
+            display: none;
+            flex-direction: column;
+            gap: 20px;
+            padding: 24px;
+            background: #F7F7F9;
+            border-radius: 20px;
+            margin: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .ticket-constructor.active {
+            display: flex;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .ticket-example {
+            background: #fff;
+            border: 1px solid #E5E5EA;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .ticket-example h3 {
+            color: #1C1C1E;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ticket-example h3::before {
+            content: '';
+            display: block;
+            width: 24px;
+            height: 24px;
+            background: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 4H20V16H4V4Z' stroke='%23007AFF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M12 16V20' stroke='%23007AFF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M8 20H16' stroke='%23007AFF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;
+        }
+
+        .ticket-example p {
+            margin: 8px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #F2F2F7;
+        }
+
+        .ticket-example p:last-child {
+            border-bottom: none;
+        }
+
+        .ticket-example span {
+            color: #007AFF;
+            font-weight: 500;
+        }
+
+        .ticket-constructor input,
+        .ticket-constructor select {
+            padding: 16px;
+            border: 2px solid #E5E5EA;
+            border-radius: 12px;
+            font-size: 16px;
+            width: 100%;
+            background: #fff;
+            transition: all 0.2s ease;
+        }
+
+        .ticket-constructor input:focus,
+        .ticket-constructor select:focus {
+            border-color: #007AFF;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+        }
+
+        .ticket-constructor input::placeholder {
+            color: #8E8E93;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .action-buttons button {
+            flex: 1;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        #saveTicketBtn {
+            background: #007AFF;
+            color: white;
+        }
+
+        #saveTicketBtn:hover {
+            background: #0066CC;
+        }
+
+        #saveTicketBtn:active {
+            transform: scale(0.98);
+        }
+
+        #cancelTicketBtn {
+            background: #F2F2F7;
+            color: #1C1C1E;
+        }
+
+        #cancelTicketBtn:hover {
+            background: #E5E5EA;
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .input-group label {
+            position: absolute;
+            top: -10px;
+            left: 12px;
+            background: #F7F7F9;
+            padding: 0 8px;
+            font-size: 14px;
+            color: #8E8E93;
+        }
+
+        .error-message {
+            color: #FF3B30;
+            font-size: 14px;
+            margin-top: 4px;
+            display: none;
+        }
+
+        .error-message.visible {
+            display: block;
+        }
+
     </style>
 
 </head>
@@ -350,17 +512,63 @@
             <button class="key" onclick="addDigit('7')">7</button>
             <button class="key" onclick="addDigit('8')">8</button>
             <button class="key" onclick="addDigit('9')">9</button>
-            <button class="key function" onclick="scanCode()">
-                Сканировать
-                <svg viewBox="0 0 448 480" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path fill="currentColor" d="M104 103.1C112.8 103.1 120 111.2 120 119.1V135.1C120 144.8 112.8 151.1 104 151.1H88C79.16 151.1 72 144.8 72 135.1V119.1C72 111.2 79.16 103.1 88 103.1H104zM0 79.1C0 53.49 21.49 31.1 48 31.1H144C170.5 31.1 192 53.49 192 79.1V175.1C192 202.5 170.5 223.1 144 223.1H48C21.49 223.1 0 202.5 0 175.1V79.1zM48 175.1H144V79.1H48V175.1zM72 375.1C72 367.2 79.16 359.1 88 359.1H104C112.8 359.1 120 367.2 120 375.1V391.1C120 400.8 112.8 407.1 104 407.1H88C79.16 407.1 72 400.8 72 391.1V375.1zM0 335.1C0 309.5 21.49 287.1 48 287.1H144C170.5 287.1 192 309.5 192 335.1V431.1C192 458.5 170.5 479.1 144 479.1H48C21.49 479.1 0 458.5 0 431.1V335.1zM48 431.1H144V335.1H48V431.1zM360 103.1C368.8 103.1 376 111.2 376 119.1V135.1C376 144.8 368.8 151.1 360 151.1H344C335.2 151.1 328 144.8 328 135.1V119.1C328 111.2 335.2 103.1 344 103.1H360zM400 31.1C426.5 31.1 448 53.49 448 79.1V175.1C448 202.5 426.5 223.1 400 223.1H304C277.5 223.1 256 202.5 256 175.1V79.1C256 53.49 277.5 31.1 304 31.1H400zM400 79.1H304V175.1H400V79.1zM384 479.1H352V447.1H384V479.1zM416 447.1H448V479.1H416V447.1zM448 415.1H352V383.1H320V479.1H256V287.1H352V319.1H416V287.1H448V415.1z"/>
+            <button class="key function" id="createTicketBtn" onclick="toggleConstructor()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 4V20M4 12H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                 </svg>
+                Создать билет
             </button>
             <button class="key" onclick="addDigit('0')">0</button>
             <button class="key backspace" onclick="resetCode()">⌫</button>
         </div>
 
-        <div id="error-message">Код неверный</div>
+        <div id="error-message"></div>
+
+        <div class="ticket-constructor" id="ticketConstructor">
+            <div class="ticket-example">
+                <h3>Образец билета</h3>
+                <p>Маршрут: <span>пос. Водников-Железнодорожный вокзал</span></p>
+                <p>Перевозчик: <span>КПАТП-7</span></p>
+                <p>Гос. номер: <span>(а123бв)</span></p>
+                <p>Стоимость: <span>40.00₽</span></p>
+            </div>
+            <div class="input-group">
+                <label>Маршрут</label>
+                <input type="text" id="routeInput" placeholder="Например: пос. Водников-Железнодорожный вокзал" />
+                <div class="error-message" id="routeError">Введите название маршрута</div>
+            </div>
+            <div class="input-group">
+                <label>Перевозчик</label>
+                <input type="text" id="carrierInput" placeholder="Например: КПАТП-7" />
+                <div class="error-message" id="carrierError">Введите название перевозчика</div>
+            </div>
+            <div class="input-group">
+                <label>Гос. номер</label>
+                <input type="text" id="vehicleInput" placeholder="Формат: а123бв" />
+                <div class="error-message" id="vehicleError">Введите гос. номер в формате а123бв</div>
+            </div>
+            <div class="input-group">
+                <label>Стоимость</label>
+                <select id="costSelect">
+                    <option value="40.00">40.00₽</option>
+                    <option value="44.00">44.00₽</option>
+                </select>
+            </div>
+            <div class="action-buttons">
+                <button id="saveTicketBtn">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M16.6667 5L7.50004 14.1667L3.33337 10" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Сохранить
+                </button>
+                <button id="cancelTicketBtn" onclick="toggleConstructor()">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M15 5L5 15M5 5L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    Отмена
+                </button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -495,6 +703,157 @@
                     errorMessage.style.display = 'none';
                 }, 300);
             }, 2000);
+        }
+
+        // Добавляем валидацию полей
+        function validateField(input, errorElement, condition, message) {
+            if (!condition(input.value)) {
+                errorElement.textContent = message;
+                errorElement.classList.add('visible');
+                input.style.borderColor = '#FF3B30';
+                return false;
+            }
+            errorElement.classList.remove('visible');
+            input.style.borderColor = '#E5E5EA';
+            return true;
+        }
+
+        routeInput.addEventListener('input', () => {
+            validateField(
+                routeInput,
+                document.getElementById('routeError'),
+                value => value.trim().length > 0,
+                'Введите название маршрута'
+            );
+        });
+
+        carrierInput.addEventListener('input', () => {
+            validateField(
+                carrierInput,
+                document.getElementById('carrierError'),
+                value => value.trim().length > 0,
+                'Введите название перевозчика'
+            );
+        });
+
+        vehicleInput.addEventListener('input', () => {
+            validateField(
+                vehicleInput,
+                document.getElementById('vehicleError'),
+                value => /^[а-я]\d{3}[а-я]{2}$/.test(value.trim().toLowerCase()),
+                'Введите гос. номер в формате а123бв'
+            );
+        });
+
+        function toggleConstructor() {
+            const constructor = document.getElementById('ticketConstructor');
+            constructor.classList.toggle('active');
+            
+            // Очищаем поля при закрытии
+            if (!constructor.classList.contains('active')) {
+                clearConstructorInputs();
+            }
+        }
+
+        function clearConstructorInputs() {
+            document.getElementById('routeInput').value = '';
+            document.getElementById('carrierInput').value = '';
+            document.getElementById('vehicleInput').value = '';
+            document.getElementById('costSelect').value = '40.00';
+            
+            // Сбрасываем стили ошибок
+            document.querySelectorAll('.error-message').forEach(error => {
+                error.classList.remove('visible');
+            });
+            document.querySelectorAll('.input-group input').forEach(input => {
+                input.style.borderColor = '#E5E5EA';
+            });
+        }
+
+        // Обработчик сохранения билета
+        document.getElementById('saveTicketBtn').addEventListener('click', async () => {
+            const routeValid = validateField(
+                routeInput,
+                document.getElementById('routeError'),
+                value => value.trim().length > 0,
+                'Введите название маршрута'
+            );
+
+            const carrierValid = validateField(
+                carrierInput,
+                document.getElementById('carrierError'),
+                value => value.trim().length > 0,
+                'Введите название перевозчика'
+            );
+
+            const vehicleValid = validateField(
+                vehicleInput,
+                document.getElementById('vehicleError'),
+                value => /^[а-я]\d{3}[а-я]{2}$/.test(value.trim().toLowerCase()),
+                'Введите гос. номер в формате а123бв'
+            );
+
+            if (!routeValid || !carrierValid || !vehicleValid) {
+                return;
+            }
+
+            try {
+                // Генерируем случайный 6-значный код билета
+                const ticketCode = Math.floor(100000 + Math.random() * 900000).toString();
+                // Генерируем 9-значный номер билета в формате XXX XXX XXX
+                const randomNumber = generateRandomNumber();
+
+                const ticketData = {
+                    code: ticketCode,
+                    route: routeInput.value.trim(),
+                    carrier: carrierInput.value.trim(),
+                    vehicle: `(${vehicleInput.value.trim().toLowerCase()})`,
+                    cost: costSelect.value,
+                    random_number: randomNumber
+                };
+
+                // Отправляем данные на сервер для сохранения
+                const response = await fetch('https://city-transport.competidora.com/create-ticket', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(ticketData)
+                });
+
+                if (response.ok) {
+                    showSuccess(`Билет создан! Код: ${ticketCode}`);
+                    toggleConstructor();
+                    clearConstructorInputs();
+                } else {
+                    showError('Ошибка при создании билета');
+                }
+            } catch (error) {
+                console.error('Error creating ticket:', error);
+                showError('Ошибка при создании билета');
+            }
+        });
+
+        function generateRandomNumber() {
+            const num = Math.floor(100000000 + Math.random() * 900000000).toString();
+            return `${num.slice(0, 3)} ${num.slice(3, 6)} ${num.slice(6)}`;
+        }
+
+        function showSuccess(message) {
+            const errorMessage = document.getElementById('error-message');
+            errorMessage.textContent = message;
+            errorMessage.style.background = '#4CAF50';
+            errorMessage.style.color = 'white';
+            errorMessage.style.padding = '16px';
+            errorMessage.style.borderRadius = '8px';
+            errorMessage.style.display = 'block';
+            errorMessage.style.opacity = '1';
+            setTimeout(() => {
+                errorMessage.style.opacity = '0';
+                setTimeout(() => {
+                    errorMessage.style.display = 'none';
+                }, 300);
+            }, 3000);
         }
     </script>
 </body>
