@@ -751,7 +751,7 @@
                         </div>
                         <div class="ticket-actions">
                             <button class="edit-btn" onclick="toggleEditForm(${index})">Изменить</button>
-                            <button class="open-btn" onclick="openTicket(${JSON.stringify(ticket)})">Открыть</button>
+                            <button class="open-btn" onclick="openTicket(savedTickets[${index}])">Открыть</button>
                         </div>
                     </div>
                     <div class="edit-form" id="edit-form-${index}">
