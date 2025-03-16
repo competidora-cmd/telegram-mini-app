@@ -308,6 +308,8 @@
 
             max-width: 300px;
 
+            position: relative;
+
         }
 
 
@@ -320,11 +322,19 @@
 
             margin-bottom: 16px;
 
+            display: block;
+
         }
 
 
 
         .qr-close {
+
+            position: absolute;
+
+            top: 16px;
+
+            right: 16px;
 
             background: none;
 
@@ -336,7 +346,7 @@
 
             cursor: pointer;
 
-            padding: 8px 16px;
+            padding: 8px;
 
         }
 
@@ -418,13 +428,13 @@
 
         .vehicle-number {
 
-            font-size: 24px;
+            font-size: 17px;
 
-            font-weight: 500;
+            font-weight: 400;
 
             margin-top: 4px;
 
-            letter-spacing: 0.5px;
+            color: #8E8E93;
 
         }
 
@@ -501,6 +511,14 @@
                 height: 80px;
 
             }
+
+        }
+
+
+
+        .control-section.active svg {
+
+            color: #000;
 
         }
 
@@ -676,8 +694,8 @@
         document.getElementById('ticket-number').textContent = urlParams.get('code');
         document.getElementById('carrier').textContent = urlParams.get('carrier');
         document.getElementById('route').textContent = urlParams.get('route');
-        document.getElementById('vehicle').textContent = urlParams.get('vehicle').toUpperCase();
-        document.getElementById('cost').textContent = `1 шт., Полный, ${urlParams.get('cost')}₽`;
+        document.getElementById('vehicle').textContent = urlParams.get('vehicle');
+        document.getElementById('cost').textContent = urlParams.get('cost') ? `1 шт., Полный, ${urlParams.get('cost')}₽` : '1 шт., Полный, 44.00₽';
         document.getElementById('purchase-date').textContent = urlParams.get('purchase_date');
         document.getElementById('purchase-time').textContent = urlParams.get('purchase_time');
 
@@ -691,30 +709,31 @@
             return result;
         }
 
-        // Создаем QR-код
-        const qrData = {
-            ticket: urlParams.get('code'),
-            timestamp: Date.now(),
-            hash: generateRandomString(32),
-            vehicle: urlParams.get('vehicle'),
-            route: urlParams.get('route')
-        };
-
-        const qrCode = new QRCode(document.getElementById("qrCode"), {
-            text: JSON.stringify(qrData),
-            width: 256,
-            height: 256,
-            colorDark: "#000000",
-            colorLight: "#ffffff",
-            correctLevel: QRCode.CorrectLevel.H
-        });
-
-        // Показать/скрыть QR-код
+        // Создаем QR-код при нажатии на "Контроль"
         const controlSection = document.querySelector('.control-section');
         const ticketNumber = document.querySelector('.ticket-number');
         const qrOverlay = document.getElementById('qrOverlay');
+        let qrCode = null;
 
         controlSection.addEventListener('click', () => {
+            if (!qrCode) {
+                const qrData = {
+                    ticket: urlParams.get('code'),
+                    timestamp: Date.now(),
+                    hash: generateRandomString(32),
+                    vehicle: urlParams.get('vehicle'),
+                    route: urlParams.get('route')
+                };
+
+                qrCode = new QRCode(document.getElementById("qrCode"), {
+                    text: JSON.stringify(qrData),
+                    width: 256,
+                    height: 256,
+                    colorDark: "#000000",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+            }
             qrOverlay.style.display = 'flex';
             controlSection.classList.add('active');
             ticketNumber.classList.remove('active');
