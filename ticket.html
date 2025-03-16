@@ -54,92 +54,6 @@
 
 
 
-        .header {
-
-            display: flex;
-
-            justify-content: space-between;
-
-            align-items: center;
-
-            padding: 14px 16px;
-
-            background: #F7F7F7;
-
-            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-
-        }
-
-
-
-        .header-title {
-
-            text-align: center;
-
-            flex: 1;
-
-        }
-
-
-
-        .header-title h1 {
-
-            font-size: 17px;
-
-            font-weight: 500;
-
-            margin: 0;
-
-        }
-
-
-
-        .header-title p {
-
-            font-size: 13px;
-
-            color: #8E8E93;
-
-            margin-top: 2px;
-
-        }
-
-
-
-        .back-button {
-
-            font-size: 17px;
-
-            color: #000;
-
-            text-decoration: none;
-
-            padding: 8px;
-
-            margin: -8px;
-
-        }
-
-
-
-        .menu-button {
-
-            width: 24px;
-
-            height: 24px;
-
-            display: flex;
-
-            align-items: center;
-
-            justify-content: center;
-
-            color: #000;
-
-        }
-
-
-
         .timer {
 
             text-align: center;
@@ -162,9 +76,53 @@
 
             align-items: center;
 
+            justify-content: space-between;
+
             padding: 0 16px;
 
             margin-bottom: 24px;
+
+            position: relative;
+
+        }
+
+
+
+        .ticket-header::after {
+
+            content: '';
+
+            position: absolute;
+
+            bottom: -1px;
+
+            left: 0;
+
+            width: 50%;
+
+            height: 1px;
+
+            background: #E31E24;
+
+        }
+
+
+
+        .ticket-header::before {
+
+            content: '';
+
+            position: absolute;
+
+            bottom: -1px;
+
+            left: 50%;
+
+            width: 50%;
+
+            height: 1px;
+
+            background: rgba(0, 0, 0, 0.1);
 
         }
 
@@ -179,6 +137,8 @@
             gap: 12px;
 
             flex: 1;
+
+            padding: 4px 0;
 
         }
 
@@ -208,20 +168,6 @@
 
 
 
-        .red-line {
-
-            width: 1px;
-
-            height: 24px;
-
-            background: #E31E24;
-
-            margin: 0 16px;
-
-        }
-
-
-
         .control-section {
 
             display: flex;
@@ -230,27 +176,105 @@
 
             gap: 8px;
 
-            color: #000;
+            color: #8E8E93;
+
+            cursor: pointer;
+
+            padding: 4px 0;
+
+            transition: all 0.2s;
 
         }
 
 
 
-        .control-section svg {
+        .control-section.active ~ .ticket-header::after {
 
-            width: 24px;
+            left: 50%;
 
-            height: 24px;
+        }
+
+
+
+        .control-section.active ~ .ticket-header::before {
+
+            left: 0;
+
+        }
+
+
+
+        .qr-overlay {
+
+            position: fixed;
+
+            top: 0;
+
+            left: 0;
+
+            right: 0;
+
+            bottom: 0;
+
+            background: rgba(0, 0, 0, 0.5);
+
+            display: none;
+
+            justify-content: center;
+
+            align-items: center;
+
+            z-index: 1000;
+
+        }
+
+
+
+        .qr-container {
+
+            background: white;
+
+            padding: 24px;
+
+            border-radius: 16px;
+
+            text-align: center;
+
+            margin: 16px;
+
+            width: 100%;
+
+            max-width: 300px;
+
+        }
+
+
+
+        .qr-code {
+
+            width: 100%;
+
+            height: auto;
+
+            margin-bottom: 16px;
+
+        }
+
+
+
+        .qr-close {
+
+            background: none;
+
+            border: none;
 
             color: #8E8E93;
 
-        }
+            font-size: 15px;
 
+            cursor: pointer;
 
-
-        .control-section span {
-
-            font-size: 17px;
+            padding: 8px 16px;
 
         }
 
@@ -274,7 +298,7 @@
 
         .info-row:first-of-type {
 
-            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            padding-top: 8px;
 
         }
 
@@ -414,24 +438,6 @@
 
 <body>
 
-    <div class="header">
-
-        <a href="index.html" class="back-button">Закрыть</a>
-
-        <div class="header-title">
-
-            <h1>Городской Транспорт</h1>
-
-            <p>МИНИ-ПРИЛОЖЕНИЕ</p>
-
-        </div>
-
-        <div class="menu-button">⋯</div>
-
-    </div>
-
-
-
     <div class="timer" id="timer">Действует: 15 сек.</div>
 
 
@@ -449,8 +455,6 @@
             <span id="ticket-number"></span>
 
         </div>
-
-        <div class="red-line"></div>
 
         <div class="control-section">
 
@@ -574,64 +578,102 @@
 
 
 
+    <div class="qr-overlay" id="qrOverlay">
+        <div class="qr-container">
+            <img id="qrCode" class="qr-code">
+            <button class="qr-close" onclick="hideQR()">Закрыть</button>
+        </div>
+    </div>
+
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script>
-
         let tg = window.Telegram.WebApp;
-
         tg.expand();
 
-
+        // Функция закрытия mini-apps
+        function closeMiniApp() {
+            tg.close();
+        }
 
         // Получаем параметры из URL
-
         const urlParams = new URLSearchParams(window.location.search);
-
         
-
         // Заполняем данные билета
-
         document.getElementById('ticket-number').textContent = urlParams.get('code');
-
         document.getElementById('carrier').textContent = urlParams.get('carrier');
-
         document.getElementById('route').textContent = urlParams.get('route');
-
         document.getElementById('vehicle').textContent = urlParams.get('vehicle').toUpperCase();
-
         document.getElementById('cost').textContent = `1 шт., Полный, ${urlParams.get('cost')}₽`;
-
         document.getElementById('purchase-date').textContent = urlParams.get('purchase_date');
-
         document.getElementById('purchase-time').textContent = urlParams.get('purchase_time');
 
+        // Генерация случайного QR-кода
+        function generateRandomString(length) {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?';
+            let result = '';
+            for (let i = 0; i < length; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return result;
+        }
 
+        // Создаем QR-код
+        const qrData = {
+            ticket: urlParams.get('code'),
+            timestamp: Date.now(),
+            hash: generateRandomString(32),
+            vehicle: urlParams.get('vehicle'),
+            route: urlParams.get('route')
+        };
+
+        const qrCode = new QRCode(document.getElementById("qrCode"), {
+            text: JSON.stringify(qrData),
+            width: 256,
+            height: 256,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+        });
+
+        // Показать/скрыть QR-код
+        const controlSection = document.querySelector('.control-section');
+        const qrOverlay = document.getElementById('qrOverlay');
+
+        controlSection.addEventListener('click', () => {
+            qrOverlay.style.display = 'flex';
+            controlSection.classList.add('active');
+        });
+
+        function hideQR() {
+            qrOverlay.style.display = 'none';
+            controlSection.classList.remove('active');
+        }
+
+        // Закрыть QR при клике вне контейнера
+        qrOverlay.addEventListener('click', (e) => {
+            if (e.target === qrOverlay) {
+                hideQR();
+            }
+        });
 
         // Запускаем таймер
-
         let timeLeft = 15;
-
         const timerElement = document.getElementById('timer');
-
         
-
         const timer = setInterval(() => {
-
             timeLeft--;
-
             timerElement.textContent = `Действует: ${timeLeft} сек.`;
-
             
-
             if (timeLeft <= 0) {
-
                 clearInterval(timer);
-
-                window.location.href = 'index.html';
-
+                closeMiniApp();
             }
-
         }, 1000);
 
+        // Добавляем обработчик для кнопки закрытия
+        document.querySelector('.close-button').onclick = closeMiniApp;
     </script>
 
 </body>
