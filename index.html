@@ -937,6 +937,46 @@
         if (document.querySelector('.tab[data-tab="saved"]').classList.contains('active')) {
             loadSavedTickets();
         }
+
+        // Загрузка данных о маршрутах
+        async function loadRoutesData() {
+            try {
+                console.log('Начинаем загрузку routes.json...');
+                const response = await fetch('routes.json');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                console.log('Файл routes.json успешно загружен, парсим JSON...');
+                routesData = await response.json();
+                console.log('Данные успешно распарсены:', routesData);
+                
+                allCarriers = routesData.allCarriers;
+                console.log('Список перевозчиков:', allCarriers);
+                
+                // Заполняем выпадающий список перевозчиков
+                populateCarrierDropdown();
+                
+                // Добавляем обработчик события для выбора маршрута
+                document.getElementById('routeNumber').addEventListener('change', updateCarrierBasedOnRoute);
+            } catch (error) {
+                console.error('Ошибка загрузки данных о маршрутах:', error);
+                
+                // Резервный вариант - жестко закодированный список перевозчиков
+                allCarriers = [
+                    "ИП Патрин Н.Н.",
+                    "ООО \"СТК\"",
+                    "КПАТП-7",
+                    "МП «ГОРТРАНС»",
+                    "ИП Тагачаков В.Г.",
+                    "ООО «Экипаж-ГО»"
+                ];
+                
+                console.log('Используем резервный список перевозчиков:', allCarriers);
+                populateCarrierDropdown();
+            }
+        }
     </script>
 </body>
 
