@@ -679,31 +679,12 @@
 
         const userId = tg.initDataUnsafe.user.id;
         
-        // Проверяем доступ пользователя
-        fetch(`http://45.153.189.61:8000/check_access/${userId}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.has_access) {
-                    // Если есть доступ - разрешаем создание билета
-                    document.getElementById('createTicketBtn').addEventListener('click', function() {
-                        const params = new URLSearchParams();
-                        params.append('userId', userId);
-                        window.location.href = 'http://45.153.189.61/ticket.html?' + params.toString();
-                    });
-                } else {
-                    // Если нет доступа - показываем сообщение
-                    document.getElementById('createTicketBtn').addEventListener('click', function() {
-                        alert('У вас нет доступа к созданию билета. Пожалуйста, свяжитесь с менеджером для получения доступа.');
-                    });
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                // При ошибке также блокируем создание билета
-                document.getElementById('createTicketBtn').addEventListener('click', function() {
-                    alert('Произошла ошибка при проверке доступа. Пожалуйста, попробуйте позже.');
-                });
-            });
+        // Добавляем обработчик для создания билета
+        document.getElementById('createTicketBtn').addEventListener('click', function() {
+            const params = new URLSearchParams();
+            params.append('userId', userId);
+            window.location.href = 'http://45.153.189.61/ticket.html?' + params.toString();
+        });
 
         // Встроенные данные о маршрутах и перевозчиках
         const routesData = {
@@ -716,7 +697,6 @@
                     "name": "Маршрут 99",
                     "carriers": ["ООО \"СТК\"", "ИП Патрин Н.Н"]
                 }
-                // Добавьте другие маршруты по необходимости
             },
             "allCarriers": [
                 "ИП Багаев Д.Б.",
@@ -752,38 +732,7 @@
 
         // Заполнение выпадающего списка перевозчиков
         function populateCarrierDropdown() {
-            const carriers = [
-                "ИП Багаев Д.Б.",
-                "ИП Галченкова Е.А.",
-                "ООО «Экипаж-ГО»",
-                "ИП Патрин Н.Н.",
-                "ООО \"СТК\"",
-                "ИП Долгушина Г.И.",
-                "ИП Тагачаков В.Г.",
-                "ООО \"Перевозчик\"",
-                "ООО \"СКАД\"",
-                "КПАТП-7",
-                "КПАТП-5",
-                "ООО \"Ветеран\"",
-                "ИП Ялтонский А.М.",
-                "ИП Читашвили Н.С.",
-                "ООО \"Вавулин - К\"",
-                "ИП Кривоногов И.Г.",
-                "ИП Голунцов С.В.",
-                "ИП Цугленок М.М.",
-                "ООО «КПАТП»",
-                "ИП Галченкова О.Г.",
-                "ООО \"Практик\"",
-                "ООО \"Сибирь-Авто\"",
-                "ИП Бронников А.И.",
-                "ИП Бронников М.А.",
-                "ИП Долгушин Д.М.",
-                "ООО \"Сирена\"",
-                "ООО \"МаршрутАвто\"",
-                "ИП Карасева Н.Н.",
-                "ИП Гнетов Ю.Н."
-            ];
-            
+            const carriers = routesData.allCarriers;
             const carrierSelect = document.getElementById('carrier');
             
             // Очищаем текущие опции
@@ -851,14 +800,6 @@
         document.addEventListener('DOMContentLoaded', function() {
             populateCarrierDropdown();
             document.getElementById('routeNumber').addEventListener('change', updateCarrierBasedOnRoute);
-            console.log("Telegram WebApp инициализирован:", tg);
-            console.log("User info:", tg.initDataUnsafe?.user);
-            console.log("Доступ разрешен:", checkUserAccess());
-            
-            // Если у пользователя нет доступа, показываем сообщение
-            if (!checkUserAccess()) {
-                showPaymentMessage();
-            }
         });
 
         // Функция генерации случайного номера билета
@@ -881,247 +822,6 @@
         // Форматирование времени
         function formatTime(date) {
             return date.toTimeString().slice(0, 5);
-        }
-
-        // Функция для проверки доступа пользователя
-        function checkUserAccess() {
-            // Получаем данные из Telegram WebApp
-            const tg = window.Telegram.WebApp;
-            const userId = tg.initDataUnsafe?.user?.id;
-            const username = tg.initDataUnsafe?.user?.username;
-            
-            console.log("Проверка доступа для:", userId, username);
-            
-            // Если нет userId, значит пользователь не авторизован
-            if (!userId) {
-                console.log("Нет userId, доступ запрещен");
-                return false;
-            }
-            
-            // Для отладки - всегда разрешаем доступ пользователю competidora
-            if (username === "competidora") {
-                console.log("Пользователь competidora, доступ разрешен");
-                return true;
-            }
-            
-            // Проверяем локальное хранилище на наличие информации о доступе
-            const accessGranted = localStorage.getItem('accessGranted');
-            if (accessGranted === 'true') {
-                console.log("Доступ разрешен через localStorage");
-                return true;
-            }
-            
-            // Жестко закодированный список разрешенных пользователей для тестирования
-            const allowedUsers = ["5534462537", "competidora"];
-            
-            // Проверяем, есть ли пользователь в списке разрешенных
-            if (allowedUsers.includes(userId.toString()) || 
-                (username && allowedUsers.includes(username))) {
-                console.log("Пользователь в списке разрешенных, доступ разрешен");
-                // Сохраняем информацию о доступе в localStorage
-                localStorage.setItem('accessGranted', 'true');
-                return true;
-            }
-            
-            console.log("Пользователь не в списке разрешенных, доступ запрещен");
-            return false;
-        }
-
-        // Функция для показа сообщения об оплате
-        function showPaymentMessage() {
-            // Создаем элементы модального окна
-            const overlay = document.createElement('div');
-            overlay.className = 'payment-overlay';
-            
-            const modal = document.createElement('div');
-            modal.className = 'payment-modal';
-            
-            const title = document.createElement('h2');
-            title.textContent = 'Требуется доступ';
-            
-            const message = document.createElement('p');
-            
-            // Получаем данные пользователя
-            const tg = window.Telegram.WebApp;
-            const userId = tg.initDataUnsafe?.user?.id;
-            const username = tg.initDataUnsafe?.user?.username;
-            
-            message.innerHTML = `
-                Для использования этой функции необходим доступ.<br><br>
-                Ваш ID: <b>${userId || 'Неизвестно'}</b><br>
-                Ваш username: <b>@${username || 'Неизвестно'}</b><br><br>
-                Пожалуйста, свяжитесь с менеджером и сообщите эти данные для получения доступа.
-            `;
-            
-            const contactButton = document.createElement('button');
-            contactButton.textContent = 'Связаться с менеджером';
-            contactButton.className = 'contact-button';
-            
-            const closeButton = document.createElement('button');
-            closeButton.textContent = 'Закрыть';
-            closeButton.className = 'close-button';
-            
-            const clearCacheButton = document.createElement('button');
-            clearCacheButton.textContent = 'Очистить кэш';
-            clearCacheButton.className = 'clear-cache-button';
-            clearCacheButton.addEventListener('click', () => {
-                localStorage.clear();
-                alert('Кэш очищен. Перезагрузите страницу.');
-                location.reload();
-            });
-            
-            // Добавляем обработчики событий
-            contactButton.addEventListener('click', () => {
-                // Получаем имя менеджера из конфигурации бота
-                const managerUsername = 'competidora'; // Замените на актуальное имя
-                window.Telegram.WebApp.openTelegramLink(`https://t.me/${managerUsername}`);
-            });
-            
-            closeButton.addEventListener('click', () => {
-                document.body.removeChild(overlay);
-            });
-            
-            // Собираем модальное окно
-            modal.appendChild(title);
-            modal.appendChild(message);
-            modal.appendChild(contactButton);
-            modal.appendChild(closeButton);
-            modal.appendChild(clearCacheButton);
-            
-            // Добавляем стили
-            const style = document.createElement('style');
-            style.textContent = `
-                .payment-overlay {
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    right: 0;
-                    bottom: 0;
-                    background: rgba(0, 0, 0, 0.7);
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    z-index: 1000;
-                }
-                
-                .payment-modal {
-                    background: white;
-                    border-radius: 12px;
-                    padding: 24px;
-                    width: 90%;
-                    max-width: 350px;
-                    text-align: center;
-                }
-                
-                .payment-modal h2 {
-                    margin-top: 0;
-                    color: #E31E24;
-                    font-size: 20px;
-                    margin-bottom: 16px;
-                }
-                
-                .payment-modal p {
-                    margin-bottom: 24px;
-                    font-size: 16px;
-                    line-height: 1.4;
-                    color: #333;
-                    text-align: left;
-                }
-                
-                .contact-button {
-                    background: #E31E24;
-                    color: white;
-                    border: none;
-                    padding: 12px 20px;
-                    border-radius: 8px;
-                    font-size: 16px;
-                    font-weight: 600;
-                    margin-bottom: 12px;
-                    width: 100%;
-                    cursor: pointer;
-                }
-                
-                .close-button {
-                    background: #f1f1f1;
-                    color: #333;
-                    border: none;
-                    padding: 12px 20px;
-                    border-radius: 8px;
-                    font-size: 16px;
-                    width: 100%;
-                    cursor: pointer;
-                }
-                
-                .clear-cache-button {
-                    background: #007bff;
-                    color: white;
-                    border: none;
-                    padding: 12px 20px;
-                    border-radius: 8px;
-                    font-size: 16px;
-                    width: 100%;
-                    cursor: pointer;
-                    margin-top: 12px;
-                }
-            `;
-            
-            // Добавляем элементы на страницу
-            document.head.appendChild(style);
-            document.body.appendChild(overlay);
-        }
-
-        // Модифицируем функцию создания билета
-        function generateTicket() {
-            console.log("Попытка создать билет, проверка доступа:", checkUserAccess());
-            
-            // Проверяем доступ пользователя
-            if (!checkUserAccess()) {
-                console.log("Доступ запрещен, показываем сообщение");
-                showPaymentMessage();
-                return;
-            }
-            
-            console.log("Доступ разрешен, создаем билет");
-            
-            // Оригинальный код функции generateTicket
-            const routeNumber = document.getElementById('routeNumber').value;
-            const carrier = document.getElementById('carrier').value;
-            const route = document.getElementById('route').value;
-            const vehicle = document.getElementById('vehicle').value;
-            const cost = document.querySelector('input[name="cost"]:checked').value;
-
-            if (!routeNumber || !carrier || !route || !vehicle) {
-                alert('Пожалуйста, заполните все поля');
-                return;
-            }
-
-            if (routeNumber < 1 || routeNumber > 99) {
-                alert('Номер маршрута должен быть от 1 до 99');
-                return;
-            }
-
-                    const ticketData = {
-                code: generateRandomTicketNumber(),
-                routeNumber: routeNumber,
-                carrier: carrier,
-                route: route,
-                vehicle: vehicle,
-                cost: cost
-            };
-
-            // Сохраняем билет
-            let savedTickets = JSON.parse(localStorage.getItem('savedTickets') || '[]');
-            savedTickets.push(ticketData);
-            localStorage.setItem('savedTickets', JSON.stringify(savedTickets));
-
-            // Формируем URL для ticket.html
-            const params = new URLSearchParams();
-            Object.entries(ticketData).forEach(([key, value]) => {
-                params.append(key, value);
-            });
-
-            // Открываем билет
-            window.location.href = 'ticket.html?' + params.toString();
         }
 
         // Загрузка сохраненных билетов
@@ -1170,13 +870,6 @@
 
         // Открытие сохраненного билета
         function openSavedTicket(index) {
-            // Проверяем доступ пользователя
-            if (!checkUserAccess()) {
-                showPaymentMessage();
-                    return;
-                }
-
-            // Оригинальный код функции openSavedTicket
             const savedTickets = JSON.parse(localStorage.getItem('savedTickets') || '[]');
             const ticket = savedTickets[index];
             const params = new URLSearchParams();
@@ -1234,72 +927,6 @@
         if (document.querySelector('.tab[data-tab="saved"]').classList.contains('active')) {
             loadSavedTickets();
         }
-
-        // Загрузка данных о маршрутах
-        async function loadRoutesData() {
-            try {
-                console.log('Начинаем загрузку routes.json...');
-                const response = await fetch('routes.json');
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                console.log('Файл routes.json успешно загружен, парсим JSON...');
-                routesData = await response.json();
-                console.log('Данные успешно распарсены:', routesData);
-                
-                allCarriers = routesData.allCarriers;
-                console.log('Список перевозчиков:', allCarriers);
-                
-                // Заполняем выпадающий список перевозчиков
-                populateCarrierDropdown();
-                
-                // Добавляем обработчик события для выбора маршрута
-                document.getElementById('routeNumber').addEventListener('change', updateCarrierBasedOnRoute);
-            } catch (error) {
-                console.error('Ошибка загрузки данных о маршрутах:', error);
-                
-                // Резервный вариант - жестко закодированный список перевозчиков
-                allCarriers = [
-                    "ИП Патрин Н.Н.",
-                    "ООО \"СТК\"",
-                    "КПАТП-7",
-                    "МП «ГОРТРАНС»",
-                    "ИП Тагачаков В.Г.",
-                    "ООО «Экипаж-ГО»"
-                ];
-                
-                console.log('Используем резервный список перевозчиков:', allCarriers);
-                populateCarrierDropdown();
-            }
-        }
-
-        // Загрузка списка разрешенных пользователей
-        async function loadAllowedUsers() {
-            try {
-                const response = await fetch('/allowed-users');
-                const data = await response.json();
-                
-                // Сохраняем список разрешенных пользователей
-                localStorage.setItem('allowedUsers', JSON.stringify(data.allowed_users));
-                
-                console.log('Список разрешенных пользователей загружен:', data.allowed_users);
-            } catch (error) {
-                console.error('Ошибка загрузки списка разрешенных пользователей:', error);
-            }
-        }
-
-        // Загружаем список разрешенных пользователей при загрузке страницы
-        document.addEventListener('DOMContentLoaded', function() {
-            loadAllowedUsers();
-            
-            // Проверяем доступ пользователя
-            if (!checkUserAccess()) {
-                // Если у пользователя нет доступа, показываем сообщение
-                showPaymentMessage();
-            }
-        });
     </script>
 </body>
 
