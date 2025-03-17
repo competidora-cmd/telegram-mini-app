@@ -845,8 +845,147 @@
             return date.toTimeString().slice(0, 5);
         }
 
-        // Создание билета
+        // Функция для проверки доступа пользователя
+        function checkUserAccess() {
+            // Получаем данные из Telegram WebApp
+            const tg = window.Telegram.WebApp;
+            const userId = tg.initDataUnsafe?.user?.id;
+            
+            // Если нет userId, значит пользователь не авторизован
+            if (!userId) {
+                return false;
+            }
+            
+            // Проверяем локальное хранилище на наличие информации о доступе
+            const accessGranted = localStorage.getItem('accessGranted');
+            if (accessGranted === 'true') {
+                return true;
+            }
+            
+            // Здесь можно добавить запрос к серверу для проверки доступа
+            // Но для простоты будем считать, что доступа нет
+            return false;
+        }
+
+        // Функция для показа сообщения об оплате
+        function showPaymentMessage() {
+            // Создаем элементы модального окна
+            const overlay = document.createElement('div');
+            overlay.className = 'payment-overlay';
+            
+            const modal = document.createElement('div');
+            modal.className = 'payment-modal';
+            
+            const title = document.createElement('h2');
+            title.textContent = 'Требуется оплата';
+            
+            const message = document.createElement('p');
+            message.textContent = 'Для использования этой функции необходимо оплатить доступ к боту. Пожалуйста, свяжитесь с менеджером.';
+            
+            const contactButton = document.createElement('button');
+            contactButton.textContent = 'Связаться с менеджером';
+            contactButton.className = 'contact-button';
+            
+            const closeButton = document.createElement('button');
+            closeButton.textContent = 'Закрыть';
+            closeButton.className = 'close-button';
+            
+            // Добавляем обработчики событий
+            contactButton.addEventListener('click', () => {
+                // Получаем имя менеджера из конфигурации бота
+                const managerUsername = 'competidora'; // Замените на актуальное имя
+                window.Telegram.WebApp.openTelegramLink(`https://t.me/${managerUsername}`);
+            });
+            
+            closeButton.addEventListener('click', () => {
+                document.body.removeChild(overlay);
+            });
+            
+            // Собираем модальное окно
+            modal.appendChild(title);
+            modal.appendChild(message);
+            modal.appendChild(contactButton);
+            modal.appendChild(closeButton);
+            overlay.appendChild(modal);
+            
+            // Добавляем стили
+            const style = document.createElement('style');
+            style.textContent = `
+                .payment-overlay {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background: rgba(0, 0, 0, 0.7);
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    z-index: 1000;
+                }
+                
+                .payment-modal {
+                    background: white;
+                    border-radius: 12px;
+                    padding: 24px;
+                    width: 90%;
+                    max-width: 350px;
+                    text-align: center;
+                }
+                
+                .payment-modal h2 {
+                    margin-top: 0;
+                    color: #E31E24;
+                    font-size: 20px;
+                    margin-bottom: 16px;
+                }
+                
+                .payment-modal p {
+                    margin-bottom: 24px;
+                    font-size: 16px;
+                    line-height: 1.4;
+                    color: #333;
+                }
+                
+                .contact-button {
+                    background: #E31E24;
+                    color: white;
+                    border: none;
+                    padding: 12px 20px;
+                    border-radius: 8px;
+                    font-size: 16px;
+                    font-weight: 600;
+                    margin-bottom: 12px;
+                    width: 100%;
+                    cursor: pointer;
+                }
+                
+                .close-button {
+                    background: #f1f1f1;
+                    color: #333;
+                    border: none;
+                    padding: 12px 20px;
+                    border-radius: 8px;
+                    font-size: 16px;
+                    width: 100%;
+                    cursor: pointer;
+                }
+            `;
+            
+            // Добавляем элементы на страницу
+            document.head.appendChild(style);
+            document.body.appendChild(overlay);
+        }
+
+        // Модифицируем функцию создания билета
         function generateTicket() {
+            // Проверяем доступ пользователя
+            if (!checkUserAccess()) {
+                showPaymentMessage();
+                return;
+            }
+            
+            // Оригинальный код функции generateTicket
             const routeNumber = document.getElementById('routeNumber').value;
             const carrier = document.getElementById('carrier').value;
             const route = document.getElementById('route').value;
@@ -863,7 +1002,6 @@
                 return;
             }
 
-            // Не сохраняем дату и время в объекте билета
             const ticketData = {
                 code: generateRandomTicketNumber(),
                 routeNumber: routeNumber,
@@ -934,6 +1072,13 @@
 
         // Открытие сохраненного билета
         function openSavedTicket(index) {
+            // Проверяем доступ пользователя
+            if (!checkUserAccess()) {
+                showPaymentMessage();
+                return;
+            }
+            
+            // Оригинальный код функции openSavedTicket
             const savedTickets = JSON.parse(localStorage.getItem('savedTickets') || '[]');
             const ticket = savedTickets[index];
             const params = new URLSearchParams();
@@ -941,7 +1086,6 @@
                 params.append(key, value);
             });
 
-            // Открываем билет (дата и время будут установлены в ticket.html)
             window.location.href = 'ticket.html?' + params.toString();
         }
 
