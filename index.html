@@ -6,7 +6,7 @@
 
     <meta charset="UTF-8">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
     <title>Городской Транспорт</title>
 
@@ -340,7 +340,6 @@
         <div class="form-group">
             <label for="carrier">Выберите перевозчика:</label>
             <select class="form-control" id="carrier">
-                <option value="">Выберите перевозчика</option>
                 <option value="ООО Автобусный парк">ООО Автобусный парк</option>
                 <option value="ИП Иванов А.А.">ИП Иванов А.А.</option>
                 <option value="МП Городской Транспорт">МП Городской Транспорт</option>
@@ -351,7 +350,6 @@
         <div class="form-group">
             <label for="route">Выберите маршрут:</label>
             <select class="form-control" id="route">
-                <option value="">Выберите маршрут</option>
                 <option value="Маршрут №1">Маршрут №1</option>
                 <option value="Маршрут №2">Маршрут №2</option>
                 <option value="Маршрут №3">Маршрут №3</option>
@@ -363,7 +361,6 @@
         <div class="form-group">
             <label for="vehicle">Выберите транспорт:</label>
             <select class="form-control" id="vehicle">
-                <option value="">Выберите транспорт</option>
                 <option value="Автобус №123">Автобус №123</option>
                 <option value="Автобус №456">Автобус №456</option>
                 <option value="Троллейбус №789">Троллейбус №789</option>
@@ -373,7 +370,7 @@
         
         <div class="form-group">
             <label for="cost">Стоимость билета:</label>
-            <select class="form-control" id="cost">
+            <select class="form-control" id="cost" onchange="updatePrice()">
                 <option value="44.00">44.00₽</option>
                 <option value="50.00">50.00₽</option>
                 <option value="60.00">60.00₽</option>
@@ -402,8 +399,8 @@
         let tg = window.Telegram.WebApp;
         tg.expand();
         
-        // Базовый URL API
-        const apiUrl = 'http://45.153.189.61:8000';
+        // Базовый URL API - убираем порт, если используем стандартный порт 80
+        const apiUrl = 'http://45.153.189.61';
         
         // Получаем ID пользователя из Telegram
         const userId = tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : null;
@@ -510,8 +507,8 @@
                 });
         }
         
-        // Функция для проверки доступа пользователя
-        function checkAccess() {
+        // Функция для проверки доступа пользователя с повторными попытками
+        function checkAccess(retryCount = 0) {
             if (!userId) {
                 showError('Не удалось получить ID пользователя. Пожалуйста, откройте приложение через Telegram.');
                 return;
@@ -541,7 +538,29 @@
                 })
                 .catch(error => {
                     console.error('Ошибка при проверке доступа:', error);
-                    showError('Произошла ошибка при проверке доступа: ' + error.message);
+                    
+                    if (retryCount < 3) {
+                        // Пробуем еще раз через 2 секунды
+                        setTimeout(() => {
+                            checkAccess(retryCount + 1);
+                        }, 2000);
+                    } else {
+                        // После 3 попыток показываем ошибку и предлагаем альтернативу
+                        loadingOverlay.style.display = 'none';
+                        
+                        // Показываем ошибку и кнопку для повторной попытки
+                        errorMessage.innerHTML = `
+                            <p>Произошла ошибка при проверке доступа: ${error.message}</p>
+                            <p>Возможно, сервер временно недоступен.</p>
+                            <button onclick="checkAccess()" style="margin-top: 10px; padding: 8px 16px; background-color: #E31E24; color: white; border: none; border-radius: 4px;">
+                                Попробовать снова
+                            </button>
+                            <p style="margin-top: 10px; font-size: 12px;">
+                                Если проблема повторяется, пожалуйста, сообщите администратору.
+                            </p>
+                        `;
+                        errorMessage.style.display = 'block';
+                    }
                 });
         }
         
