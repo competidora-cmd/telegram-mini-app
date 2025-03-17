@@ -40,10 +40,6 @@
 
             padding: 16px;
 
-            display: flex;
-
-            flex-direction: column;
-
         }
 
 
@@ -68,8 +64,6 @@
 
             text-align: center;
 
-            color: var(--tg-theme-text-color, #000000);
-
         }
 
 
@@ -90,8 +84,6 @@
 
             font-weight: 500;
 
-            color: var(--tg-theme-text-color, #000000);
-
         }
 
 
@@ -102,13 +94,9 @@
 
             padding: 12px;
 
-            border: 1px solid var(--tg-theme-hint-color, #999999);
+            border: 1px solid #ddd;
 
             border-radius: 8px;
-
-            background-color: var(--tg-theme-bg-color, #ffffff);
-
-            color: var(--tg-theme-text-color, #000000);
 
             font-size: 16px;
 
@@ -164,19 +152,25 @@
 
             margin: 16px 0;
 
-            color: var(--tg-theme-text-color, #000000);
+        }
+
+
+
+        .admin-panel {
+
+            margin-top: 32px;
+
+            padding: 16px;
+
+            border: 1px solid #ddd;
+
+            border-radius: 8px;
 
         }
 
 
 
-        .quantity-selector {
-
-            display: flex;
-
-            align-items: center;
-
-            justify-content: center;
+        .admin-panel h3 {
 
             margin-bottom: 16px;
 
@@ -184,139 +178,9 @@
 
 
 
-        .quantity-btn {
+        .admin-panel .btn {
 
-            width: 40px;
-
-            height: 40px;
-
-            background-color: var(--tg-theme-button-color, #E31E24);
-
-            color: var(--tg-theme-button-text-color, white);
-
-            border: none;
-
-            border-radius: 50%;
-
-            font-size: 20px;
-
-            display: flex;
-
-            align-items: center;
-
-            justify-content: center;
-
-            cursor: pointer;
-
-        }
-
-
-
-        .quantity-value {
-
-            font-size: 24px;
-
-            margin: 0 16px;
-
-            width: 40px;
-
-            text-align: center;
-
-            color: var(--tg-theme-text-color, #000000);
-
-        }
-
-
-
-        .loading-overlay {
-
-            position: fixed;
-
-            top: 0;
-
-            left: 0;
-
-            right: 0;
-
-            bottom: 0;
-
-            background-color: rgba(255, 255, 255, 0.8);
-
-            display: flex;
-
-            justify-content: center;
-
-            align-items: center;
-
-            z-index: 1000;
-
-        }
-
-
-
-        .loading-spinner {
-
-            width: 50px;
-
-            height: 50px;
-
-            border: 5px solid #f3f3f3;
-
-            border-top: 5px solid #E31E24;
-
-            border-radius: 50%;
-
-            animation: spin 1s linear infinite;
-
-        }
-
-
-
-        @keyframes spin {
-
-            0% { transform: rotate(0deg); }
-
-            100% { transform: rotate(360deg); }
-
-        }
-
-
-
-        .error-message {
-
-            background-color: #ffebee;
-
-            color: #c62828;
-
-            padding: 15px;
-
-            border-radius: 8px;
-
-            margin: 15px 0;
-
-            text-align: center;
-
-        }
-
-
-
-        .debug-info {
-
-            margin-top: 20px;
-
-            padding: 10px;
-
-            background-color: #f5f5f5;
-
-            border-radius: 8px;
-
-            font-size: 12px;
-
-            color: #666;
-
-            white-space: pre-wrap;
-
-            word-break: break-all;
+            margin-bottom: 8px;
 
         }
 
@@ -325,247 +189,81 @@
 </head>
 
 <body>
-    <!-- Индикатор загрузки -->
-    <div class="loading-overlay" id="loadingOverlay">
-        <div class="loading-spinner"></div>
-    </div>
-
-    <!-- Сообщение об ошибке -->
-    <div class="error-message" id="errorMessage" style="display: none;"></div>
-
-    <!-- Основной контент -->
-    <div class="container" id="mainContent" style="display: none;">
+    <div class="container">
         <h1>Городской Транспорт</h1>
         
         <div class="form-group">
             <label for="carrier">Выберите перевозчика:</label>
             <select class="form-control" id="carrier">
-                <option value="ООО Автобусный парк">ООО Автобусный парк</option>
-                <option value="ИП Иванов А.А.">ИП Иванов А.А.</option>
-                <option value="МП Городской Транспорт">МП Городской Транспорт</option>
-                <option value="ООО ТрансСервис">ООО ТрансСервис</option>
+                <option value="">Выберите перевозчика</option>
             </select>
         </div>
         
         <div class="form-group">
             <label for="route">Выберите маршрут:</label>
             <select class="form-control" id="route">
-                <option value="Маршрут №1">Маршрут №1</option>
-                <option value="Маршрут №2">Маршрут №2</option>
-                <option value="Маршрут №3">Маршрут №3</option>
-                <option value="Маршрут №42">Маршрут №42</option>
-                <option value="Маршрут №55">Маршрут №55</option>
+                <option value="">Выберите маршрут</option>
             </select>
         </div>
-        
+
         <div class="form-group">
             <label for="vehicle">Выберите транспорт:</label>
             <select class="form-control" id="vehicle">
-                <option value="Автобус №123">Автобус №123</option>
-                <option value="Автобус №456">Автобус №456</option>
-                <option value="Троллейбус №789">Троллейбус №789</option>
-                <option value="Трамвай №101">Трамвай №101</option>
+                <option value="">Выберите транспорт</option>
             </select>
         </div>
-        
+
         <div class="form-group">
             <label for="cost">Стоимость билета:</label>
-            <select class="form-control" id="cost" onchange="updatePrice()">
+            <select class="form-control" id="cost">
                 <option value="44.00">44.00₽</option>
                 <option value="50.00">50.00₽</option>
                 <option value="60.00">60.00₽</option>
             </select>
         </div>
+
+        <div class="price">44.00₽</div>
         
-        <div class="form-group">
-            <label>Количество билетов:</label>
-            <div class="quantity-selector">
-                <button class="quantity-btn" onclick="decreaseQuantity()">-</button>
-                <div class="quantity-value" id="quantity">1</div>
-                <button class="quantity-btn" onclick="increaseQuantity()">+</button>
-            </div>
+        <button class="btn" id="createTicketBtn">Создать билет</button>
+        
+        <div class="admin-panel" id="adminPanel" style="display: none;">
+            <h3>Панель администратора</h3>
+            <button class="btn" onclick="updateFiles()">Обновить файлы на GitHub</button>
         </div>
-        
-        <div class="price" id="totalPrice">44.00₽</div>
-        
-        <button class="btn" onclick="createTicket()">Создать билет</button>
-        
-        <!-- Отладочная информация -->
-        <div class="debug-info" id="debugInfo"></div>
     </div>
 
     <script>
-        // Получаем экземпляр Telegram WebApp
         let tg = window.Telegram.WebApp;
         tg.expand();
+        tg.ready();
+
+        const userId = tg.initDataUnsafe.user.id;
         
-        // Базовый URL API - убираем порт, если используем стандартный порт 80
-        const apiUrl = 'http://45.153.189.61';
-        
-        // Получаем ID пользователя из Telegram
-        const userId = tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : null;
-        const botUsername = tg.initDataUnsafe.user ? tg.initDataUnsafe.bot_username : 'fakebuspaybot';
-        
-        // Элементы интерфейса
-        const loadingOverlay = document.getElementById('loadingOverlay');
-        const errorMessage = document.getElementById('errorMessage');
-        const mainContent = document.getElementById('mainContent');
-        const debugInfo = document.getElementById('debugInfo');
-        
-        // Отображаем отладочную информацию
-        debugInfo.textContent = `User ID: ${userId}\nBot Username: ${botUsername}\nInit Data: ${JSON.stringify(tg.initDataUnsafe).substring(0, 200)}...`;
-        
-        // Переменные для работы с количеством билетов
-        let quantity = 1;
-        let basePrice = 44.00;
-        
-        // Функция для отображения ошибки
-        function showError(message) {
-            errorMessage.textContent = message;
-            errorMessage.style.display = 'block';
-            loadingOverlay.style.display = 'none';
-            
-            // Добавляем ошибку в отладочную информацию
-            debugInfo.textContent += `\n\nError: ${message}`;
-        }
-        
-        // Функция для увеличения количества билетов
-        function increaseQuantity() {
-            if (quantity < 5) {
-                quantity++;
-                updateQuantityAndPrice();
-            }
-        }
-        
-        // Функция для уменьшения количества билетов
-        function decreaseQuantity() {
-            if (quantity > 1) {
-                quantity--;
-                updateQuantityAndPrice();
-            }
-        }
-        
-        // Функция для обновления отображения количества и цены
-        function updateQuantityAndPrice() {
-            document.getElementById('quantity').textContent = quantity;
-            
-            const costSelect = document.getElementById('cost');
-            basePrice = parseFloat(costSelect.value);
-            const totalPrice = (basePrice * quantity).toFixed(2);
-            
-            document.getElementById('totalPrice').textContent = `${totalPrice}₽`;
-        }
-        
-        // Функция для создания билета
-        function createTicket() {
-            const carrier = document.getElementById('carrier').value;
-            const route = document.getElementById('route').value;
-            const vehicle = document.getElementById('vehicle').value;
-            const cost = document.getElementById('cost').value;
-            
-            if (!carrier || !route || !vehicle) {
-                alert('Пожалуйста, заполните все поля');
-                return;
-            }
-            
-            loadingOverlay.style.display = 'flex';
-            
-            // Обновляем URL для включения количества билетов
-            const url = `${apiUrl}/create_ticket?user_id=${userId}&carrier=${encodeURIComponent(carrier)}&route=${encodeURIComponent(route)}&vehicle=${encodeURIComponent(vehicle)}&cost=${cost}&quantity=${quantity}`;
-            
-            fetch(url)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`Ошибка сервера: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    loadingOverlay.style.display = 'none';
-                    
-                    if (data.success) {
-                        // Обновляем отображение стоимости с учетом количества
-                        const totalCost = parseFloat(cost) * parseInt(quantity);
+        // Проверяем доступ пользователя
+        fetch(`http://45.153.189.61:8000/check_access/${userId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.has_access) {
+                    // Если есть доступ - разрешаем создание билета
+                    document.getElementById('createTicketBtn').addEventListener('click', function() {
                         const params = new URLSearchParams();
-                        params.append('code', data.ticket.code);
-                        params.append('carrier', carrier);
-                        params.append('route', route);
-                        params.append('vehicle', vehicle);
-                        params.append('cost', totalCost.toFixed(2));
-                        params.append('quantity', quantity);
-                        params.append('bot', botUsername);
-                        
+                        params.append('userId', userId);
                         window.location.href = 'http://45.153.189.61/ticket.html?' + params.toString();
-                    } else {
-                        showError('Ошибка при создании билета: ' + data.message);
-                    }
-                })
-                .catch(error => {
-                    loadingOverlay.style.display = 'none';
-                    console.error('Ошибка:', error);
-                    showError('Произошла ошибка при создании билета: ' + error.message);
+                    });
+                } else {
+                    // Если нет доступа - показываем сообщение
+                    document.getElementById('createTicketBtn').addEventListener('click', function() {
+                        alert('У вас нет доступа к созданию билета');
+                    });ф
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // При ошибке также блокируем создание билета
+                document.getElementById('createTicketBtn').addEventListener('click', function() {
+                    alert('Произошла ошибка при проверке доступа');
                 });
-        }
-        
-        // Функция для проверки доступа пользователя с повторными попытками
-        function checkAccess(retryCount = 0) {
-            if (!userId) {
-                showError('Не удалось получить ID пользователя. Пожалуйста, откройте приложение через Telegram.');
-                return;
-            }
-            
-            loadingOverlay.style.display = 'flex';
-            
-            fetch(`${apiUrl}/check_access?user_id=${userId}`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`Ошибка сервера при проверке доступа: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.access) {
-                        // Пользователь имеет доступ, показываем контент
-                        loadingOverlay.style.display = 'none';
-                        mainContent.style.display = 'block';
-                        
-                        // Добавляем обработчик изменения стоимости
-                        document.getElementById('cost').addEventListener('change', updateQuantityAndPrice);
-                    } else {
-                        // Пользователь не имеет доступа
-                        showError('У вас нет доступа к этому приложению. Пожалуйста, обратитесь к администратору.');
-                    }
-                })
-                .catch(error => {
-                    console.error('Ошибка при проверке доступа:', error);
-                    
-                    if (retryCount < 3) {
-                        // Пробуем еще раз через 2 секунды
-                        setTimeout(() => {
-                            checkAccess(retryCount + 1);
-                        }, 2000);
-                    } else {
-                        // После 3 попыток показываем ошибку и предлагаем альтернативу
-                        loadingOverlay.style.display = 'none';
-                        
-                        // Показываем ошибку и кнопку для повторной попытки
-                        errorMessage.innerHTML = `
-                            <p>Произошла ошибка при проверке доступа: ${error.message}</p>
-                            <p>Возможно, сервер временно недоступен.</p>
-                            <button onclick="checkAccess()" style="margin-top: 10px; padding: 8px 16px; background-color: #E31E24; color: white; border: none; border-radius: 4px;">
-                                Попробовать снова
-                            </button>
-                            <p style="margin-top: 10px; font-size: 12px;">
-                                Если проблема повторяется, пожалуйста, сообщите администратору.
-                            </p>
-                        `;
-                        errorMessage.style.display = 'block';
-                    }
-                });
-        }
-        
-        // Запускаем проверку доступа при загрузке страницы
-        document.addEventListener('DOMContentLoaded', checkAccess);
+            });
     </script>
 </body>
 
