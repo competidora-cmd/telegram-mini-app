@@ -12,6 +12,8 @@
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
     <style>
 
         * {
@@ -54,15 +56,57 @@
 
 
 
+        .header {
+
+            text-align: center;
+
+            padding: 16px;
+
+            background-color: #fff;
+
+            position: relative;
+
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+
+        }
+
+
+
+        .header-title {
+
+            font-size: 20px;
+
+            font-weight: 600;
+
+            color: #000;
+
+            margin: 0;
+
+        }
+
+
+
+        .header-subtitle {
+
+            font-size: 14px;
+
+            color: #8E8E93;
+
+            margin-top: 4px;
+
+        }
+
+
+
         .timer {
 
             text-align: center;
 
-            font-size: 24px;
+            font-size: 28px;
 
-            font-weight: 400;
+            font-weight: 500;
 
-            margin: 20px 0;
+            margin: 24px 0;
 
             color: #000;
 
@@ -76,55 +120,15 @@
 
             align-items: center;
 
-            justify-content: center;
+            justify-content: space-between;
 
-            padding: 0 16px;
+            padding: 0;
 
-            margin-bottom: 32px;
+            margin-bottom: 0;
 
             position: relative;
 
             border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-
-        }
-
-
-
-        .ticket-header::after {
-
-            content: '';
-
-            position: absolute;
-
-            bottom: -1px;
-
-            left: 0;
-
-            width: 50%;
-
-            height: 1px;
-
-            background: #E31E24;
-
-        }
-
-
-
-        .ticket-header::before {
-
-            content: '';
-
-            position: absolute;
-
-            bottom: -1px;
-
-            left: 50%;
-
-            width: 50%;
-
-            height: 1px;
-
-            background: rgba(0, 0, 0, 0.1);
 
         }
 
@@ -140,31 +144,11 @@
 
             width: 50%;
 
-            padding: 12px 0;
+            padding: 16px;
 
             position: relative;
 
-        }
-
-
-
-        .ticket-number::after {
-
-            content: '';
-
-            position: absolute;
-
-            bottom: -1px;
-
-            left: -16px;
-
-            width: calc(100% + 16px);
-
-            height: 1px;
-
-            background: #E31E24;
-
-            opacity: 1;
+            border-bottom: 2px solid #E31E24;
 
         }
 
@@ -210,7 +194,7 @@
 
             cursor: pointer;
 
-            padding: 12px 0;
+            padding: 16px;
 
             position: relative;
 
@@ -244,25 +228,15 @@
 
             color: #000;
 
+            border-bottom: 2px solid #E31E24;
+
         }
 
 
 
-        .control-section.active::after {
+        .control-section.active svg {
 
-            content: '';
-
-            position: absolute;
-
-            bottom: -1px;
-
-            left: 0;
-
-            width: calc(100% + 16px);
-
-            height: 1px;
-
-            background: #E31E24;
+            color: #000;
 
         }
 
@@ -372,29 +346,11 @@
 
             display: flex;
 
-            align-items: flex-start;
-
-            gap: 12px;
+            align-items: center;
 
             padding: 16px;
 
             border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-
-        }
-
-
-
-        .info-row:first-of-type {
-
-            padding-top: 24px;
-
-        }
-
-
-
-        .info-row:last-of-type {
-
-            padding-bottom: 24px;
 
         }
 
@@ -410,7 +366,7 @@
 
             flex-shrink: 0;
 
-            margin-top: 2px;
+            margin-right: 16px;
 
         }
 
@@ -426,13 +382,11 @@
 
         .info-label {
 
-            font-size: 15px;
+            font-size: 14px;
 
             color: #8E8E93;
 
             margin-bottom: 4px;
-
-            font-weight: 400;
 
         }
 
@@ -442,7 +396,7 @@
 
             font-size: 20px;
 
-            color: #8E8E93;
+            color: #000;
 
             font-weight: 400;
 
@@ -450,18 +404,13 @@
 
 
 
-        .info-value#carrier,
-        .info-value#cost,
-        .info-value#purchase-date,
-        .info-value#purchase-time {
+        .route-info {
 
-            color: #000;
+            color: #8E8E93;
 
-            font-size: 20px;
+            font-size: 14px;
 
-            font-weight: 400;
-
-            margin-top: 4px;
+            margin-bottom: 4px;
 
         }
 
@@ -471,23 +420,9 @@
 
             font-size: 20px;
 
-            font-weight: 400;
-
-            margin-top: 4px;
-
             color: #000;
 
-        }
-
-
-
-        #route {
-
-            color: #8E8E93;
-
-            font-size: 15px;
-
-            margin-bottom: 4px;
+            font-weight: 400;
 
         }
 
@@ -567,19 +502,21 @@
 
         }
 
-
-
-        .control-section.active svg {
-
-            color: #000;
-
-        }
-
     </style>
 
 </head>
 
 <body>
+
+    <div class="header">
+
+        <h1 class="header-title">Городской Транспорт</h1>
+
+        <p class="header-subtitle">мини-приложение</p>
+
+    </div>
+
+
 
     <div class="timer" id="timer">Действует: 15 сек.</div>
 
@@ -645,9 +582,9 @@
 
         <div class="info-content">
 
-            <div class="info-label" id="route"></div>
+            <div class="route-info" id="route"></div>
 
-            <div class="info-value vehicle-number" id="vehicle"></div>
+            <div class="vehicle-number" id="vehicle"></div>
 
         </div>
 
@@ -716,7 +653,7 @@
 
 
     <div class="bottom-background"></div>
-    <button class="close-button" onclick="closeMiniApp()">Закрыть</button>
+    <button class="close-button" onclick="closeMiniApp()">ЗАКРЫТЬ</button>
 
     <div class="qr-overlay" id="qrOverlay">
         <div class="qr-container">
@@ -728,7 +665,6 @@
 
 
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
@@ -862,9 +798,6 @@
         // Обновляем таймер сразу и запускаем интервал
         updateTimer();
         const timerInterval = setInterval(updateTimer, 1000);
-
-        // Добавляем обработчик для кнопки закрытия
-        document.querySelector('.close-button').onclick = closeMiniApp;
     </script>
 
 </body>
