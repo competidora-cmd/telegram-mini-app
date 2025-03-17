@@ -376,6 +376,7 @@
         
         // Для стоимости используем параметр из URL или оставляем пустым
         if (urlParams.get('cost')) {
+            const quantity = urlParams.get('quantity') || 1;
             document.getElementById('cost').textContent = `1 шт., Полный, ${urlParams.get('cost')}₽`;
         }
         
