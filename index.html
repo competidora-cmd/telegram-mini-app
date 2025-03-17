@@ -482,7 +482,7 @@
 
             .ticket-actions {
 
-                width: 100%;
+            width: 100%;
 
             }
 
@@ -622,11 +622,11 @@
                     <path fill="currentColor" d="M4 4h16v12H4V4zm8 12v4m-4 0h8M4 8h16M4 12h16"/>
                 </svg>
                 Конструктор
-            </div>
+        </div>
             <div class="tab" data-tab="saved">
                 <svg viewBox="0 0 24 24">
                     <path fill="currentColor" d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
-                </svg>
+            </svg>
                 Сохраненные
             </div>
         </div>
@@ -664,7 +664,7 @@
                     </label>
                 </div>
             </div>
-            <button onclick="generateTicket()">Создать билет</button>
+            <button id="createTicketBtn">Создать билет</button>
         </div>
 
         <div class="tab-content" id="saved-content">
@@ -675,6 +675,35 @@
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
+        tg.ready();
+
+        const userId = tg.initDataUnsafe.user.id;
+        
+        // Проверяем доступ пользователя
+        fetch(`http://45.153.189.61:8000/check_access/${userId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.has_access) {
+                    // Если есть доступ - разрешаем создание билета
+                    document.getElementById('createTicketBtn').addEventListener('click', function() {
+                        const params = new URLSearchParams();
+                        params.append('userId', userId);
+                        window.location.href = 'http://45.153.189.61/ticket.html?' + params.toString();
+                    });
+                } else {
+                    // Если нет доступа - показываем сообщение
+                    document.getElementById('createTicketBtn').addEventListener('click', function() {
+                        alert('У вас нет доступа к созданию билета. Пожалуйста, свяжитесь с менеджером для получения доступа.');
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // При ошибке также блокируем создание билета
+                document.getElementById('createTicketBtn').addEventListener('click', function() {
+                    alert('Произошла ошибка при проверке доступа. Пожалуйста, попробуйте позже.');
+                });
+            });
 
         // Встроенные данные о маршрутах и перевозчиках
         const routesData = {
@@ -1071,7 +1100,7 @@
                 return;
             }
 
-            const ticketData = {
+                    const ticketData = {
                 code: generateRandomTicketNumber(),
                 routeNumber: routeNumber,
                 carrier: carrier,
@@ -1144,9 +1173,9 @@
             // Проверяем доступ пользователя
             if (!checkUserAccess()) {
                 showPaymentMessage();
-                return;
-            }
-            
+                    return;
+                }
+
             // Оригинальный код функции openSavedTicket
             const savedTickets = JSON.parse(localStorage.getItem('savedTickets') || '[]');
             const ticket = savedTickets[index];
