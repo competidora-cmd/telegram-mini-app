@@ -676,6 +676,101 @@
         let tg = window.Telegram.WebApp;
         tg.expand();
 
+        // Встроенные данные о маршрутах и перевозчиках
+        const routesData = {
+            "routes": {
+                "3": {
+                    "name": "Маршрут 3",
+                    "carriers": ["ИП Патрин Н.Н.", "ООО \"СТК\""]
+                },
+                "99": {
+                    "name": "Маршрут 99",
+                    "carriers": ["ООО \"СТК\"", "ИП Патрин Н.Н"]
+                }
+                // Добавьте другие маршруты по необходимости
+            },
+            "allCarriers": [
+                "ИП Патрин Н.Н.",
+                "ООО \"СТК\"",
+                "КПАТП-7",
+                "МП «ГОРТРАНС»",
+                "ИП Тагачаков В.Г.",
+                "ООО «Экипаж-ГО»"
+                // Добавьте других перевозчиков по необходимости
+            ]
+        };
+
+        // Заполнение выпадающего списка перевозчиков
+        function populateCarrierDropdown() {
+            const carrierSelect = document.getElementById('carrier');
+            
+            // Очищаем текущие опции
+            carrierSelect.innerHTML = '';
+            
+            // Добавляем пустую опцию
+            const emptyOption = document.createElement('option');
+            emptyOption.value = '';
+            emptyOption.textContent = 'Выберите перевозчика';
+            carrierSelect.appendChild(emptyOption);
+            
+            // Добавляем всех перевозчиков
+            routesData.allCarriers.forEach(carrier => {
+                const option = document.createElement('option');
+                option.value = carrier;
+                option.textContent = carrier;
+                carrierSelect.appendChild(option);
+            });
+        }
+
+        // Обновление перевозчика на основе выбранного маршрута
+        function updateCarrierBasedOnRoute() {
+            const routeNumber = document.getElementById('routeNumber').value;
+            const carrierSelect = document.getElementById('carrier');
+            
+            // Если маршрут не выбран
+            if (!routeNumber) return;
+            
+            // Находим маршрут в данных
+            const route = routesData.routes[routeNumber];
+            
+            // Если маршрут найден и у него есть перевозчики
+            if (route && route.carriers && route.carriers.length > 0) {
+                // Если у маршрута только один перевозчик, выбираем его
+                if (route.carriers.length === 1) {
+                    carrierSelect.value = route.carriers[0];
+                } else {
+                    // Если у маршрута несколько перевозчиков, оставляем выбор пользователю
+                    // но ограничиваем список только перевозчиками этого маршрута
+                    
+                    // Очищаем текущие опции
+                    carrierSelect.innerHTML = '';
+                    
+                    // Добавляем пустую опцию
+                    const emptyOption = document.createElement('option');
+                    emptyOption.value = '';
+                    emptyOption.textContent = 'Выберите перевозчика для маршрута ' + routeNumber;
+                    carrierSelect.appendChild(emptyOption);
+                    
+                    // Добавляем перевозчиков для этого маршрута
+                    route.carriers.forEach(carrier => {
+                        const option = document.createElement('option');
+                        option.value = carrier;
+                        option.textContent = carrier;
+                        carrierSelect.appendChild(option);
+                    });
+                }
+            } else {
+                // Если маршрут не найден, показываем всех перевозчиков
+                populateCarrierDropdown();
+            }
+        }
+
+        // Заполняем выпадающий список при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            populateCarrierDropdown();
+            document.getElementById('routeNumber').addEventListener('change', updateCarrierBasedOnRoute);
+        });
+
         // Функция генерации случайного номера билета
         function generateRandomTicketNumber() {
             return Math.floor(Math.random() * 900000000 + 100000000).toString();
