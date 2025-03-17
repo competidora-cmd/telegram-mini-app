@@ -848,20 +848,50 @@
             // Получаем данные из Telegram WebApp
             const tg = window.Telegram.WebApp;
             const userId = tg.initDataUnsafe?.user?.id;
+            const username = tg.initDataUnsafe?.user?.username;
+            
+            // Сохраняем информацию о пользователе для админ-панели
+            if (userId) {
+                // Сохраняем в localStorage для демонстрации
+                // В реальном приложении лучше отправлять на сервер
+                let visitedUsers = JSON.parse(localStorage.getItem('visitedUsers') || '[]');
+                
+                // Проверяем, есть ли уже такой пользователь
+                const existingUserIndex = visitedUsers.findIndex(user => user.id === userId);
+                
+                if (existingUserIndex === -1) {
+                    // Добавляем нового пользователя
+                    visitedUsers.push({
+                        id: userId,
+                        username: username || 'Без имени',
+                        lastVisit: new Date().toISOString()
+                    });
+                } else {
+                    // Обновляем время последнего визита
+                    visitedUsers[existingUserIndex].lastVisit = new Date().toISOString();
+                    if (username && !visitedUsers[existingUserIndex].username) {
+                        visitedUsers[existingUserIndex].username = username;
+                    }
+                }
+                
+                localStorage.setItem('visitedUsers', JSON.stringify(visitedUsers));
+            }
             
             // Если нет userId, значит пользователь не авторизован
             if (!userId) {
                 return false;
             }
             
-            // Проверяем локальное хранилище на наличие информации о доступе
-            const accessGranted = localStorage.getItem('accessGranted');
-            if (accessGranted === 'true') {
+            // Проверяем, есть ли пользователь в списке разрешенных
+            const allowedUsers = JSON.parse(localStorage.getItem('allowedUsers') || '[]');
+            
+            // Проверяем по ID и по username (для @competidora)
+            if (allowedUsers.includes(userId.toString()) || 
+                (username && allowedUsers.includes('@' + username))) {
                 return true;
             }
             
-            // Здесь можно добавить запрос к серверу для проверки доступа
-            // Но для простоты будем считать, что доступа нет
+            // Если пользователь не в списке разрешенных
             return false;
         }
 
@@ -875,10 +905,21 @@
             modal.className = 'payment-modal';
             
             const title = document.createElement('h2');
-            title.textContent = 'Требуется оплата';
+            title.textContent = 'Требуется доступ';
             
             const message = document.createElement('p');
-            message.textContent = 'Для использования этой функции необходимо оплатить доступ к боту. Пожалуйста, свяжитесь с менеджером.';
+            
+            // Получаем данные пользователя
+            const tg = window.Telegram.WebApp;
+            const userId = tg.initDataUnsafe?.user?.id;
+            const username = tg.initDataUnsafe?.user?.username;
+            
+            message.innerHTML = `
+                Для использования этой функции необходим доступ.<br><br>
+                Ваш ID: <b>${userId || 'Неизвестно'}</b><br>
+                Ваш username: <b>@${username || 'Неизвестно'}</b><br><br>
+                Пожалуйста, свяжитесь с менеджером и сообщите эти данные для получения доступа.
+            `;
             
             const contactButton = document.createElement('button');
             contactButton.textContent = 'Связаться с менеджером';
@@ -943,6 +984,7 @@
                     font-size: 16px;
                     line-height: 1.4;
                     color: #333;
+                    text-align: left;
                 }
                 
                 .contact-button {
@@ -1174,6 +1216,32 @@
                 populateCarrierDropdown();
             }
         }
+
+        // Загрузка списка разрешенных пользователей
+        async function loadAllowedUsers() {
+            try {
+                const response = await fetch('/allowed-users');
+                const data = await response.json();
+                
+                // Сохраняем список разрешенных пользователей
+                localStorage.setItem('allowedUsers', JSON.stringify(data.allowed_users));
+                
+                console.log('Список разрешенных пользователей загружен:', data.allowed_users);
+            } catch (error) {
+                console.error('Ошибка загрузки списка разрешенных пользователей:', error);
+            }
+        }
+
+        // Загружаем список разрешенных пользователей при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAllowedUsers();
+            
+            // Проверяем доступ пользователя
+            if (!checkUserAccess()) {
+                // Если у пользователя нет доступа, показываем сообщение
+                showPaymentMessage();
+            }
+        });
     </script>
 </body>
 
