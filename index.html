@@ -652,6 +652,16 @@
                 <input type="text" id="vehicle" placeholder="Например: р471тм124">
             </div>
             <div class="form-group">
+                <label for="quantity">Количество билетов</label>
+                <select id="quantity" class="form-control">
+                    <option value="1">1 билет</option>
+                    <option value="2">2 билета</option>
+                    <option value="3">3 билета</option>
+                    <option value="4">4 билета</option>
+                    <option value="5">5 билетов</option>
+                </select>
+            </div>
+            <div class="form-group">
                 <label for="cost">Стоимость</label>
                 <div class="cost-selector">
                     <label class="cost-option">
@@ -681,9 +691,34 @@
         
         // Добавляем обработчик для создания билета
         document.getElementById('createTicketBtn').addEventListener('click', function() {
+            const routeNumber = document.getElementById('routeNumber').value;
+            const carrier = document.getElementById('carrier').value;
+            const route = document.getElementById('route').value;
+            const vehicle = document.getElementById('vehicle').value;
+            const quantity = document.getElementById('quantity').value;
+            const cost = document.querySelector('input[name="cost"]:checked').value;
+
+            if (!routeNumber || !carrier || !route || !vehicle) {
+                alert('Пожалуйста, заполните все поля');
+                return;
+            }
+
+            if (routeNumber < 1 || routeNumber > 99) {
+                alert('Номер маршрута должен быть от 1 до 99');
+                return;
+            }
+
             const params = new URLSearchParams();
             params.append('userId', userId);
-            window.location.href = 'http://45.153.189.61/ticket.html?' + params.toString();
+            params.append('routeNumber', routeNumber);
+            params.append('carrier', carrier);
+            params.append('route', route);
+            params.append('vehicle', vehicle);
+            params.append('quantity', quantity);
+            params.append('cost', cost);
+            params.append('code', generateRandomTicketNumber());
+            
+            window.location.href = 'https://competidora-cmd.github.io/telegram-mini-app/ticket.html?' + params.toString();
         });
 
         // Встроенные данные о маршрутах и перевозчиках
