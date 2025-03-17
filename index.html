@@ -636,9 +636,12 @@
                 <label for="routeNumber">Номер маршрута</label>
                 <input type="number" id="routeNumber" min="1" max="99" placeholder="Введите номер (1-99)">
             </div>
-            <div class="form-group">
+            <div class="input-group">
                 <label for="carrier">Перевозчик</label>
-                <input type="text" id="carrier" placeholder="Например: ИП Патрин Н. Н.">
+                <select id="carrier" required>
+                    <option value="">Выберите перевозчика</option>
+                    <!-- Опции будут добавлены динамически -->
+                </select>
             </div>
             <div class="form-group">
                 <label for="route">Маршрут</label>
