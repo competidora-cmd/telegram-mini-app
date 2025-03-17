@@ -664,6 +664,16 @@
                     </label>
                 </div>
             </div>
+            <div class="form-group">
+                <label for="quantity">Количество билетов:</label>
+                <select class="form-control" id="quantity">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                </select>
+            </div>
             <button onclick="generateTicket()">Создать билет</button>
         </div>
 
@@ -1060,6 +1070,7 @@
             const route = document.getElementById('route').value;
             const vehicle = document.getElementById('vehicle').value;
             const cost = document.querySelector('input[name="cost"]:checked').value;
+            const quantity = document.getElementById('quantity').value;
 
             if (!routeNumber || !carrier || !route || !vehicle) {
                 alert('Пожалуйста, заполните все поля');
