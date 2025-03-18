@@ -523,15 +523,15 @@
             const min = 900000000;
             const max = 999999999;
             const randomNum = Math.floor(Math.random() * (max - min + 1)) + min;
-            const formattedNum = randomNum.toString().replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3');
+            const formattedNum = String(randomNum).match(/.{1,3}/g).join(' ');
             document.querySelector('.ticket-number span').textContent = formattedNum;
         } else {
             // Ensure code is 9 digits and starts with 9
             let codeStr = code.toString().padStart(9, '0');
             if (!codeStr.startsWith('9')) {
-                codeStr = '9' + codeStr.slice(0, -1);
+                codeStr = '9' + codeStr.slice(1);
             }
-            const formattedCode = codeStr.replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3');
+            const formattedCode = codeStr.match(/.{1,3}/g).join(' ');
             document.querySelector('.ticket-number span').textContent = formattedCode;
         }
 
@@ -592,25 +592,25 @@
         // Запускаем таймер
         const timerElement = document.getElementById('timer');
         let seconds = 15;
+        let timerInterval;
 
         function updateTimer() {
             timerElement.textContent = `Действует: ${seconds} сек.`;
             if (seconds > 0) {
                 seconds--;
-                setTimeout(updateTimer, 1000);
             } else {
+                clearInterval(timerInterval);
                 closeMiniApp();
             }
         }
 
-        // Запускаем таймер
+        // Запускаем таймер сразу
         updateTimer();
+        timerInterval = setInterval(updateTimer, 1000);
 
         // Очищаем таймер при закрытии
         window.addEventListener('unload', function() {
-            for (let i = 1; i < 9999; i++) {
-                window.clearTimeout(i);
-            }
+            clearInterval(timerInterval);
         });
     </script>
 </body>
