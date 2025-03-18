@@ -495,7 +495,13 @@
         function formatTicketNumber(number) {
             if (!number) return '';
             // Удаляем все пробелы, если они есть
-            const cleaned = number.toString().replace(/\s/g, '');
+            let cleaned = number.toString().replace(/\s/g, '');
+            // Убеждаемся, что номер начинается с 9
+            if (!cleaned.startsWith('9')) {
+                cleaned = '9' + cleaned.slice(1);
+            }
+            // Дополняем до 9 цифр нулями если нужно
+            cleaned = cleaned.padStart(9, '0');
             // Форматируем в виде XXX XXX XXX
             return cleaned.replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3');
         }
@@ -515,7 +521,14 @@
         }
 
         // Заполняем данные билета только из параметров URL
-        document.getElementById('ticket-number').textContent = formatTicketNumber(urlParams.get('code'));
+        let ticketCode = urlParams.get('code');
+        if (!ticketCode) {
+            // Если код не предоставлен, генерируем случайный, начинающийся с 9
+            const min = 900000000;
+            const max = 999999999;
+            ticketCode = Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+        document.getElementById('ticket-number').textContent = formatTicketNumber(ticketCode);
         document.getElementById('carrier').textContent = urlParams.get('carrier');
         document.getElementById('route').textContent = urlParams.get('route');
         document.getElementById('vehicle').textContent = urlParams.get('vehicle');
