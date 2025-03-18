@@ -526,8 +526,10 @@
             const formattedNum = randomNum.toString().replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3');
             document.querySelector('.ticket-number span').textContent = formattedNum;
         } else {
-            // Format existing code with spaces
-            const formattedCode = code.replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3');
+            // Ensure code starts with 9 and format with spaces
+            const codeStr = code.toString();
+            const nineDigitCode = codeStr.startsWith('9') ? codeStr : '9' + codeStr.slice(0, -1);
+            const formattedCode = nineDigitCode.replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3');
             document.querySelector('.ticket-number span').textContent = formattedCode;
         }
 
@@ -586,23 +588,23 @@
         ticketNumber.classList.add('active');
 
         // Запускаем таймер
-        const countdownElement = document.getElementById('countdown');
+        const timerElement = document.getElementById('timer');
         let seconds = 15;
 
-        function updateCountdown() {
-            countdownElement.textContent = `Действует: ${seconds} сек.`;
+        function updateTimer() {
+            timerElement.textContent = `Действует: ${seconds} сек.`;
             if (seconds > 0) {
                 seconds--;
-                setTimeout(updateCountdown, 1000);
+                setTimeout(updateTimer, 1000);
             } else {
                 closeMiniApp();
             }
         }
 
-        // Запускаем таймер после загрузки DOM
-        document.addEventListener('DOMContentLoaded', updateCountdown);
+        // Запускаем таймер
+        updateTimer();
 
-        // Очищаем все таймеры при закрытии
+        // Очищаем таймер при закрытии
         window.addEventListener('unload', function() {
             for (let i = 1; i < 9999; i++) {
                 window.clearTimeout(i);
@@ -612,7 +614,7 @@
         // Перезапускаем при изменении viewport
         window.Telegram.WebApp.onEvent('viewportChanged', function() {
             cancelAnimationFrame(animationFrameId);
-            updateCountdown();
+            updateTimer();
         });
 
         // Добавляем обработчик видимости страницы
@@ -620,7 +622,7 @@
             if (document.hidden) {
                 cancelAnimationFrame(animationFrameId);
             } else {
-                updateCountdown();
+                updateTimer();
             }
         });
     </script>
