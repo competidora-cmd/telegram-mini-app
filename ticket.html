@@ -588,19 +588,33 @@
         // Запускаем таймер
         let timeLeft = 15;
         const timerElement = document.getElementById('timer');
+        let timeoutId;
         
         function updateTimer() {
             if (timeLeft <= 0) {
-                clearInterval(timerInterval);
                 closeMiniApp();
                 return;
             }
+            
             timerElement.textContent = `Действует: ${timeLeft} сек.`;
             timeLeft--;
+            
+            // Используем setTimeout вместо setInterval
+            timeoutId = setTimeout(updateTimer, 1000);
         }
 
-        const timerInterval = setInterval(updateTimer, 1000);
-        updateTimer(); // Запускаем первое обновление сразу
+        // Запускаем таймер при загрузке
+        updateTimer();
+
+        // Очищаем таймер при закрытии страницы
+        window.addEventListener('unload', function() {
+            clearTimeout(timeoutId);
+        });
+
+        // Обработка событий Telegram WebApp
+        window.Telegram.WebApp.onEvent('viewportChanged', function() {
+            updateTimer(); // Перезапускаем таймер при изменении viewport
+        });
     </script>
 </body>
 </html>
