@@ -1,1426 +1,1465 @@
 <!DOCTYPE html>
-
-<html lang="ru">
-
-<head>
-
-    <meta charset="UTF-8">
-
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-
-    <title>Городской Транспорт</title>
-
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-    <style>
-
-        * {
-
-            margin: 0;
-
-            padding: 0;
-
-            box-sizing: border-box;
-
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-
-            -webkit-tap-highlight-color: transparent;
-
-        }
-
-
-
-        body {
-
-            background: #fff;
-
-            min-height: 100vh;
-
-            padding: 0;
-
-            margin: 0;
-
-            display: flex;
-
-            flex-direction: column;
-
-        }
-
-
-
-        .container {
-
-            max-width: 600px;
-
-            margin: 0 auto;
-
-            width: 100%;
-
-            padding: 16px;
-
-        }
-
-
-
-        .tabs {
-
-            display: flex;
-
-            margin-bottom: 20px;
-
-            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-
-            margin: 0 -16px 20px;
-
-        }
-
-
-
-        .tab {
-
-            flex: 1;
-
-            padding: 16px;
-
-            text-align: center;
-
-            color: #8E8E93;
-
-            cursor: pointer;
-
-            position: relative;
-
-            display: flex;
-
-            align-items: center;
-
-            justify-content: center;
-
-            gap: 8px;
-
-            font-size: 15px;
-
-            font-weight: 400;
-
-        }
-
-
-
-        .tab svg {
-
-            width: 20px;
-
-            height: 20px;
-
-        }
-
-
-
-        .tab.active {
-
-            color: #000;
-
-        }
-
-
-
-        .tab.active svg {
-
-            color: #E31E24;
-
-        }
-
-
-
-        .tab.active:after {
-
-            content: '';
-
-            position: absolute;
-
-            bottom: -1px;
-
-            left: 16px;
-
-            right: 16px;
-
-            height: 2px;
-
-            background: #E31E24;
-
-        }
-
-
-
-        .tab-content {
-
-            display: none;
-
-        }
-
-
-
-        .tab-content.active {
-
-            display: block;
-
-        }
-
-
-
-        .form-group {
-
-            margin-bottom: 20px;
-
-        }
-
-
-
-        label {
-
-            display: block;
-
-            margin-bottom: 8px;
-
-            font-weight: 400;
-
-            color: #8E8E93;
-
-            font-size: 15px;
-
-        }
-
-
-
-        input, select {
-
-            width: 100%;
-
-            padding: 12px;
-
-            border: 1px solid rgba(0, 0, 0, 0.1);
-
-            border-radius: 10px;
-
-            font-size: 17px;
-
-            background: #fff;
-
-            color: #000;
-
-        }
-
-
-
-        input:focus, select:focus {
-
-            outline: none;
-
-            border-color: #E31E24;
-
-        }
-
-
-
-        input::placeholder {
-
-            color: #8E8E93;
-
-        }
-
-
-
-        button {
-
-            width: 100%;
-
-            padding: 16px;
-
-            background: #E31E24;
-
-            border: none;
-
-            border-radius: 14px;
-
-            color: white;
-
-            font-size: 17px;
-
-            font-weight: 500;
-
-            cursor: pointer;
-
-            margin-top: 24px;
-
-        }
-
-
-
-        .error {
-
-            color: #E31E24;
-
-            font-size: 13px;
-
-            margin-top: 4px;
-
-            display: none;
-
-        }
-
-
-
-        .saved-tickets {
-
-            display: flex;
-
-            flex-direction: column;
-
-            gap: 12px;
-
-        }
-
-
-
-        .ticket-item {
-
-            background: #fff;
-
-            border: 1px solid rgba(0, 0, 0, 0.1);
-
-            border-radius: 12px;
-
-            padding: 16px;
-
-        }
-
-
-
-        .ticket-info {
-
-            display: flex;
-
-            justify-content: space-between;
-
-            align-items: center;
-
-            gap: 12px;
-
-        }
-
-
-
-        .ticket-details {
-
-            flex: 1;
-
-        }
-
-
-
-        .ticket-number {
-
-            font-size: 20px;
-
-            color: #E31E24;
-
-            margin-bottom: 4px;
-
-        }
-
-
-
-        .ticket-route {
-
-            font-size: 15px;
-
-            color: #8E8E93;
-
-        }
-
-
-
-        .ticket-actions {
-
-            display: flex;
-
-            gap: 8px;
-
-            flex-wrap: wrap;
-
-        }
-
-
-
-        .edit-btn, .open-btn, .delete-btn {
-
-            flex: 1;
-
-            min-width: 80px;
-
-            padding: 8px 12px;
-
-            border: none;
-
-            border-radius: 8px;
-
-            font-size: 15px;
-
-            cursor: pointer;
-
-            white-space: nowrap;
-
-            text-align: center;
-
-        }
-
-
-
-        .edit-btn, .open-btn {
-
-            background: #F7F7F7;
-
-            color: #000;
-
-        }
-
-
-
-        .delete-btn {
-
-            background: #FFE5E5;
-
-            color: #E31E24;
-
-        }
-
-
-
-        .edit-form {
-
-            display: none;
-
-            margin-top: 12px;
-
-            padding-top: 12px;
-
-            border-top: 1px solid rgba(0, 0, 0, 0.1);
-
-        }
-
-
-
-        .edit-form.active {
-
-            display: block;
-
-        }
-
-
-
-        .edit-field {
-
-            width: 100%;
-
-            padding: 8px 12px;
-
-            margin-bottom: 8px;
-
-            border: 1px solid rgba(0, 0, 0, 0.1);
-
-            border-radius: 8px;
-
-            font-size: 15px;
-
-        }
-
-
-
-        .edit-actions {
-
-            display: flex;
-
-            gap: 8px;
-
-            margin-top: 12px;
-
-        }
-
-
-
-        .save-btn, .cancel-btn {
-
-            flex: 1;
-
-            padding: 8px 16px;
-
-            border-radius: 8px;
-
-            border: none;
-
-            font-size: 15px;
-
-            cursor: pointer;
-
-            margin: 0;
-
-        }
-
-
-
-        .save-btn {
-
-            background: #E31E24;
-
-            color: white;
-
-        }
-
-
-
-        .cancel-btn {
-
-            background: #F7F7F7;
-
-            color: #000;
-
-        }
-
-
-
-        @media (max-width: 380px) {
-
-            .ticket-info {
-
-            flex-direction: column;
-
-                align-items: flex-start;
-
-            }
-
-
-
-            .ticket-actions {
-
-                width: 100%;
-
-                margin-top: 8px;
-
-            }
-
-
-
-            .edit-btn, .open-btn, .delete-btn {
-
-                flex: 1;
-
-                min-width: 0;
-
-            }
-
-        }
-
-
-
-        .cost-selector {
-
-            display: flex;
-
-            gap: 12px;
-
-            margin-top: 8px;
-
-        }
-
-
-
-        .cost-option {
-
-            flex: 1;
-
-            display: flex;
-
-            align-items: center;
-
-            justify-content: center;
-
-            padding: 12px;
-
-            background: #F7F7F7;
-
-            border-radius: 10px;
-
-            cursor: pointer;
-
-            transition: all 0.2s;
-
-        }
-
-
-
-        .cost-option input {
-
-            display: none;
-
-        }
-
-
-
-        .cost-option span {
-
-            font-size: 17px;
-
-            color: #8E8E93;
-
-            transition: all 0.2s;
-
-        }
-
-
-
-        .cost-option input:checked + span {
-
-            color: #000;
-
-            font-weight: 500;
-
-        }
-
-
-
-        .cost-option:has(input:checked) {
-
-            background: rgba(227, 30, 36, 0.1);
-
-        }
-
-
-
-        .edit-field {
-
-            width: 100%;
-
-            padding: 12px;
-
-            margin-bottom: 12px;
-
-            border: 1px solid rgba(0, 0, 0, 0.1);
-
-            border-radius: 10px;
-
-            font-size: 15px;
-
-            background: #fff;
-
-        }
-
-
-
-        .edit-field::placeholder {
-
-            color: #8E8E93;
-
-        }
-
-
-
-        .edit-field:focus {
-
-            outline: none;
-
-            border-color: #E31E24;
-
-        }
-
-
-
-        .route-selector {
-
-            display: flex;
-
-            gap: 8px;
-
-            align-items: center;
-
-            overflow-x: auto;
-
-            padding: 4px;
-
-            -webkit-overflow-scrolling: touch;
-
-            scrollbar-width: none; /* Firefox */
-
-            -ms-overflow-style: none; /* IE and Edge */
-
-        }
-
-
-
-        .route-selector::-webkit-scrollbar {
-
-            display: none; /* Chrome, Safari and Opera */
-
-        }
-
-
-
-        .route-endpoint {
-
-            flex: 1;
-
-            padding: 12px;
-
-            border: 1px solid rgba(0, 0, 0, 0.1);
-
-            border-radius: 10px;
-
-            font-size: 17px;
-
-            background: #fff;
-
-            color: #000;
-
-            height: 48px;
-
-            min-width: 200px;
-
-            max-width: calc(50% - 24px); /* Учитываем кнопку реверса и отступы */
-
-        }
-
-
-
-        .reverse-btn {
-
-            padding: 4px;
-
-            background: #F7F7F7;
-
-            border: 1px solid rgba(0, 0, 0, 0.1);
-
-            border-radius: 8px;
-
-            cursor: pointer;
-
-            display: flex;
-
-            align-items: center;
-
-            justify-content: center;
-
-            width: 32px;
-
-            height: 32px;
-
-            flex-shrink: 0;
-
-            margin: 0 4px;
-
-        }
-
-
-
-        .reverse-btn:hover {
-
-            background: #E8E8E8;
-
-        }
-
-
-
-        .reverse-btn svg {
-
-            width: 16px;
-
-            height: 16px;
-
-            color: #8E8E93;
-
-        }
-
-
-
-        .modal-backdrop {
-
-            display: none;
-
-            position: fixed;
-
-            top: 0;
-
-            left: 0;
-
-            right: 0;
-
-            bottom: 0;
-
-            background: rgba(0, 0, 0, 0.5);
-
-            z-index: 1000;
-
-            align-items: center;
-
-            justify-content: center;
-
-        }
-
-
-
-        .modal {
-
-            background: white;
-
-            border-radius: 14px;
-
-            padding: 20px;
-
-            width: 85%;
-
-            max-width: 320px;
-
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-
-        }
-
-
-
-        .modal-title {
-
-            font-size: 18px;
-
-            font-weight: 500;
-
-            margin-bottom: 16px;
-
-            text-align: center;
-
-        }
-
-
-
-        .modal-actions {
-
-            display: flex;
-
-            gap: 12px;
-
-            margin-top: 20px;
-
-        }
-
-
-
-        .modal-btn {
-
-            flex: 1;
-
-            padding: 12px;
-
-            border-radius: 10px;
-
-            border: none;
-
-            font-size: 16px;
-
-            cursor: pointer;
-
-            text-align: center;
-
-        }
-
-
-
-        .modal-cancel {
-
-            background: #F7F7F7;
-
-            color: #000;
-
-        }
-
-
-
-        .modal-confirm {
-
-            background: #E31E24;
-
-            color: white;
-
-        }
-
-
-
-        .constructor-actions {
-
-            display: flex;
-
-            gap: 12px;
-
-            margin-top: 24px;
-
-        }
-
-
-
-        .create-btn, .save-btn {
-
-            flex: 1;
-
-            padding: 16px;
-
-            border: none;
-
-            border-radius: 10px;
-
-            font-size: 17px;
-
-            font-weight: 500;
-
-            cursor: pointer;
-
-            text-align: center;
-
-            min-width: 140px;
-
-        }
-
-
-
-        .create-btn {
-
-            background: #E31E24;
-
-            color: white;
-
-        }
-
-
-
-        .save-btn {
-
-            background: #F7F7F7;
-
-            color: #000;
-
-            border: 1px solid rgba(0, 0, 0, 0.1);
-
-        }
-
-
-
-        .create-btn:hover {
-
-            background: #D41A1F;
-
-        }
-
-
-
-        .save-btn:hover {
-
-            background: #EEEEEE;
-
-        }
-
-    </style>
-
-</head>
-
-<body>
-    <div class="container">
-        <div class="tabs">
-            <div class="tab active" data-tab="constructor">
-                <svg viewBox="0 0 24 24">
-                    <path fill="currentColor" d="M4 4h16v12H4V4zm8 12v4m-4 0h8M4 8h16M4 12h16"/>
-                </svg>
-                Конструктор
-        </div>
-            <div class="tab" data-tab="saved">
-                <svg viewBox="0 0 24 24">
-                    <path fill="currentColor" d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
-            </svg>
-                Сохраненные
-            </div>
-        </div>
-
-        <div class="tab-content active" id="constructor-content">
-            <div class="form-group">
-                <label for="routeNumber">Номер маршрута</label>
-                <input type="number" id="routeNumber" min="1" max="99" placeholder="Введите номер (1-99)">
-            </div>
-            <div class="input-group">
-                <label for="carrier">Перевозчик</label>
-                <select id="carrier" required>
-                    <option value="">Выберите перевозчика</option>
-                    <!-- Опции будут добавлены динамически -->
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="route">Маршрут</label>
-                <div class="route-selector">
-                    <select id="routeStart" class="route-endpoint">
-                        <option value="">Начальная остановка</option>
-                    </select>
-                    <button id="reverseRoute" class="reverse-btn">
-                        <svg viewBox="0 0 24 24" width="24" height="24">
-                            <path fill="currentColor" d="M7.5 21.5l1.5-1.5-4.5-4.5H21v-2H4.5l4.5-4.5-1.5-1.5L1 14l6.5 7.5zm9-19l-1.5 1.5 4.5 4.5H3v2h16.5l-4.5 4.5 1.5 1.5L23 10l-6.5-7.5z"/>
-                </svg>
-            </button>
-                    <select id="routeEnd" class="route-endpoint">
-                        <option value="">Конечная остановка</option>
-                    </select>
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="vehicle">Гос. номер</label>
-                <input type="text" id="vehicle" placeholder="Например: р471тм124">
-            </div>
-            <div class="form-group">
-                <label for="quantity">Количество билетов</label>
-                <select id="quantity" class="form-control">
-                    <option value="1">1 билет</option>
-                    <option value="2">2 билета</option>
-                    <option value="3">3 билета</option>
-                    <option value="4">4 билета</option>
-                    <option value="5">5 билетов</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="cost">Стоимость</label>
-                <div class="cost-selector">
-                    <label class="cost-option">
-                        <input type="radio" name="cost" value="44.00" checked>
-                        <span>44.00₽</span>
-                    </label>
-                    <label class="cost-option">
-                        <input type="radio" name="cost" value="40.00">
-                        <span>40.00₽</span>
-                    </label>
-                </div>
-            </div>
-            <div class="constructor-actions">
-                <button class="create-btn" onclick="createTicket()">Создать билет</button>
-                <button class="save-btn" onclick="saveTicket()">Сохранить билет</button>
-            </div>
-        </div>
-
-        <div class="tab-content" id="saved-content">
-            <div id="saved-tickets-list" class="saved-tickets"></div>
-        </div>
-    </div>
-
-    <div class="modal-backdrop" id="delete-confirmation">
-        <div class="modal">
-            <div class="modal-title">Вы уверены, что хотите удалить этот билет?</div>
-            <div class="modal-actions">
-                <button class="modal-btn modal-cancel">Отмена</button>
-                <button class="modal-btn modal-confirm">Удалить</button>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        let tg;
-        try {
-            tg = window.Telegram.WebApp;
-            tg.expand();
-            tg.ready();
-        } catch (error) {
-            console.error('Error initializing Telegram Web App:', error);
-            // Если не удалось инициализировать, создаем заглушку
-            tg = {
-                initDataUnsafe: { user: { id: 'test_user' } },
-                close: () => console.log('Close called'),
-                expand: () => console.log('Expand called'),
-                ready: () => console.log('Ready called')
-            };
-        }
-
-        const userId = tg.initDataUnsafe?.user?.id || 'unknown';
-        
-        // Add access check function
-        async function checkAccess() {
-            try {
-                const response = await fetch('https://raw.githubusercontent.com/competidora-cmd/telegram-mini-app/main/users_data.json');
-                const data = await response.json();
-                
-                const currentUserId = tg.initDataUnsafe?.user?.id?.toString();
-                const currentUsername = tg.initDataUnsafe?.user?.username;
-
-                console.log('Current User ID:', currentUserId);
-                console.log('Current Username:', currentUsername);
-                console.log('Allowed Users:', data.allowed_users);
-                console.log('Users List:', data.users);
-
-                // Проверяем доступ по ID
-                if (data.allowed_users.includes(currentUserId)) {
-                    console.log('Access granted by ID');
-                    return true;
-                }
-
-                // Проверяем доступ по username
-                if (currentUsername) {
-                    // Ищем пользователя в списке users по username
-                    const foundUser = Object.entries(data.users).find(([_, userInfo]) => 
-                        userInfo.username?.toLowerCase() === currentUsername.toLowerCase()
-                    );
-
-                    if (foundUser) {
-                        const [userId, _] = foundUser;
-                        // Если нашли пользователя, проверяем есть ли его ID в allowed_users
-                        if (data.allowed_users.includes(userId)) {
-                            console.log('Access granted by username');
-                            return true;
-                        }
-                    }
-                }
-
-                // Если доступ не найден ни по ID, ни по username
-                console.log('Access denied');
-                alert('У вас нет доступа к этому приложению');
-                tg.close();
-                return false;
-            } catch (error) {
-                console.error('Error checking access:', error);
-                alert('Ошибка при проверке доступа');
-                tg.close();
-                return false;
-            }
-        }
-
-        // Инициализация при загрузке страницы
-        document.addEventListener('DOMContentLoaded', async function() {
-            const hasAccess = await checkAccess();
-            if (!hasAccess) {
-                document.getElementById('constructor-content').style.display = 'none';
-                document.getElementById('saved-content').style.display = 'none';
-                return;
-            }
-            
-            // Заполняем списки
-            populateCarrierDropdown();
-            populateRouteEndpoints();
-            
-            // Добавляем обработчики событий
-            document.getElementById('routeNumber').addEventListener('input', updateCarrierBasedOnRoute);
-            document.getElementById('routeStart').addEventListener('change', updateRouteDisplay);
-            document.getElementById('routeEnd').addEventListener('change', updateRouteDisplay);
-            
-            // Загружаем сохраненные билеты, если открыта вкладка "Сохраненные"
-            if (document.querySelector('.tab[data-tab="saved"]').classList.contains('active')) {
-                loadSavedTickets();
-            }
-        });
-
-        // Заполнение выпадающего списка перевозчиков
-        function populateCarrierDropdown() {
-            const carriers = routesData.allCarriers;
-            const carrierSelect = document.getElementById('carrier');
-            
-            // Очищаем текущие опции
-            carrierSelect.innerHTML = '<option value="">Выберите перевозчика</option>';
-            
-            // Добавляем всех перевозчиков
-            carriers.forEach(carrier => {
-                const option = document.createElement('option');
-                option.value = carrier;
-                option.textContent = carrier;
-                carrierSelect.appendChild(option);
-            });
-        }
-
-        // Populate route endpoints dropdowns
-        function populateRouteEndpoints() {
-            const startSelect = document.getElementById('routeStart');
-            const endSelect = document.getElementById('routeEnd');
-            
-            // Очищаем текущие опции
-            startSelect.innerHTML = '<option value="">Начальная остановка</option>';
-            endSelect.innerHTML = '<option value="">Конечная остановка</option>';
-            
-            // Добавляем все остановки
-            routeEndpoints.forEach(endpoint => {
-                const startOption = document.createElement('option');
-                const endOption = document.createElement('option');
-                
-                startOption.value = endpoint;
-                startOption.textContent = endpoint;
-                endOption.value = endpoint;
-                endOption.textContent = endpoint;
-                
-                startSelect.appendChild(startOption);
-                endSelect.appendChild(endOption);
-            });
-        }
-
-        // Обновление перевозчика на основе выбранного маршрута
-        function updateCarrierBasedOnRoute() {
-            const routeNumber = document.getElementById('routeNumber').value;
-            const carrierSelect = document.getElementById('carrier');
-            
-            // Если маршрут не выбран
-            if (!routeNumber) {
-                populateCarrierDropdown();
-                return;
-            }
-
-            // Находим маршрут в данных
-            const route = routesData.routes[routeNumber];
-            
-            // Если маршрут найден и у него есть перевозчики
-            if (route && route.carriers && route.carriers.length > 0) {
-                // Если у маршрута только один перевозчик, выбираем его
-                if (route.carriers.length === 1) {
-                    carrierSelect.value = route.carriers[0];
-                } else {
-                    // Если у маршрута несколько перевозчиков, оставляем выбор пользователю
-                    carrierSelect.innerHTML = '<option value="">Выберите перевозчика для маршрута ' + routeNumber + '</option>';
-                    route.carriers.forEach(carrier => {
-                        const option = document.createElement('option');
-                        option.value = carrier;
-                        option.textContent = carrier;
-                        carrierSelect.appendChild(option);
-                    });
-                }
-            } else {
-                // Если маршрут не найден, показываем всех перевозчиков
-                populateCarrierDropdown();
-            }
-        }
-
-        // Функция генерации случайного номера билета
-        function generateRandomTicketNumber() {
-            // Генерируем 9-значное число
-            const num = Math.floor(Math.random() * 900000000 + 100000000).toString();
-            // Форматируем в виде XXX XXX XXX
-            return num.replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3');
-        }
-
-        // Форматирование даты
-        function formatDate(date) {
-            const day = date.getDate().toString().padStart(2, '0');
-            const months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
-            const month = months[date.getMonth()];
-            const year = date.getFullYear();
-            return `${day} ${month} ${year} г.`;
-        }
-
-        // Форматирование времени
-        function formatTime(date) {
-            return date.toTimeString().slice(0, 5);
-        }
-
-        // Загрузка сохраненных билетов
-        function loadSavedTickets() {
-            const allSavedTickets = JSON.parse(localStorage.getItem('savedTickets') || '{}');
-            const userTickets = allSavedTickets[userId] || [];
-            const container = document.getElementById('saved-tickets-list');
-            container.innerHTML = '';
-
-            userTickets.forEach((ticket, index) => {
-                const ticketElement = document.createElement('div');
-                ticketElement.className = 'ticket-item';
-                ticketElement.innerHTML = `
-                    <div class="ticket-info">
-                        <div class="ticket-details">
-                            <div class="ticket-number">${ticket.code}</div>
-                            <div class="ticket-route">№${ticket.routeNumber} ${ticket.route}</div>
-                        </div>
-                        <div class="ticket-actions">
-                            <button class="edit-btn" onclick="toggleEditForm(${index})">Изменить</button>
-                            <button class="open-btn" onclick="openSavedTicket(${index})">Открыть</button>
-                            <button class="delete-btn" onclick="confirmDeleteTicket(${index})">Удалить</button>
-                        </div>
-                    </div>
-                    <div class="edit-form" id="edit-form-${index}">
-                        <input type="number" class="edit-field" id="edit-routeNumber-${index}" 
-                               value="${ticket.routeNumber}" 
-                               min="1" max="99"
-                               placeholder="Номер маршрута (1-99)">
-                        <input type="text" class="edit-field" id="edit-carrier-${index}" 
-                               value="${ticket.carrier}" 
-                               placeholder="Например: ИП Патрин Н. Н.">
-                        <input type="text" class="edit-field" id="edit-route-${index}" 
-                               value="${ticket.route}" 
-                               placeholder="Например: Красфарма (60 лет Октября) - Х/К Енисей">
-                        <input type="text" class="edit-field" id="edit-vehicle-${index}" 
-                               value="${ticket.vehicle}" 
-                               placeholder="Например: р471тм124">
-                        <div class="edit-actions">
-                            <button class="save-btn" onclick="saveEditedTicket(${index})">Сохранить</button>
-                            <button class="cancel-btn" onclick="toggleEditForm(${index})">Отмена</button>
-                        </div>
-                    </div>
-                `;
-                container.appendChild(ticketElement);
-            });
-        }
-
-        // Открытие сохраненного билета
-        function openSavedTicket(index) {
-            const savedTickets = JSON.parse(localStorage.getItem('savedTickets') || '[]');
-            const ticket = savedTickets[index];
-            const params = new URLSearchParams();
-            Object.entries(ticket).forEach(([key, value]) => {
-                params.append(key, value);
-            });
-
-            window.location.href = 'ticket.html?' + params.toString();
-        }
-
-        // Переключение формы редактирования
-        function toggleEditForm(index) {
-            const form = document.getElementById(`edit-form-${index}`);
-            form.classList.toggle('active');
-        }
-
-        // Сохранение отредактированного билета
-        function saveEditedTicket(index) {
-            const savedTickets = JSON.parse(localStorage.getItem('savedTickets') || '[]');
-            const ticket = savedTickets[index];
-
-            const routeNumber = document.getElementById(`edit-routeNumber-${index}`).value;
-            if (routeNumber < 1 || routeNumber > 99) {
-                alert('Номер маршрута должен быть от 1 до 99');
-                return;
-            }
-
-            ticket.routeNumber = routeNumber;
-            ticket.carrier = document.getElementById(`edit-carrier-${index}`).value;
-            ticket.route = document.getElementById(`edit-route-${index}`).value;
-            ticket.vehicle = document.getElementById(`edit-vehicle-${index}`).value;
-
-            savedTickets[index] = ticket;
-            localStorage.setItem('savedTickets', JSON.stringify(savedTickets));
-            loadSavedTickets();
-            toggleEditForm(index);
-        }
-
-        // Переключение вкладок
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                
-                tab.classList.add('active');
-                document.getElementById(tab.dataset.tab + '-content').classList.add('active');
-                
-                if (tab.dataset.tab === 'saved') {
-                    loadSavedTickets();
-                }
-            });
-        });
-
-        // Handle route reverse
-        document.getElementById('reverseRoute').addEventListener('click', function() {
-            const startSelect = document.getElementById('routeStart');
-            const endSelect = document.getElementById('routeEnd');
-            
-            const tempValue = startSelect.value;
-            startSelect.value = endSelect.value;
-            endSelect.value = tempValue;
-            
-            updateRouteDisplay();
-        });
-
-        // Update route display when endpoints change
-        function updateRouteDisplay() {
-            const startValue = document.getElementById('routeStart').value;
-            const endValue = document.getElementById('routeEnd').value;
-            
-            if (startValue && endValue) {
-                document.getElementById('route').value = `${startValue} - ${endValue}`;
-            }
-        }
-
-        // Add event listeners for endpoint changes
-        document.getElementById('routeStart').addEventListener('change', updateRouteDisplay);
-        document.getElementById('routeEnd').addEventListener('change', updateRouteDisplay);
-
-        // Add delete ticket functionality
-        function confirmDeleteTicket(index) {
-            const modalBackdrop = document.getElementById('delete-confirmation');
-            const modal = document.querySelector('.modal');
-            const cancelBtn = document.querySelector('.modal-cancel');
-            const confirmBtn = document.querySelector('.modal-confirm');
-
-            modalBackdrop.style.display = 'flex';
-            modal.style.display = 'block';
-
-            cancelBtn.addEventListener('click', function() {
-                modalBackdrop.style.display = 'none';
-                modal.style.display = 'none';
-            });
-
-            confirmBtn.addEventListener('click', function() {
-                const allSavedTickets = JSON.parse(localStorage.getItem('savedTickets') || '{}');
-                const userTickets = allSavedTickets[userId] || [];
-                userTickets.splice(index, 1);
-                allSavedTickets[userId] = userTickets;
-                localStorage.setItem('savedTickets', JSON.stringify(allSavedTickets));
-                loadSavedTickets();
-                modalBackdrop.style.display = 'none';
-                modal.style.display = 'none';
-            });
-        }
-
-        function saveTicket() {
-            const routeNumber = document.getElementById('routeNumber').value;
-            const carrier = document.getElementById('carrier').value;
-            const startValue = document.getElementById('routeStart').value;
-            const endValue = document.getElementById('routeEnd').value;
-            const route = `${startValue} - ${endValue}`;
-            const vehicle = document.getElementById('vehicle').value;
-            const quantity = document.getElementById('quantity').value;
-            const cost = document.querySelector('input[name="cost"]:checked').value;
-
-            if (!routeNumber || !carrier || !startValue || !endValue || !vehicle || !quantity || !cost) {
-                alert('Пожалуйста, заполните все поля');
-                return;
-            }
-
-            if (routeNumber < 1 || routeNumber > 99) {
-                alert('Номер маршрута должен быть от 1 до 99');
-                return;
-            }
-
-            const ticket = {
-                code: generateRandomTicketNumber(),
-                routeNumber,
-                carrier,
-                route,
-                vehicle,
-                quantity,
-                cost,
-                date: new Date().toLocaleDateString('ru-RU'),
-                time: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }),
-                userId: userId // Добавляем ID пользователя к билету
-            };
-
-            // Получаем сохраненные билеты для текущего пользователя
-            const allSavedTickets = JSON.parse(localStorage.getItem('savedTickets') || '{}');
-            const userTickets = allSavedTickets[userId] || [];
-            
-            // Добавляем новый билет в список билетов пользователя
-            userTickets.push(ticket);
-            
-            // Сохраняем обновленный список билетов
-            allSavedTickets[userId] = userTickets;
-            localStorage.setItem('savedTickets', JSON.stringify(allSavedTickets));
-
-            // Очищаем поля после сохранения
-            document.getElementById('routeNumber').value = '';
-            document.getElementById('carrier').value = '';
-            document.getElementById('routeStart').value = '';
-            document.getElementById('routeEnd').value = '';
-            document.getElementById('vehicle').value = '';
-            document.getElementById('quantity').value = '';
-            document.querySelector('input[name="cost"]:checked').checked = false;
-
-            // Показываем уведомление
-            alert('Билет успешно сохранен');
-        }
-    </script>
-</body>
-
-</html>
+ 
+ <html lang="ru">
+ 
+ <head>
+ 
+     <meta charset="UTF-8">
+ 
+     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+ 
+     <title>Городской Транспорт</title>
+ 
+     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+ 
+     <style>
+ 
+         * {
+ 
+             margin: 0;
+ 
+             padding: 0;
+ 
+             box-sizing: border-box;
+ 
+             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+ 
+             -webkit-tap-highlight-color: transparent;
+ 
+         }
+ 
+ 
+ 
+         body {
+ 
+             background: #fff;
+ 
+             min-height: 100vh;
+ 
+             padding: 0;
+ 
+             margin: 0;
+ 
+             display: flex;
+ 
+             flex-direction: column;
+ 
+         }
+ 
+ 
+ 
+         .container {
+ 
+             max-width: 600px;
+ 
+             margin: 0 auto;
+ 
+             width: 100%;
+ 
+             padding: 16px;
+ 
+         }
+ 
+ 
+ 
+         .tabs {
+ 
+             display: flex;
+ 
+             margin-bottom: 20px;
+ 
+             border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+ 
+             margin: 0 -16px 20px;
+ 
+         }
+ 
+ 
+ 
+         .tab {
+ 
+             flex: 1;
+ 
+             padding: 16px;
+ 
+             text-align: center;
+ 
+             color: #8E8E93;
+ 
+             cursor: pointer;
+ 
+             position: relative;
+ 
+             display: flex;
+ 
+             align-items: center;
+ 
+             justify-content: center;
+ 
+             gap: 8px;
+ 
+             font-size: 15px;
+ 
+             font-weight: 400;
+ 
+         }
+ 
+ 
+ 
+         .tab svg {
+ 
+             width: 20px;
+ 
+             height: 20px;
+ 
+         }
+ 
+ 
+ 
+         .tab.active {
+ 
+             color: #000;
+ 
+         }
+ 
+ 
+ 
+         .tab.active svg {
+ 
+             color: #E31E24;
+ 
+         }
+ 
+ 
+ 
+         .tab.active:after {
+ 
+             content: '';
+ 
+             position: absolute;
+ 
+             bottom: -1px;
+ 
+             left: 16px;
+ 
+             right: 16px;
+ 
+             height: 2px;
+ 
+             background: #E31E24;
+ 
+         }
+ 
+ 
+ 
+         .tab-content {
+ 
+             display: none;
+ 
+         }
+ 
+ 
+ 
+         .tab-content.active {
+ 
+             display: block;
+ 
+         }
+ 
+ 
+ 
+         .form-group {
+ 
+             margin-bottom: 20px;
+ 
+         }
+ 
+ 
+ 
+         label {
+ 
+             display: block;
+ 
+             margin-bottom: 8px;
+ 
+             font-weight: 400;
+ 
+             color: #8E8E93;
+ 
+             font-size: 15px;
+ 
+         }
+ 
+ 
+ 
+         input, select {
+ 
+             width: 100%;
+ 
+             padding: 12px;
+ 
+             border: 1px solid rgba(0, 0, 0, 0.1);
+ 
+             border-radius: 10px;
+ 
+             font-size: 17px;
+ 
+             background: #fff;
+ 
+             color: #000;
+ 
+         }
+ 
+ 
+ 
+         input:focus, select:focus {
+ 
+             outline: none;
+ 
+             border-color: #E31E24;
+ 
+         }
+ 
+ 
+ 
+         input::placeholder {
+ 
+             color: #8E8E93;
+ 
+         }
+ 
+ 
+ 
+         button {
+ 
+             width: 100%;
+ 
+             padding: 16px;
+ 
+             background: #E31E24;
+ 
+             border: none;
+ 
+             border-radius: 14px;
+ 
+             color: white;
+ 
+             font-size: 17px;
+ 
+             font-weight: 500;
+ 
+             cursor: pointer;
+ 
+             margin-top: 24px;
+ 
+         }
+ 
+ 
+ 
+         .error {
+ 
+             color: #E31E24;
+ 
+             font-size: 13px;
+ 
+             margin-top: 4px;
+ 
+             display: none;
+ 
+         }
+ 
+ 
+ 
+         .saved-tickets {
+ 
+             display: flex;
+ 
+             flex-direction: column;
+ 
+             gap: 12px;
+ 
+         }
+ 
+ 
+ 
+         .ticket-item {
+ 
+             background: #fff;
+ 
+             border: 1px solid rgba(0, 0, 0, 0.1);
+ 
+             border-radius: 12px;
+ 
+             padding: 16px;
+ 
+         }
+ 
+ 
+ 
+         .ticket-info {
+ 
+             display: flex;
+ 
+             justify-content: space-between;
+ 
+             align-items: center;
+ 
+             gap: 12px;
+ 
+         }
+ 
+ 
+ 
+         .ticket-details {
+ 
+             flex: 1;
+ 
+         }
+ 
+ 
+ 
+         .ticket-number {
+ 
+             font-size: 20px;
+ 
+             color: #E31E24;
+ 
+             margin-bottom: 4px;
+ 
+         }
+ 
+ 
+ 
+         .ticket-route {
+ 
+             font-size: 15px;
+ 
+             color: #8E8E93;
+ 
+         }
+ 
+ 
+ 
+         .ticket-actions {
+ 
+             display: flex;
+ 
+             gap: 8px;
+ 
+             flex-wrap: wrap;
+ 
+         }
+ 
+ 
+ 
+         .edit-btn, .open-btn {
+         .edit-btn, .open-btn, .delete-btn {
+ 
+             padding: 8px 16px;
+             flex: 1;
+ 
+             background: #F7F7F7;
+             min-width: 80px;
+ 
+             padding: 8px 12px;
+ 
+             border: none;
+ 
+             border-radius: 8px;
+ 
+             color: #000;
+ 
+             font-size: 15px;
+ 
+             cursor: pointer;
+ 
+             white-space: nowrap;
+ 
+             width: auto;
+             text-align: center;
+ 
+             margin: 0;
+         }
+ 
+ 
+ 
+         .edit-btn, .open-btn {
+ 
+             background: #F7F7F7;
+ 
+             color: #000;
+ 
+         }
+ 
+ 
+ 
+         .delete-btn {
+ 
+             background: #FFE5E5;
+ 
+             color: #E31E24;
+ 
+         }
+ 
+ 
+ 
+         .edit-form {
+ 
+             display: none;
+ 
+             margin-top: 12px;
+ 
+             padding-top: 12px;
+ 
+             border-top: 1px solid rgba(0, 0, 0, 0.1);
+ 
+         }
+ 
+ 
+ 
+         .edit-form.active {
+ 
+             display: block;
+ 
+         }
+ 
+ 
+ 
+         .edit-field {
+ 
+             width: 100%;
+ 
+             padding: 8px 12px;
+ 
+             margin-bottom: 8px;
+ 
+             border: 1px solid rgba(0, 0, 0, 0.1);
+ 
+             border-radius: 8px;
+ 
+             font-size: 15px;
+ 
+         }
+ 
+ 
+ 
+         .edit-actions {
+ 
+             display: flex;
+ 
+             gap: 8px;
+ 
+             margin-top: 12px;
+ 
+         }
+ 
+ 
+ 
+         .save-btn, .cancel-btn {
+ 
+             flex: 1;
+ 
+             padding: 8px 16px;
+ 
+             border-radius: 8px;
+ 
+             border: none;
+ 
+             font-size: 15px;
+ 
+             cursor: pointer;
+ 
+             margin: 0;
+ 
+         }
+ 
+ 
+ 
+         .save-btn {
+ 
+             background: #E31E24;
+ 
+             color: white;
+ 
+         }
+ 
+ 
+ 
+         .cancel-btn {
+ 
+             background: #F7F7F7;
+ 
+             color: #000;
+ 
+         }
+ 
+ 
+ 
+         @media (max-width: 380px) {
+ 
+             .ticket-info {
+ 
+             flex-direction: column;
+                 flex-direction: column;
+ 
+                 align-items: flex-start;
+ 
+             }
+ 
+ 
+ 
+             .ticket-actions {
+ 
+             width: 100%;
+                 width: 100%;
+ 
+                 margin-top: 8px;
+ 
+             }
+ 
+ 
+ 
+             .edit-btn, .open-btn {
+             .edit-btn, .open-btn, .delete-btn {
+ 
+                 flex: 1;
+ 
+                 text-align: center;
+                 min-width: 0;
+ 
+             }
+ 
+         }
+ 
+ 
+ 
+         .cost-selector {
+ 
+             display: flex;
+ 
+             gap: 12px;
+ 
+             margin-top: 8px;
+ 
+         }
+ 
+ 
+ 
+         .cost-option {
+ 
+             flex: 1;
+ 
+             display: flex;
+ 
+             align-items: center;
+ 
+             justify-content: center;
+ 
+             padding: 12px;
+ 
+             background: #F7F7F7;
+ 
+             border-radius: 10px;
+ 
+             cursor: pointer;
+ 
+             transition: all 0.2s;
+ 
+         }
+ 
+ 
+ 
+         .cost-option input {
+ 
+             display: none;
+ 
+         }
+ 
+ 
+ 
+         .cost-option span {
+ 
+             font-size: 17px;
+ 
+             color: #8E8E93;
+ 
+             transition: all 0.2s;
+ 
+         }
+ 
+ 
+ 
+         .cost-option input:checked + span {
+ 
+             color: #000;
+ 
+             font-weight: 500;
+ 
+         }
+ 
+ 
+ 
+         .cost-option:has(input:checked) {
+ 
+             background: rgba(227, 30, 36, 0.1);
+ 
+         }
+ 
+ 
+ 
+         .edit-field {
+ 
+             width: 100%;
+ 
+             padding: 12px;
+ 
+             margin-bottom: 12px;
+ 
+             border: 1px solid rgba(0, 0, 0, 0.1);
+ 
+             border-radius: 10px;
+ 
+             font-size: 15px;
+ 
+             background: #fff;
+ 
+         }
+ 
+ 
+ 
+         .edit-field::placeholder {
+ 
+             color: #8E8E93;
+ 
+         }
+ 
+ 
+ 
+         .edit-field:focus {
+ 
+             outline: none;
+ 
+             border-color: #E31E24;
+ 
+         }
+ 
+ 
+ 
+         .route-selector {
+ 
+             display: flex;
+ 
+             gap: 8px;
+ 
+             align-items: center;
+ 
+             overflow-x: auto;
+ 
+             padding: 4px;
+ 
+             -webkit-overflow-scrolling: touch;
+ 
+             scrollbar-width: none; /* Firefox */
+ 
+             -ms-overflow-style: none; /* IE and Edge */
+ 
+         }
+ 
+ 
+ 
+         .route-selector::-webkit-scrollbar {
+ 
+             display: none; /* Chrome, Safari and Opera */
+ 
+         }
+ 
+ 
+ 
+         .route-endpoint {
+ 
+             flex: 1;
+ 
+             padding: 12px;
+ 
+             border: 1px solid rgba(0, 0, 0, 0.1);
+ 
+             border-radius: 10px;
+ 
+             font-size: 17px;
+ 
+             background: #fff;
+ 
+             color: #000;
+ 
+             height: 48px;
+ 
+             min-width: 200px;
+ 
+             max-width: calc(50% - 24px); /* Учитываем кнопку реверса и отступы */
+ 
+         }
+ 
+ 
+ 
+         .reverse-btn {
+ 
+             padding: 4px;
+ 
+             background: #F7F7F7;
+ 
+             border: 1px solid rgba(0, 0, 0, 0.1);
+ 
+             border-radius: 8px;
+ 
+             cursor: pointer;
+ 
+             display: flex;
+ 
+             align-items: center;
+ 
+             justify-content: center;
+ 
+             width: 32px;
+ 
+             height: 32px;
+ 
+             flex-shrink: 0;
+ 
+             margin: 0 4px;
+ 
+         }
+ 
+ 
+ 
+         .reverse-btn:hover {
+ 
+             background: #E8E8E8;
+ 
+         }
+ 
+ 
+ 
+         .reverse-btn svg {
+ 
+             width: 16px;
+ 
+             height: 16px;
+ 
+             color: #8E8E93;
+ 
+         }
+ 
+ 
+ 
+         .delete-btn {
+ 
+             padding: 8px 16px;
+ 
+             background: #FFE5E5;
+ 
+             border: none;
+ 
+             border-radius: 8px;
+ 
+             color: #E31E24;
+ 
+             font-size: 15px;
+ 
+             cursor: pointer;
+ 
+             white-space: nowrap;
+ 
+             width: auto;
+ 
+             margin: 0;
+ 
+         }
+ 
+ 
+ 
+         .delete-btn:hover {
+ 
+             background: #FFCCCC;
+ 
+         }
+ 
+ 
+ 
+         .modal-backdrop {
+ 
+             display: none;
+ 
+             position: fixed;
+ 
+             top: 0;
+ 
+             left: 0;
+ 
+             right: 0;
+ 
+             bottom: 0;
+ 
+             background: rgba(0, 0, 0, 0.5);
+ 
+             z-index: 1000;
+ 
+             align-items: center;
+ 
+             justify-content: center;
+ 
+         }
+ 
+ 
+ 
+         .modal {
+ 
+             background: white;
+ 
+             border-radius: 14px;
+ 
+             padding: 20px;
+ 
+             width: 85%;
+ 
+             max-width: 320px;
+ 
+             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+ 
+         }
+ 
+ 
+ 
+         .modal-title {
+ 
+             font-size: 18px;
+ 
+             font-weight: 500;
+ 
+             margin-bottom: 16px;
+ 
+             text-align: center;
+ 
+         }
+ 
+ 
+ 
+         .modal-actions {
+ 
+             display: flex;
+ 
+             gap: 12px;
+ 
+             margin-top: 20px;
+ 
+         }
+ 
+ 
+ 
+         .modal-btn {
+ 
+             flex: 1;
+ 
+             padding: 12px;
+ 
+             border-radius: 10px;
+ 
+             border: none;
+ 
+             font-size: 16px;
+ 
+             cursor: pointer;
+ 
+             text-align: center;
+ 
+         }
+ 
+ 
+ 
+         .modal-cancel {
+ 
+             background: #F7F7F7;
+ 
+             color: #000;
+ 
+         }
+ 
+ 
+ 
+         .modal-confirm {
+ 
+             background: #E31E24;
+ 
+             color: white;
+ 
+         }
+ 
+     </style>
+ 
+ </head>
+ 
+ <body>
+     <div class="container">
+         <div class="tabs">
+             <div class="tab active" data-tab="constructor">
+                 <svg viewBox="0 0 24 24">
+                     <path fill="currentColor" d="M4 4h16v12H4V4zm8 12v4m-4 0h8M4 8h16M4 12h16"/>
+                 </svg>
+                 Конструктор
+         </div>
+             <div class="tab" data-tab="saved">
+                 <svg viewBox="0 0 24 24">
+                     <path fill="currentColor" d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+             </svg>
+                 Сохраненные
+             </div>
+         </div>
+ 
+         <div class="tab-content active" id="constructor-content">
+             <div class="form-group">
+                 <label for="routeNumber">Номер маршрута</label>
+                 <input type="number" id="routeNumber" min="1" max="99" placeholder="Введите номер (1-99)">
+             </div>
+             <div class="input-group">
+                 <label for="carrier">Перевозчик</label>
+                 <select id="carrier" required>
+                     <option value="">Выберите перевозчика</option>
+                     <!-- Опции будут добавлены динамически -->
+                 </select>
+             </div>
+             <div class="form-group">
+                 <label for="route">Маршрут</label>
+                 <div class="route-selector">
+                     <select id="routeStart" class="route-endpoint">
+                         <option value="">Начальная остановка</option>
+                     </select>
+                     <button id="reverseRoute" class="reverse-btn">
+                         <svg viewBox="0 0 24 24" width="24" height="24">
+                             <path fill="currentColor" d="M7.5 21.5l1.5-1.5-4.5-4.5H21v-2H4.5l4.5-4.5-1.5-1.5L1 14l6.5 7.5zm9-19l-1.5 1.5 4.5 4.5H3v2h16.5l-4.5 4.5 1.5 1.5L23 10l-6.5-7.5z"/>
+                 </svg>
+             </button>
+                     <select id="routeEnd" class="route-endpoint">
+                         <option value="">Конечная остановка</option>
+                     </select>
+                 </div>
+             </div>
+             <div class="form-group">
+                 <label for="vehicle">Гос. номер</label>
+                 <input type="text" id="vehicle" placeholder="Например: р471тм124">
+             </div>
+             <div class="form-group">
+                 <label for="quantity">Количество билетов</label>
+                 <select id="quantity" class="form-control">
+                     <option value="1">1 билет</option>
+                     <option value="2">2 билета</option>
+                     <option value="3">3 билета</option>
+                     <option value="4">4 билета</option>
+                     <option value="5">5 билетов</option>
+                 </select>
+             </div>
+             <div class="form-group">
+                 <label for="cost">Стоимость</label>
+                 <div class="cost-selector">
+                     <label class="cost-option">
+                         <input type="radio" name="cost" value="44.00" checked>
+                         <span>44.00₽</span>
+                     </label>
+                     <label class="cost-option">
+                         <input type="radio" name="cost" value="40.00">
+                         <span>40.00₽</span>
+                     </label>
+                 </div>
+             </div>
+             <button id="createTicketBtn">Создать билет</button>
+         </div>
+ 
+         <div class="tab-content" id="saved-content">
+             <div id="saved-tickets-list" class="saved-tickets"></div>
+         </div>
+     </div>
+ 
+     <div class="modal-backdrop" id="delete-confirmation">
+         <div class="modal">
+             <div class="modal-title">Вы уверены, что хотите удалить этот билет?</div>
+             <div class="modal-actions">
+                 <button class="modal-btn modal-cancel">Отмена</button>
+                 <button class="modal-btn modal-confirm">Удалить</button>
+             </div>
+         </div>
+     </div>
+ 
+     <script>
+         let tg;
+         try {
+             tg = window.Telegram.WebApp;
+             tg.expand();
+             tg.ready();
+         } catch (error) {
+             console.error('Error initializing Telegram Web App:', error);
+             // Если не удалось инициализировать, создаем заглушку
+             tg = {
+                 initDataUnsafe: { user: { id: 'test_user' } },
+                 close: () => console.log('Close called'),
+                 expand: () => console.log('Expand called'),
+                 ready: () => console.log('Ready called')
+             };
+         }
+ 
+         const userId = tg.initDataUnsafe?.user?.id || 'unknown';
+ 
+         // Add access check function
+         async function checkAccess() {
+             try {
+                 const response = await fetch('https://raw.githubusercontent.com/competidora-cmd/telegram-mini-app/main/users_data.json');
+                 const data = await response.json();
+ 
+                 const currentUserId = tg.initDataUnsafe?.user?.id?.toString();
+                 const currentUsername = tg.initDataUnsafe?.user?.username;
+ 
+                 console.log('Current User ID:', currentUserId);
+                 console.log('Current Username:', currentUsername);
+                 console.log('Allowed Users:', data.allowed_users);
+                 console.log('Users List:', data.users);
+ 
+                 // Проверяем доступ по ID
+                 if (data.allowed_users.includes(currentUserId)) {
+                     console.log('Access granted by ID');
+                     return true;
+                 }
+ 
+                 // Проверяем доступ по username
+                 if (currentUsername) {
+                     // Ищем пользователя в списке users по username
+                     const foundUser = Object.entries(data.users).find(([_, userInfo]) => 
+                         userInfo.username?.toLowerCase() === currentUsername.toLowerCase()
+                     );
+ 
+                     if (foundUser) {
+                         const [userId, _] = foundUser;
+                         // Если нашли пользователя, проверяем есть ли его ID в allowed_users
+                         if (data.allowed_users.includes(userId)) {
+                             console.log('Access granted by username');
+                             return true;
+                         }
+                     }
+                 }
+ 
+                 // Если доступ не найден ни по ID, ни по username
+                 console.log('Access denied');
+                 alert('У вас нет доступа к этому приложению');
+                 tg.close();
+                 return false;
+             } catch (error) {
+                 console.error('Error checking access:', error);
+                 alert('Ошибка при проверке доступа');
+                 tg.close();
+                 return false;
+             }
+         }
+ 
+         // Check access when page loads
+         document.addEventListener('DOMContentLoaded', async function() {
+             const hasAccess = await checkAccess();
+             if (!hasAccess) {
+                 document.getElementById('constructor-content').style.display = 'none';
+                 document.getElementById('saved-content').style.display = 'none';
+                 return;
+             }
+ 
+             populateCarrierDropdown();
+             populateRouteEndpoints();
+         });
+ 
+         // Modify createTicketBtn click handler
+         document.getElementById('createTicketBtn').addEventListener('click', async function() {
+             const hasAccess = await checkAccess();
+             if (!hasAccess) {
+                 return;
+             }
+ 
+             const routeNumber = document.getElementById('routeNumber').value;
+             const carrier = document.getElementById('carrier').value;
+             const startValue = document.getElementById('routeStart').value;
+             const endValue = document.getElementById('routeEnd').value;
+             const route = `${startValue} - ${endValue}`;
+             const vehicle = document.getElementById('vehicle').value;
+             const quantity = document.getElementById('quantity').value;
+             const cost = document.querySelector('input[name="cost"]:checked').value;
+ 
+             if (!routeNumber || !carrier || !startValue || !endValue || !vehicle) {
+                 alert('Пожалуйста, заполните все поля');
+                     return;
+                 }
+ 
+             if (routeNumber < 1 || routeNumber > 99) {
+                 alert('Номер маршрута должен быть от 1 до 99');
+                     return;
+                 }
+ 
+             const params = new URLSearchParams();
+             params.append('userId', userId);
+             params.append('routeNumber', routeNumber);
+             params.append('carrier', carrier);
+             params.append('route', route);
+             params.append('vehicle', vehicle);
+             params.append('quantity', quantity);
+             params.append('cost', cost);
+             params.append('code', generateRandomTicketNumber());
+ 
+             window.location.href = 'https://competidora-cmd.github.io/telegram-mini-app/ticket.html?' + params.toString();
+         });
+ 
+         // Встроенные данные о маршрутах и перевозчиках
+         const routesData = {
+             "routes": {
+                 "3": {
+                     "name": "Маршрут 3",
+                     "carriers": ["ИП Патрин Н.Н.", "ООО \"СТК\""]
+                 },
+                 "99": {
+                     "name": "Маршрут 99",
+                     "carriers": ["ООО \"СТК\"", "ИП Патрин Н.Н"]
+                 }
+             },
+             "allCarriers": [
+                 "ИП Багаев Д.Б.",
+                 "ИП Галченкова Е.А.",
+                 "ООО «Экипаж-ГО»",
+                 "ИП Долгушина Г.И.",
+                 "ИП Тагачаков В.Г.",
+                 "ООО \"Перевозчик\"",
+                 "ООО \"СКАД\"",
+                 "КПАТП-7",
+                 "КПАТП-5",
+                 "ООО \"Ветеран\"",
+                 "ИП Ялтонский А.М.",
+                 "ИП Читашвили Н.С.",
+                 "ООО \"Вавулин - К\"",
+                 "ИП Кривоногов И.Г.",
+                 "ИП Голунцов С.В.",
+                 "ИП Цугленок М.М.",
+                 "ООО «КПАТП»",
+                 "ИП Галченкова О.Г.",
+                 "ООО \"Практик\"",
+                 "ООО \"Сибирь-Авто\"",
+                 "ИП Бронников А.И.",
+                 "ИП Бронников М.А.",
+                 "ИП Долгушин Д.Г.",
+                 "ООО \"Сирена\"",
+                 "ИП Патрин Н.Н.",
+                 "ООО \"МаршрутАвто\"",
+                 "ИП Карасева Н.Н.",
+                 "ИП Гнетов Ю.Н."
+             ]
+         };
+ 
+         // Заполнение выпадающего списка перевозчиков
+         function populateCarrierDropdown() {
+             const carriers = routesData.allCarriers;
+             const carrierSelect = document.getElementById('carrier');
+ 
+             // Очищаем текущие опции
+             carrierSelect.innerHTML = '';
+ 
+             // Добавляем пустую опцию
+             const emptyOption = document.createElement('option');
+             emptyOption.value = '';
+             emptyOption.textContent = 'Выберите перевозчика';
+             carrierSelect.appendChild(emptyOption);
+ 
+             // Добавляем всех перевозчиков
+             carriers.forEach(carrier => {
+                 const option = document.createElement('option');
+                 option.value = carrier;
+                 option.textContent = carrier;
+                 carrierSelect.appendChild(option);
+             });
+         }
+ 
+         // Обновление перевозчика на основе выбранного маршрута
+         function updateCarrierBasedOnRoute() {
+             const routeNumber = document.getElementById('routeNumber').value;
+             const carrierSelect = document.getElementById('carrier');
+ 
+             // Если маршрут не выбран
+             if (!routeNumber) return;
+ 
+             // Находим маршрут в данных
+             const route = routesData.routes[routeNumber];
+ 
+             // Если маршрут найден и у него есть перевозчики
+             if (route && route.carriers && route.carriers.length > 0) {
+                 // Если у маршрута только один перевозчик, выбираем его
+                 if (route.carriers.length === 1) {
+                     carrierSelect.value = route.carriers[0];
+                 } else {
+                     // Если у маршрута несколько перевозчиков, оставляем выбор пользователю
+                     // но ограничиваем список только перевозчиками этого маршрута
+ 
+                     // Очищаем текущие опции
+                     carrierSelect.innerHTML = '';
+ 
+                     // Добавляем пустую опцию
+                     const emptyOption = document.createElement('option');
+                     emptyOption.value = '';
+                     emptyOption.textContent = 'Выберите перевозчика для маршрута ' + routeNumber;
+                     carrierSelect.appendChild(emptyOption);
+ 
+                     // Добавляем перевозчиков для этого маршрута
+                     route.carriers.forEach(carrier => {
+                         const option = document.createElement('option');
+                         option.value = carrier;
+                         option.textContent = carrier;
+                         carrierSelect.appendChild(option);
+                     });
+                 }
+             } else {
+                 // Если маршрут не найден, показываем всех перевозчиков
+                 populateCarrierDropdown();
+             }
+         }
+ 
+         // Заполняем выпадающий список при загрузке страницы
+         document.addEventListener('DOMContentLoaded', function() {
+             populateCarrierDropdown();
+             document.getElementById('routeNumber').addEventListener('change', updateCarrierBasedOnRoute);
+         });
+ 
+         // Функция генерации случайного номера билета
+         function generateRandomTicketNumber() {
+             // Генерируем 9-значное число
+             const num = Math.floor(Math.random() * 900000000 + 100000000).toString();
+             // Форматируем в виде XXX XXX XXX
+             return num.replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3');
+         }
+ 
+         // Форматирование даты
+         function formatDate(date) {
+             const day = date.getDate().toString().padStart(2, '0');
+             const months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+             const month = months[date.getMonth()];
+             const year = date.getFullYear();
+             return `${day} ${month} ${year} г.`;
+         }
+ 
+         // Форматирование времени
+         function formatTime(date) {
+             return date.toTimeString().slice(0, 5);
+         }
+ 
+         // Загрузка сохраненных билетов
+         function loadSavedTickets() {
+             const savedTickets = JSON.parse(localStorage.getItem('savedTickets') || '[]');
+             const container = document.getElementById('saved-tickets-list');
+             container.innerHTML = '';
+ 
+             savedTickets.forEach((ticket, index) => {
+                 const ticketElement = document.createElement('div');
+                 ticketElement.className = 'ticket-item';
+                 ticketElement.innerHTML = `
+                     <div class="ticket-info">
+                         <div class="ticket-details">
+                             <div class="ticket-number">${ticket.code}</div>
+                             <div class="ticket-route">№${ticket.routeNumber} ${ticket.route}</div>
+                         </div>
+                         <div class="ticket-actions">
+                             <button class="edit-btn" onclick="toggleEditForm(${index})">Изменить</button>
+                             <button class="open-btn" onclick="openSavedTicket(${index})">Открыть</button>
+                             <button class="delete-btn" onclick="confirmDeleteTicket(${index})">Удалить</button>
+                         </div>
+                     </div>
+                     <div class="edit-form" id="edit-form-${index}">
+                         <input type="number" class="edit-field" id="edit-routeNumber-${index}" 
+                                value="${ticket.routeNumber}" 
+                                min="1" max="99"
+                                placeholder="Номер маршрута (1-99)">
+                         <input type="text" class="edit-field" id="edit-carrier-${index}" 
+                                value="${ticket.carrier}" 
+                                placeholder="Например: ИП Патрин Н. Н.">
+                         <input type="text" class="edit-field" id="edit-route-${index}" 
+                                value="${ticket.route}" 
+                                placeholder="Например: Красфарма (60 лет Октября) - Х/К Енисей">
+                         <input type="text" class="edit-field" id="edit-vehicle-${index}" 
+                                value="${ticket.vehicle}" 
+                                placeholder="Например: р471тм124">
+                         <div class="edit-actions">
+                             <button class="save-btn" onclick="saveEditedTicket(${index})">Сохранить</button>
+                             <button class="cancel-btn" onclick="toggleEditForm(${index})">Отмена</button>
+                         </div>
+                     </div>
+                 `;
+                 container.appendChild(ticketElement);
+             });
+         }
+ 
+         // Открытие сохраненного билета
+         function openSavedTicket(index) {
+             const savedTickets = JSON.parse(localStorage.getItem('savedTickets') || '[]');
+             const ticket = savedTickets[index];
+             const params = new URLSearchParams();
+             Object.entries(ticket).forEach(([key, value]) => {
+                 params.append(key, value);
+             });
+ 
+             window.location.href = 'ticket.html?' + params.toString();
+         }
+ 
+         // Переключение формы редактирования
+         function toggleEditForm(index) {
+             const form = document.getElementById(`edit-form-${index}`);
+             form.classList.toggle('active');
+         }
+ 
+         // Сохранение отредактированного билета
+         function saveEditedTicket(index) {
+             const savedTickets = JSON.parse(localStorage.getItem('savedTickets') || '[]');
+             const ticket = savedTickets[index];
+ 
+             const routeNumber = document.getElementById(`edit-routeNumber-${index}`).value;
+             if (routeNumber < 1 || routeNumber > 99) {
+                 alert('Номер маршрута должен быть от 1 до 99');
+                 return;
+             }
+ 
+             ticket.routeNumber = routeNumber;
+             ticket.carrier = document.getElementById(`edit-carrier-${index}`).value;
+             ticket.route = document.getElementById(`edit-route-${index}`).value;
+             ticket.vehicle = document.getElementById(`edit-vehicle-${index}`).value;
+ 
+             savedTickets[index] = ticket;
+             localStorage.setItem('savedTickets', JSON.stringify(savedTickets));
+             loadSavedTickets();
+             toggleEditForm(index);
+         }
+ 
+         // Переключение вкладок
+         document.querySelectorAll('.tab').forEach(tab => {
+             tab.addEventListener('click', () => {
+                 document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                 document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+ 
+                 tab.classList.add('active');
+                 document.getElementById(tab.dataset.tab + '-content').classList.add('active');
+ 
+                 if (tab.dataset.tab === 'saved') {
+                     loadSavedTickets();
+                 }
+             });
+         });
+ 
+         // Загрузка сохраненных билетов при старте
+         if (document.querySelector('.tab[data-tab="saved"]').classList.contains('active')) {
+             loadSavedTickets();
+         }
+ 
+         // Add route endpoints data
+         const routeEndpoints = [
+             "ЛДК",
+             "ТЭЦ-3",
+             'ОАО "Русал"',
+             "мкрн. Верхние черёмушки",
+             "Академия биатлона",
+             "мкрн. Тихие Зори",
+             "Ст. Красноярск-Северный",
+             "Стела",
+             "мкрн. Солнечный",
+             "Спортзал",
+             "Озеро-парк",
+             "Красфарма (60 лет Октября)",
+             "Контейнерный двор",
+             "Химкомбинат Енисей",
+             "пос. Зыково",
+             "пос. Таймыр",
+             "Ж/Д Вокзал",
+             "Причал",
+             "Автовокзал Восточный",
+             "Дом учёных",
+             "Верхняя базаиха",
+             "С/О Южное",
+             "Сельхозкомплекс",
+             "ДК Кировский",
+             "Агротерминал",
+             "Междугородный вокзал"
+         ];
+ 
+         // Populate route endpoints dropdowns
+         function populateRouteEndpoints() {
+             const startSelect = document.getElementById('routeStart');
+             const endSelect = document.getElementById('routeEnd');
+ 
+             routeEndpoints.forEach(endpoint => {
+                 const startOption = document.createElement('option');
+                 const endOption = document.createElement('option');
+ 
+                 startOption.value = endpoint;
+                 startOption.textContent = endpoint;
+                 endOption.value = endpoint;
+                 endOption.textContent = endpoint;
+ 
+                 startSelect.appendChild(startOption);
+                 endSelect.appendChild(endOption);
+             });
+         }
+ 
+         // Handle route reverse
+         document.getElementById('reverseRoute').addEventListener('click', function() {
+             const startSelect = document.getElementById('routeStart');
+             const endSelect = document.getElementById('routeEnd');
+ 
+             const tempValue = startSelect.value;
+             startSelect.value = endSelect.value;
+             endSelect.value = tempValue;
+ 
+             updateRouteDisplay();
+         });
+ 
+         // Update route display when endpoints change
+         function updateRouteDisplay() {
+             const startValue = document.getElementById('routeStart').value;
+             const endValue = document.getElementById('routeEnd').value;
+ 
+             if (startValue && endValue) {
+                 document.getElementById('route').value = `${startValue} - ${endValue}`;
+             }
+         }
+ 
+         // Add event listeners for endpoint changes
+         document.getElementById('routeStart').addEventListener('change', updateRouteDisplay);
+         document.getElementById('routeEnd').addEventListener('change', updateRouteDisplay);
+ 
+         // Initialize route endpoints on page load
+         document.addEventListener('DOMContentLoaded', function() {
+             populateRouteEndpoints();
+             // ... existing DOMContentLoaded code ...
+         });
+ 
+         // Add delete ticket functionality
+         function confirmDeleteTicket(index) {
+             const modalBackdrop = document.getElementById('delete-confirmation');
+             const modal = document.querySelector('.modal');
+             const deleteBtn = document.querySelector('.delete-btn');
+             const cancelBtn = document.querySelector('.modal-cancel');
+             const confirmBtn = document.querySelector('.modal-confirm');
+ 
+             // Show the modal
+             modalBackdrop.style.display = 'flex';
+             modal.style.display = 'block';
+ 
+             // Add event listeners for modal actions
+             cancelBtn.addEventListener('click', function() {
+                 modalBackdrop.style.display = 'none';
+                 modal.style.display = 'none';
+             });
+ 
+             confirmBtn.addEventListener('click', function() {
+                 const savedTickets = JSON.parse(localStorage.getItem('savedTickets') || '[]');
+                 savedTickets.splice(index, 1);
+                 localStorage.setItem('savedTickets', JSON.stringify(savedTickets));
+                 loadSavedTickets();
+                 modalBackdrop.style.display = 'none';
+                 modal.style.display = 'none';
+             });
+         }
+     </script>
+ </body>
+ 
+ </html>
