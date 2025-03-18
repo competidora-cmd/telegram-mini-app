@@ -586,34 +586,47 @@
         ticketNumber.classList.add('active');
 
         // Запускаем таймер
-        let timeLeft = 15;
+        const startTime = Date.now();
+        const duration = 15000; // 15 секунд в миллисекундах
         const timerElement = document.getElementById('timer');
-        let timerId;
+        let animationFrameId;
 
         function updateTimer() {
-            timerElement.textContent = `Действует: ${timeLeft} сек.`;
+            const elapsed = Date.now() - startTime;
+            const remaining = Math.max(0, Math.ceil((duration - elapsed) / 1000));
             
-            if (timeLeft <= 0) {
-                clearInterval(timerId);
+            timerElement.textContent = `Действует: ${remaining} сек.`;
+            
+            if (remaining <= 0) {
+                cancelAnimationFrame(animationFrameId);
                 closeMiniApp();
                 return;
             }
             
-            timeLeft--;
+            animationFrameId = requestAnimationFrame(updateTimer);
         }
 
-        // Запускаем таймер с интервалом в 1 секунду
-        timerId = setInterval(updateTimer, 1000);
+        // Запускаем таймер
+        updateTimer();
 
         // Очищаем таймер при закрытии
         window.addEventListener('unload', function() {
-            clearInterval(timerId);
+            cancelAnimationFrame(animationFrameId);
         });
 
         // Перезапускаем при изменении viewport
         window.Telegram.WebApp.onEvent('viewportChanged', function() {
-            clearInterval(timerId);
+            cancelAnimationFrame(animationFrameId);
             updateTimer();
+        });
+
+        // Добавляем обработчик видимости страницы
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                cancelAnimationFrame(animationFrameId);
+            } else {
+                updateTimer();
+            }
         });
     </script>
 </body>
