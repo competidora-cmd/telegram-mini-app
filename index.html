@@ -1184,19 +1184,66 @@
             ]
         };
 
+        // Add route endpoints data
+        const routeEndpoints = [
+            "ЛДК",
+            "ТЭЦ-3",
+            'ОАО "Русал"',
+            "мкрн. Верхние черёмушки",
+            "Академия биатлона",
+            "мкрн. Тихие Зори",
+            "Ст. Красноярск-Северный",
+            "Стела",
+            "мкрн. Солнечный",
+            "Спортзал",
+            "Озеро-парк",
+            "Красфарма (60 лет Октября)",
+            "Контейнерный двор",
+            "Химкомбинат Енисей",
+            "пос. Зыково",
+            "пос. Таймыр",
+            "Ж/Д Вокзал",
+            "Причал",
+            "Автовокзал Восточный",
+            "Дом учёных",
+            "Верхняя базаиха",
+            "С/О Южное",
+            "Сельхозкомплекс",
+            "ДК Кировский",
+            "Агротерминал",
+            "Междугородный вокзал"
+        ];
+
+        // Populate route endpoints dropdowns
+        function populateRouteEndpoints() {
+            const startSelect = document.getElementById('routeStart');
+            const endSelect = document.getElementById('routeEnd');
+            
+            // Очищаем текущие опции
+            startSelect.innerHTML = '<option value="">Начальная остановка</option>';
+            endSelect.innerHTML = '<option value="">Конечная остановка</option>';
+            
+            routeEndpoints.forEach(endpoint => {
+                const startOption = document.createElement('option');
+                const endOption = document.createElement('option');
+                
+                startOption.value = endpoint;
+                startOption.textContent = endpoint;
+                endOption.value = endpoint;
+                endOption.textContent = endpoint;
+                
+                startSelect.appendChild(startOption);
+                endSelect.appendChild(endOption);
+            });
+        }
+
         // Заполнение выпадающего списка перевозчиков
         function populateCarrierDropdown() {
             const carriers = routesData.allCarriers;
             const carrierSelect = document.getElementById('carrier');
             
             // Очищаем текущие опции
-            carrierSelect.innerHTML = '';
-            
-            // Добавляем пустую опцию
-            const emptyOption = document.createElement('option');
-            emptyOption.value = '';
-            emptyOption.textContent = 'Выберите перевозчика';
-            carrierSelect.appendChild(emptyOption);
+            carrierSelect.innerHTML = '<option value="">Выберите перевозчика</option>';
             
             // Добавляем всех перевозчиков
             carriers.forEach(carrier => {
@@ -1213,7 +1260,10 @@
             const carrierSelect = document.getElementById('carrier');
             
             // Если маршрут не выбран
-            if (!routeNumber) return;
+            if (!routeNumber) {
+                populateCarrierDropdown();
+                return;
+            }
             
             // Находим маршрут в данных
             const route = routesData.routes[routeNumber];
@@ -1228,13 +1278,7 @@
                     // но ограничиваем список только перевозчиками этого маршрута
                     
                     // Очищаем текущие опции
-                    carrierSelect.innerHTML = '';
-                    
-                    // Добавляем пустую опцию
-                    const emptyOption = document.createElement('option');
-                    emptyOption.value = '';
-                    emptyOption.textContent = 'Выберите перевозчика для маршрута ' + routeNumber;
-                    carrierSelect.appendChild(emptyOption);
+                    carrierSelect.innerHTML = '<option value="">Выберите перевозчика для маршрута ' + routeNumber + '</option>';
                     
                     // Добавляем перевозчиков для этого маршрута
                     route.carriers.forEach(carrier => {
@@ -1250,10 +1294,17 @@
             }
         }
 
-        // Заполняем выпадающий список при загрузке страницы
+        // Инициализация при загрузке страницы
         document.addEventListener('DOMContentLoaded', function() {
             populateCarrierDropdown();
-            document.getElementById('routeNumber').addEventListener('change', updateCarrierBasedOnRoute);
+            populateRouteEndpoints();
+            
+            // Добавляем обработчик изменения номера маршрута
+            document.getElementById('routeNumber').addEventListener('input', updateCarrierBasedOnRoute);
+            
+            // Добавляем обработчик изменения начальной и конечной остановки
+            document.getElementById('routeStart').addEventListener('change', updateRouteDisplay);
+            document.getElementById('routeEnd').addEventListener('change', updateRouteDisplay);
         });
 
         // Функция генерации случайного номера билета
@@ -1384,55 +1435,6 @@
             loadSavedTickets();
         }
 
-        // Add route endpoints data
-        const routeEndpoints = [
-            "ЛДК",
-            "ТЭЦ-3",
-            'ОАО "Русал"',
-            "мкрн. Верхние черёмушки",
-            "Академия биатлона",
-            "мкрн. Тихие Зори",
-            "Ст. Красноярск-Северный",
-            "Стела",
-            "мкрн. Солнечный",
-            "Спортзал",
-            "Озеро-парк",
-            "Красфарма (60 лет Октября)",
-            "Контейнерный двор",
-            "Химкомбинат Енисей",
-            "пос. Зыково",
-            "пос. Таймыр",
-            "Ж/Д Вокзал",
-            "Причал",
-            "Автовокзал Восточный",
-            "Дом учёных",
-            "Верхняя базаиха",
-            "С/О Южное",
-            "Сельхозкомплекс",
-            "ДК Кировский",
-            "Агротерминал",
-            "Междугородный вокзал"
-        ];
-
-        // Populate route endpoints dropdowns
-        function populateRouteEndpoints() {
-            const startSelect = document.getElementById('routeStart');
-            const endSelect = document.getElementById('routeEnd');
-            
-            routeEndpoints.forEach(endpoint => {
-                const startOption = document.createElement('option');
-                const endOption = document.createElement('option');
-                
-                startOption.value = endpoint;
-                startOption.textContent = endpoint;
-                endOption.value = endpoint;
-                endOption.textContent = endpoint;
-                
-                startSelect.appendChild(startOption);
-                endSelect.appendChild(endOption);
-            });
-        }
-
         // Handle route reverse
         document.getElementById('reverseRoute').addEventListener('click', function() {
             const startSelect = document.getElementById('routeStart');
@@ -1458,12 +1460,6 @@
         // Add event listeners for endpoint changes
         document.getElementById('routeStart').addEventListener('change', updateRouteDisplay);
         document.getElementById('routeEnd').addEventListener('change', updateRouteDisplay);
-
-        // Initialize route endpoints on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            populateRouteEndpoints();
-            // ... existing DOMContentLoaded code ...
-        });
 
         // Add delete ticket functionality
         function confirmDeleteTicket(index) {
