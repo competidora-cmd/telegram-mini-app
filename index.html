@@ -346,21 +346,23 @@
 
             gap: 8px;
 
+            flex-wrap: wrap;
+
         }
 
 
 
-        .edit-btn, .open-btn {
+        .edit-btn, .open-btn, .delete-btn {
 
-            padding: 8px 16px;
+            flex: 1;
 
-            background: #F7F7F7;
+            min-width: 80px;
+
+            padding: 8px 12px;
 
             border: none;
 
             border-radius: 8px;
-
-            color: #000;
 
             font-size: 15px;
 
@@ -368,9 +370,27 @@
 
             white-space: nowrap;
 
-            width: auto;
+            text-align: center;
 
-            margin: 0;
+        }
+
+
+
+        .edit-btn, .open-btn {
+
+            background: #F7F7F7;
+
+            color: #000;
+
+        }
+
+
+
+        .delete-btn {
+
+            background: #FFE5E5;
+
+            color: #E31E24;
 
         }
 
@@ -472,7 +492,7 @@
 
             .ticket-info {
 
-            flex-direction: column;
+                flex-direction: column;
 
                 align-items: flex-start;
 
@@ -482,17 +502,19 @@
 
             .ticket-actions {
 
-            width: 100%;
+                width: 100%;
+
+                margin-top: 8px;
 
             }
 
 
 
-            .edit-btn, .open-btn {
+            .edit-btn, .open-btn, .delete-btn {
 
                 flex: 1;
 
-                text-align: center;
+                min-width: 0;
 
             }
 
@@ -713,40 +735,6 @@
             height: 16px;
 
             color: #8E8E93;
-
-        }
-
-
-
-        .delete-btn {
-
-            padding: 8px 16px;
-
-            background: #FFE5E5;
-
-            border: none;
-
-            border-radius: 8px;
-
-            color: #E31E24;
-
-            font-size: 15px;
-
-            cursor: pointer;
-
-            white-space: nowrap;
-
-            width: auto;
-
-            margin: 0;
-
-        }
-
-
-
-        .delete-btn:hover {
-
-            background: #FFCCCC;
 
         }
 
