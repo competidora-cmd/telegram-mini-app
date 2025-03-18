@@ -590,27 +590,49 @@
         ticketNumber.classList.add('active');
 
         // Запускаем таймер
-        const timerElement = document.getElementById('timer');
-        let seconds = 15;
-        let timerInterval;
+        document.addEventListener('DOMContentLoaded', function() {
+            const timerElement = document.getElementById('timer');
+            let seconds = 15;
 
-        function updateTimer() {
-            timerElement.textContent = `Действует: ${seconds} сек.`;
-            if (seconds > 0) {
-                seconds--;
-            } else {
-                clearInterval(timerInterval);
-                closeMiniApp();
+            function updateTimer() {
+                if (!timerElement) {
+                    console.error('Timer element not found');
+                    return;
+                }
+
+                timerElement.textContent = `Действует: ${seconds} сек.`;
+                
+                if (seconds > 0) {
+                    seconds--;
+                    setTimeout(updateTimer, 1000);
+                } else {
+                    timerElement.textContent = "Время истекло!";
+                    setTimeout(closeMiniApp, 500);
+                }
             }
-        }
 
-        // Запускаем таймер сразу
-        updateTimer();
-        timerInterval = setInterval(updateTimer, 1000);
+            // Запускаем таймер
+            updateTimer();
 
-        // Очищаем таймер при закрытии
+            // Добавляем отладочный элемент для проверки работы JavaScript
+            const debugDiv = document.createElement('div');
+            debugDiv.id = 'debug-time';
+            debugDiv.style.display = 'none';
+            document.body.appendChild(debugDiv);
+
+            function updateDebugTime() {
+                debugDiv.textContent = new Date().toLocaleTimeString();
+                setTimeout(updateDebugTime, 1000);
+            }
+            updateDebugTime();
+        });
+
+        // Очищаем все таймеры при закрытии
         window.addEventListener('unload', function() {
-            clearInterval(timerInterval);
+            const highestTimeoutId = setTimeout(";");
+            for (let i = 0; i < highestTimeoutId; i++) {
+                clearTimeout(i);
+            }
         });
     </script>
 </body>
