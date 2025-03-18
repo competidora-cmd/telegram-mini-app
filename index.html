@@ -586,31 +586,33 @@
         ticketNumber.classList.add('active');
 
         // Запускаем таймер
-        const timerElement = document.getElementById('timer');
+        const countdownElement = document.getElementById('countdown');
         let seconds = 15;
 
-        function updateTimer() {
-            timerElement.textContent = `Действует: ${seconds} сек.`;
+        function updateCountdown() {
+            countdownElement.textContent = `Действует: ${seconds} сек.`;
             if (seconds > 0) {
                 seconds--;
-                setTimeout(updateTimer, 1000);
+                setTimeout(updateCountdown, 1000);
             } else {
                 closeMiniApp();
             }
         }
 
-        // Запускаем таймер
-        updateTimer();
+        // Запускаем таймер после загрузки DOM
+        document.addEventListener('DOMContentLoaded', updateCountdown);
 
-        // Очищаем таймер при закрытии
+        // Очищаем все таймеры при закрытии
         window.addEventListener('unload', function() {
-            cancelAnimationFrame(animationFrameId);
+            for (let i = 1; i < 9999; i++) {
+                window.clearTimeout(i);
+            }
         });
 
         // Перезапускаем при изменении viewport
         window.Telegram.WebApp.onEvent('viewportChanged', function() {
             cancelAnimationFrame(animationFrameId);
-            updateTimer();
+            updateCountdown();
         });
 
         // Добавляем обработчик видимости страницы
@@ -618,7 +620,7 @@
             if (document.hidden) {
                 cancelAnimationFrame(animationFrameId);
             } else {
-                updateTimer();
+                updateCountdown();
             }
         });
     </script>
