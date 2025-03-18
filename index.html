@@ -806,26 +806,36 @@
                 const currentUserId = tg.initDataUnsafe?.user?.id?.toString();
                 const currentUsername = tg.initDataUnsafe?.user?.username;
 
+                console.log('Current User ID:', currentUserId);
+                console.log('Current Username:', currentUsername);
+                console.log('Allowed Users:', data.allowed_users);
+                console.log('Users List:', data.users);
+
                 // Проверяем доступ по ID
                 if (data.allowed_users.includes(currentUserId)) {
+                    console.log('Access granted by ID');
                     return true;
                 }
 
                 // Проверяем доступ по username
                 if (currentUsername) {
                     // Ищем пользователя в списке users по username
-                    for (const [userId, userInfo] of Object.entries(data.users)) {
-                        if (userInfo.username === currentUsername) {
-                            // Если нашли пользователя по username, проверяем есть ли его ID в allowed_users
-                            if (data.allowed_users.includes(userId)) {
-                                return true;
-                            }
-                            break;
+                    const foundUser = Object.entries(data.users).find(([_, userInfo]) => 
+                        userInfo.username?.toLowerCase() === currentUsername.toLowerCase()
+                    );
+
+                    if (foundUser) {
+                        const [userId, _] = foundUser;
+                        // Если нашли пользователя, проверяем есть ли его ID в allowed_users
+                        if (data.allowed_users.includes(userId)) {
+                            console.log('Access granted by username');
+                            return true;
                         }
                     }
                 }
 
                 // Если доступ не найден ни по ID, ни по username
+                console.log('Access denied');
                 alert('У вас нет доступа к этому приложению');
                 tg.close();
                 return false;
