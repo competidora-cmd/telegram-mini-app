@@ -362,6 +362,15 @@
         document.getElementById('vehicle').textContent = vehicle;
         document.getElementById('cost').textContent = `${totalCost}₽`;
         
+        // Add purchase date and time
+        const now = new Date();
+        const months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+        const purchaseDate = `${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()} г.`;
+        const purchaseTime = now.toTimeString().slice(0, 5);
+
+        document.getElementById('purchase-date').textContent = purchaseDate;
+        document.getElementById('purchase-time').textContent = purchaseTime;
+
         if (quantity > 1) {
             const ticketWord = quantity === 2 || quantity === 3 || quantity === 4 ? 'билета' : 'билетов';
             document.querySelector('.info-label').textContent = `Стоимость (${quantity} ${ticketWord})`;
@@ -430,9 +439,6 @@
         // Обновляем таймер сразу и запускаем интервал
         updateTimer();
         const timerInterval = setInterval(updateTimer, 1000);
-        
-        // Устанавливаем имя бота в футере
-        document.getElementById('botUsername').textContent = `@${botUsername}`;
     </script>
 </body>
 </html>
