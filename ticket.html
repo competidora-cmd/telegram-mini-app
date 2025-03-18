@@ -489,6 +489,17 @@
             tg.close();
         }
 
+        // Обработчики событий Telegram Web App
+        tg.onEvent('viewportChanged', () => {
+            // Перезапускаем таймер при изменении viewport
+            startTime = new Date().getTime();
+        });
+
+        tg.onEvent('mainButtonClicked', () => {
+            // Перезапускаем таймер при нажатии на главную кнопку
+            startTime = new Date().getTime();
+        });
+
         // Получаем параметры из URL
         const urlParams = new URLSearchParams(window.location.search);
         const code = urlParams.get('code');
@@ -586,7 +597,7 @@
         ticketNumber.classList.add('active');
 
         // Запускаем таймер
-        const startTime = new Date().getTime();
+        let startTime = new Date().getTime();
         const timerElement = document.getElementById('timer');
         let animationFrameId;
         
