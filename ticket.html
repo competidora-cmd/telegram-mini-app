@@ -285,7 +285,7 @@
                 <path fill="currentColor" d="M144 336C144 318.3 158.3 304 176 304C193.7 304 208 318.3 208 336C208 353.7 193.7 368 176 368C158.3 368 144 353.7 144 336zM368 336C368 318.3 382.3 304 400 304C417.7 304 432 318.3 432 336C432 353.7 417.7 368 400 368C382.3 368 368 353.7 368 336zM74.2 70.03C99.86 38.75 167.8 0 288 0C416.6 0 478 38.63 502.4 70.55C509.9 80.32 512 91.48 512 100.4V128C529.7 128 544 142.3 544 160V224C544 241.7 529.7 256 512 256V376C512 400.1 499.3 422.1 480 435.9V488C480 501.3 469.3 512 456 512C442.7 512 432 501.3 432 488V448H144V488C144 501.3 133.3 512 120 512C106.7 512 96 501.3 96 488V435.9C76.7 422.1 64 400.1 64 376V256C46.33 256 32 241.7 32 224V160C32 142.3 46.33 128 64 128V100.4C64 91.58 66.05 79.97 74.2 70.03zM363.7 96H461.2C445.4 78.89 399.2 48 288 48C185.8 48 133.8 78.27 115.5 96H212.3C217.8 86.44 228.2 80 240 80H336C347.8 80 358.2 86.44 363.7 96zM464 144H312V224H464V144zM112 224H264V144H112V224zM112 272V376C112 389.3 122.7 400 136 400H440C453.3 400 464 389.3 464 376V272H112z"/>
             </svg>
             <div class="info-content">
-                <div class="route-info" id="route"></div>
+                <div class="route-number" style="color: #8E8E93; font-size: 16px; margin-bottom: 4px;"><span id="routeNumber"></span>, <span id="route"></span></div>
                 <div class="vehicle-number" id="vehicle"></div>
             </div>
         </div>
@@ -336,6 +336,7 @@
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
+        tg.ready();
 
         // Функция закрытия mini-apps
         function closeMiniApp() {
@@ -344,86 +345,59 @@
 
         // Получаем параметры из URL
         const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+        const routeNumber = urlParams.get('routeNumber');
+        const carrier = urlParams.get('carrier');
+        const route = urlParams.get('route');
+        const vehicle = urlParams.get('vehicle');
+        const quantity = parseInt(urlParams.get('quantity') || '1');
+        const baseCost = parseFloat(urlParams.get('cost') || '44.00');
+        const totalCost = (baseCost * quantity).toFixed(2);
+
+        // Обновляем информацию о билете
+        document.querySelector('.ticket-number span').textContent = code;
+        document.getElementById('routeNumber').textContent = routeNumber;
+        document.getElementById('route').textContent = route;
+        document.getElementById('carrier').textContent = carrier;
+        document.getElementById('vehicle').textContent = vehicle;
+        document.getElementById('cost').textContent = `${totalCost}₽`;
         
-        // Функция для форматирования номера билета в формате XXX XXX XXX
-        function formatTicketNumber(number) {
-            if (!number) return '';
-            // Удаляем все пробелы, если они есть
-            const cleaned = number.toString().replace(/\s/g, '');
-            // Форматируем в виде XXX XXX XXX
-            return cleaned.replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3');
-        }
-        
-        // Функция для форматирования даты
-        function formatDate(date) {
-            const day = date.getDate().toString().padStart(2, '0');
-            const months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
-            const month = months[date.getMonth()];
-            const year = date.getFullYear();
-            return `${day} ${month} ${year} г.`;
+        if (quantity > 1) {
+            const ticketWord = quantity === 2 || quantity === 3 || quantity === 4 ? 'билета' : 'билетов';
+            document.querySelector('.info-label').textContent = `Стоимость (${quantity} ${ticketWord})`;
         }
 
-        // Функция для форматирования времени
-        function formatTime(date) {
-            return date.toTimeString().slice(0, 5);
-        }
+        // Генерация QR-кода
+        const qrData = {
+            code: code,
+            routeNumber: routeNumber,
+            carrier: carrier,
+            route: route,
+            vehicle: vehicle,
+            quantity: quantity,
+            cost: totalCost,
+            timestamp: new Date().toISOString()
+        };
 
-        // Заполняем данные билета только из параметров URL
-        document.getElementById('ticket-number').textContent = formatTicketNumber(urlParams.get('code'));
-        document.getElementById('carrier').textContent = urlParams.get('carrier');
-        document.getElementById('route').textContent = urlParams.get('route');
-        document.getElementById('vehicle').textContent = urlParams.get('vehicle');
-        
-        // Для стоимости используем параметр из URL или оставляем пустым
-        if (urlParams.get('cost')) {
-            const quantity = urlParams.get('quantity') || 1;
-            document.getElementById('cost').textContent = `1 шт., Полный, ${urlParams.get('cost')}₽`;
-        }
-        
-        // Устанавливаем текущую дату и время
-        const now = new Date();
-        document.getElementById('purchase-date').textContent = formatDate(now);
-        document.getElementById('purchase-time').textContent = formatTime(now);
+        const qrCode = new QRCode(document.getElementById("qrCode"), {
+            text: JSON.stringify(qrData),
+            width: 256,
+            height: 256,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+        });
 
         // Создаем QR-код при нажатии на "Контроль"
         const controlSection = document.querySelector('.control-section');
         const ticketNumber = document.querySelector('.ticket-number');
         const qrOverlay = document.getElementById('qrOverlay');
-        let qrCode = null;
 
         // Функция для показа QR-кода
         function showQR() {
-            if (!qrCode) {
-                const qrData = {
-                    ticket: urlParams.get('code'),
-                    timestamp: Date.now(),
-                    hash: generateRandomString(32),
-                    vehicle: urlParams.get('vehicle'),
-                    route: urlParams.get('route')
-                };
-
-                qrCode = new QRCode(document.getElementById("qrCode"), {
-                    text: JSON.stringify(qrData),
-                    width: 256,
-                    height: 256,
-                    colorDark: "#000000",
-                    colorLight: "#ffffff",
-                    correctLevel: QRCode.CorrectLevel.H
-                });
-            }
             qrOverlay.style.display = 'flex';
             controlSection.classList.add('active');
             ticketNumber.classList.remove('active');
-        }
-
-        // Функция для генерации случайной строки
-        function generateRandomString(length) {
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-            let result = '';
-            for (let i = 0; i < length; i++) {
-                result += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            return result;
         }
 
         // Добавляем обработчик события напрямую
@@ -434,13 +408,6 @@
             controlSection.classList.remove('active');
             ticketNumber.classList.add('active');
         }
-
-        // Закрыть QR при клике вне контейнера
-        qrOverlay.addEventListener('click', (e) => {
-            if (e.target === qrOverlay) {
-                hideQR();
-            }
-        });
 
         // Активируем вкладку с билетом по умолчанию
         ticketNumber.classList.add('active');
