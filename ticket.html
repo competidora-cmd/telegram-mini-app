@@ -619,43 +619,37 @@
                 return;
             }
 
-            if (timeLeft > 0) {
-                timerElement.textContent = `Действует: ${timeLeft} сек.`;
-                timeLeft--;
-                // Рекурсивно планируем следующее обновление
-                timerInterval = setTimeout(updateTimer, 1000);
-            } else {
-                timerElement.textContent = 'Время истекло';
-                if (timerInterval) {
-                    clearTimeout(timerInterval);
-                    timerInterval = null;
-                }
-                // Даем время увидеть сообщение перед закрытием
+            timerElement.textContent = `Действует: ${timeLeft} сек.`;
+
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                timerInterval = null;
                 setTimeout(() => {
                     closeMiniApp();
                 }, 500);
             }
+            timeLeft--;
         }
 
         function startTimer() {
-            // Очищаем предыдущий таймер, если он существует
             if (timerInterval) {
-                clearTimeout(timerInterval);
+                clearInterval(timerInterval);
                 timerInterval = null;
             }
             timeLeft = 15;
-            updateTimer();
+            updateTimer(); // Первое обновление сразу
+            timerInterval = setInterval(updateTimer, 1000); // Последующие обновления каждую секунду
         }
 
         function stopTimer() {
             if (timerInterval) {
-                clearTimeout(timerInterval);
+                clearInterval(timerInterval);
                 timerInterval = null;
             }
         }
 
         // Запускаем таймер при загрузке страницы
-        startTimer();
+        document.addEventListener('DOMContentLoaded', startTimer);
 
         // Очищаем таймер при закрытии страницы
         window.addEventListener('unload', stopTimer);
@@ -668,6 +662,9 @@
                 startTimer();
             }
         });
+
+        // Обработка событий Telegram WebApp для надежности
+        window.Telegram.WebApp.onEvent('viewportChanged', startTimer);
     </script>
 </body>
 </html>
