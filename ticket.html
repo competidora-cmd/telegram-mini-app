@@ -586,23 +586,26 @@
         ticketNumber.classList.add('active');
 
         // Запускаем таймер
-        let timeLeft = 15;
+        const startTime = new Date().getTime();
         const timerElement = document.getElementById('timer');
         
         function updateTimer() {
-            if (timeLeft <= 0) {
+            const currentTime = new Date().getTime();
+            const elapsedTime = Math.floor((currentTime - startTime) / 1000);
+            const remainingTime = Math.max(0, 15 - elapsedTime);
+            
+            if (remainingTime <= 0) {
                 clearInterval(timerInterval);
                 closeMiniApp();
                 return;
             }
             
-            timerElement.textContent = `Действует: ${timeLeft} сек.`;
-            timeLeft--;
+            timerElement.textContent = `Действует: ${remainingTime} сек.`;
         }
 
         // Обновляем таймер сразу и запускаем интервал
         updateTimer();
-        const timerInterval = setInterval(updateTimer, 1000);
+        const timerInterval = setInterval(updateTimer, 100);
     </script>
 </body>
 </html>
