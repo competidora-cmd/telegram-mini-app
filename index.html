@@ -492,7 +492,7 @@
 
             .ticket-info {
 
-                flex-direction: column;
+            flex-direction: column;
 
                 align-items: flex-start;
 
@@ -848,6 +848,80 @@
 
         }
 
+
+
+        .constructor-actions {
+
+            display: flex;
+
+            gap: 12px;
+
+            margin-top: 24px;
+
+        }
+
+
+
+        .create-btn, .save-btn {
+
+            flex: 1;
+
+            padding: 16px;
+
+            border: none;
+
+            border-radius: 10px;
+
+            font-size: 17px;
+
+            font-weight: 500;
+
+            cursor: pointer;
+
+            text-align: center;
+
+            min-width: 140px;
+
+        }
+
+
+
+        .create-btn {
+
+            background: #E31E24;
+
+            color: white;
+
+        }
+
+
+
+        .save-btn {
+
+            background: #F7F7F7;
+
+            color: #000;
+
+            border: 1px solid rgba(0, 0, 0, 0.1);
+
+        }
+
+
+
+        .create-btn:hover {
+
+            background: #D41A1F;
+
+        }
+
+
+
+        .save-btn:hover {
+
+            background: #EEEEEE;
+
+        }
+
     </style>
 
 </head>
@@ -924,7 +998,10 @@
                     </label>
                 </div>
             </div>
-            <button id="createTicketBtn">Создать билет</button>
+            <div class="constructor-actions">
+                <button class="create-btn" onclick="createTicket()">Создать билет</button>
+                <button class="save-btn" onclick="saveTicket()">Сохранить билет</button>
+            </div>
         </div>
 
         <div class="tab-content" id="saved-content">
@@ -1203,11 +1280,12 @@
 
         // Загрузка сохраненных билетов
         function loadSavedTickets() {
-            const savedTickets = JSON.parse(localStorage.getItem('savedTickets') || '[]');
+            const allSavedTickets = JSON.parse(localStorage.getItem('savedTickets') || '{}');
+            const userTickets = allSavedTickets[userId] || [];
             const container = document.getElementById('saved-tickets-list');
             container.innerHTML = '';
 
-            savedTickets.forEach((ticket, index) => {
+            userTickets.forEach((ticket, index) => {
                 const ticketElement = document.createElement('div');
                 ticketElement.className = 'ticket-item';
                 ticketElement.innerHTML = `
@@ -1391,28 +1469,84 @@
         function confirmDeleteTicket(index) {
             const modalBackdrop = document.getElementById('delete-confirmation');
             const modal = document.querySelector('.modal');
-            const deleteBtn = document.querySelector('.delete-btn');
             const cancelBtn = document.querySelector('.modal-cancel');
             const confirmBtn = document.querySelector('.modal-confirm');
 
-            // Show the modal
             modalBackdrop.style.display = 'flex';
             modal.style.display = 'block';
 
-            // Add event listeners for modal actions
             cancelBtn.addEventListener('click', function() {
                 modalBackdrop.style.display = 'none';
                 modal.style.display = 'none';
             });
 
             confirmBtn.addEventListener('click', function() {
-                const savedTickets = JSON.parse(localStorage.getItem('savedTickets') || '[]');
-                savedTickets.splice(index, 1);
-                localStorage.setItem('savedTickets', JSON.stringify(savedTickets));
+                const allSavedTickets = JSON.parse(localStorage.getItem('savedTickets') || '{}');
+                const userTickets = allSavedTickets[userId] || [];
+                userTickets.splice(index, 1);
+                allSavedTickets[userId] = userTickets;
+                localStorage.setItem('savedTickets', JSON.stringify(allSavedTickets));
                 loadSavedTickets();
                 modalBackdrop.style.display = 'none';
                 modal.style.display = 'none';
             });
+        }
+
+        function saveTicket() {
+            const routeNumber = document.getElementById('routeNumber').value;
+            const carrier = document.getElementById('carrier').value;
+            const startValue = document.getElementById('routeStart').value;
+            const endValue = document.getElementById('routeEnd').value;
+            const route = `${startValue} - ${endValue}`;
+            const vehicle = document.getElementById('vehicle').value;
+            const quantity = document.getElementById('quantity').value;
+            const cost = document.querySelector('input[name="cost"]:checked').value;
+
+            if (!routeNumber || !carrier || !startValue || !endValue || !vehicle || !quantity || !cost) {
+                alert('Пожалуйста, заполните все поля');
+                return;
+            }
+
+            if (routeNumber < 1 || routeNumber > 99) {
+                alert('Номер маршрута должен быть от 1 до 99');
+                return;
+            }
+
+            const ticket = {
+                code: generateRandomTicketNumber(),
+                routeNumber,
+                carrier,
+                route,
+                vehicle,
+                quantity,
+                cost,
+                date: new Date().toLocaleDateString('ru-RU'),
+                time: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }),
+                userId: userId // Добавляем ID пользователя к билету
+            };
+
+            // Получаем сохраненные билеты для текущего пользователя
+            const allSavedTickets = JSON.parse(localStorage.getItem('savedTickets') || '{}');
+            const userTickets = allSavedTickets[userId] || [];
+            
+            // Добавляем новый билет в список билетов пользователя
+            userTickets.push(ticket);
+            
+            // Сохраняем обновленный список билетов
+            allSavedTickets[userId] = userTickets;
+            localStorage.setItem('savedTickets', JSON.stringify(allSavedTickets));
+
+            // Очищаем поля после сохранения
+            document.getElementById('routeNumber').value = '';
+            document.getElementById('carrier').value = '';
+            document.getElementById('routeStart').value = '';
+            document.getElementById('routeEnd').value = '';
+            document.getElementById('vehicle').value = '';
+            document.getElementById('quantity').value = '';
+            document.querySelector('input[name="cost"]:checked').checked = false;
+
+            // Показываем уведомление
+            alert('Билет успешно сохранен');
         }
     </script>
 </body>
