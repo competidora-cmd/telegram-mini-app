@@ -610,22 +610,62 @@
 
         // Запускаем таймер
         let timeLeft = 15;
+        let timerInterval = null;
         const timerElement = document.getElementById('timer');
-        
+
         function updateTimer() {
+            if (!timerElement) {
+                console.error('Timer element not found');
+                return;
+            }
+
             timerElement.textContent = `Действует: ${timeLeft} сек.`;
-            
+
             if (timeLeft <= 0) {
                 clearInterval(timerInterval);
-                closeMiniApp();
+                timerInterval = null;
+                setTimeout(() => {
+                    closeMiniApp();
+                }, 500);
                 return;
             }
             timeLeft--;
         }
 
-        // Обновляем таймер сразу и запускаем интервал
-        updateTimer();
-        const timerInterval = setInterval(updateTimer, 1000);
+        function startTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            timeLeft = 15;
+            updateTimer(); // Первое обновление сразу
+            timerInterval = setInterval(updateTimer, 1000); // Последующие обновления каждую секунду
+        }
+
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+
+        // Запускаем таймер при загрузке страницы
+        document.addEventListener('DOMContentLoaded', startTimer);
+
+        // Очищаем таймер при закрытии страницы
+        window.addEventListener('unload', stopTimer);
+
+        // Обработка видимости страницы
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                stopTimer();
+            } else {
+                startTimer();
+            }
+        });
+
+        // Обработка событий Telegram WebApp для надежности
+        window.Telegram.WebApp.onEvent('viewportChanged', startTimer);
     </script>
 </body>
 </html>
