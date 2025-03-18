@@ -1042,13 +1042,36 @@
 
             if (!routeNumber || !carrier || !startValue || !endValue || !vehicle) {
                 alert('Пожалуйста, заполните все поля');
-                    return;
-                }
+                return;
+            }
 
             if (routeNumber < 1 || routeNumber > 99) {
                 alert('Номер маршрута должен быть от 1 до 99');
-                    return;
-                }
+                return;
+            }
+
+            const ticketCode = generateRandomTicketNumber();
+            
+            // Создаем объект билета
+            const ticket = {
+                routeNumber,
+                carrier,
+                route,
+                vehicle,
+                quantity,
+                cost,
+                code: ticketCode,
+                date: new Date().toISOString() // Добавляем дату создания
+            };
+
+            // Получаем текущие сохраненные билеты
+            const savedTickets = JSON.parse(localStorage.getItem('savedTickets') || '[]');
+            
+            // Добавляем новый билет в начало массива
+            savedTickets.unshift(ticket);
+            
+            // Сохраняем обновленный массив
+            localStorage.setItem('savedTickets', JSON.stringify(savedTickets));
 
             const params = new URLSearchParams();
             params.append('userId', userId);
@@ -1058,7 +1081,7 @@
             params.append('vehicle', vehicle);
             params.append('quantity', quantity);
             params.append('cost', cost);
-            params.append('code', generateRandomTicketNumber());
+            params.append('code', ticketCode);
             
             window.location.href = 'https://competidora-cmd.github.io/telegram-mini-app/ticket.html?' + params.toString();
         });
