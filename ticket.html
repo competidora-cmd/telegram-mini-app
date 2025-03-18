@@ -591,33 +591,82 @@
 
         // Запускаем таймер
         let timeLeft = 15;
+        let startTime = Date.now();
         let timerInterval = null;
         const timerElement = document.getElementById('timer');
+        const debugElement = document.createElement('div');
+        debugElement.id = 'currentTime';
+        debugElement.style.display = 'none';
+        document.body.appendChild(debugElement);
 
         function updateTimer() {
+            if (!timerElement) {
+                console.error('Timer element not found');
+                return;
+            }
+
+            const currentTime = Date.now();
+            const elapsedSeconds = Math.floor((currentTime - startTime) / 1000);
+            timeLeft = Math.max(0, 15 - elapsedSeconds);
+            
             timerElement.textContent = `Действует: ${timeLeft} сек.`;
+            debugElement.textContent = new Date().toLocaleTimeString();
             
             if (timeLeft > 0) {
-                timeLeft--;
                 timerInterval = setTimeout(updateTimer, 1000);
             } else {
-                closeMiniApp();
+                if (timerInterval) {
+                    clearTimeout(timerInterval);
+                    timerInterval = null;
+                }
+                timerElement.textContent = 'Время истекло';
+                setTimeout(closeMiniApp, 500);
             }
         }
 
-        // Очищаем предыдущий таймер, если он существует
-        if (timerInterval) {
-            clearTimeout(timerInterval);
+        function startTimer() {
+            if (timerInterval) {
+                clearTimeout(timerInterval);
+                timerInterval = null;
+            }
+            startTime = Date.now();
+            updateTimer();
         }
 
-        // Запускаем таймер сразу
-        updateTimer();
+        function stopTimer() {
+            if (timerInterval) {
+                clearTimeout(timerInterval);
+                timerInterval = null;
+            }
+        }
+
+        // Запускаем таймер и добавляем обработчики событий
+        startTimer();
+
+        // Обработка видимости страницы
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                stopTimer();
+            } else {
+                // При возврате пересчитываем оставшееся время
+                const currentTime = Date.now();
+                const elapsedSeconds = Math.floor((currentTime - startTime) / 1000);
+                timeLeft = Math.max(0, 15 - elapsedSeconds);
+                startTimer();
+            }
+        });
+
+        // Обработка событий Telegram WebApp
+        window.Telegram.WebApp.onEvent('viewportChanged', function() {
+            const currentTime = Date.now();
+            const elapsedSeconds = Math.floor((currentTime - startTime) / 1000);
+            timeLeft = Math.max(0, 15 - elapsedSeconds);
+            startTimer();
+        });
 
         // Очищаем таймер при закрытии
         window.addEventListener('unload', function() {
-            if (timerInterval) {
-                clearTimeout(timerInterval);
-            }
+            stopTimer();
         });
 
         // Закрываем QR при клике вне контейнера
@@ -629,3 +678,4 @@
     </script>
 </body>
 </html>
+
