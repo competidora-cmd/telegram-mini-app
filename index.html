@@ -1082,7 +1082,6 @@
             params.append('quantity', quantity);
             params.append('cost', cost);
             params.append('code', ticketCode);
-            params.append('creationTime', new Date().toISOString()); // Добавляем время создания
             
             window.location.href = 'https://competidora-cmd.github.io/telegram-mini-app/ticket.html?' + params.toString();
         });
@@ -1350,14 +1349,21 @@
             "пос. Таймыр",
             "Ж/Д Вокзал",
             "Причал",
-            "Автовокзал Восточный",
+            "А/В Восточный",
             "Дом учёных",
             "Верхняя базаиха",
             "С/О Южное",
             "Сельхозкомплекс",
             "ДК Кировский",
             "Агротерминал",
-            "Междугородный вокзал"
+            "Междугородный вокзал",
+            'Спорткомплекс "Радуга"',
+            'ООО "Красфарма"',
+            "Парашютная",
+            "Госпиталь ВОВ",
+            "пос. Энергетиков",
+            "Северный",
+            "Цимлянская"
         ];
 
         // Populate route endpoints dropdowns
