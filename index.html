@@ -878,8 +878,8 @@
 
             if (!routeNumber || !carrier || !startValue || !endValue || !vehicle) {
                 alert('Пожалуйста, заполните все поля');
-                return;
-            }
+                    return;
+                }
 
             if (routeNumber < 1 || routeNumber > 99) {
                 alert('Номер маршрута должен быть от 1 до 99');
@@ -1055,6 +1055,7 @@
                         <div class="ticket-actions">
                             <button class="edit-btn" onclick="toggleEditForm(${index})">Изменить</button>
                             <button class="open-btn" onclick="openSavedTicket(${index})">Открыть</button>
+                            <button class="delete-btn" onclick="confirmDeleteTicket(${index})">Удалить</button>
                         </div>
                     </div>
                     <div class="edit-form" id="edit-form-${index}">
