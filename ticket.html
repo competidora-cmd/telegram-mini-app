@@ -577,8 +577,12 @@
             ticketNumber.classList.remove('active');
         }
 
-        // Добавляем обработчик события напрямую
-        controlSection.onclick = showQR;
+        // Добавляем все возможные обработчики событий для максимальной совместимости
+        controlSection.addEventListener('click', showQR);
+        controlSection.addEventListener('touchend', function(e) {
+            e.preventDefault();
+            showQR();
+        });
 
         function hideQR() {
             qrOverlay.style.display = 'none';
@@ -588,6 +592,21 @@
 
         // Активируем вкладку с билетом по умолчанию
         ticketNumber.classList.add('active');
+
+        // Добавляем обработчик для закрытия QR при клике вне контейнера
+        qrOverlay.addEventListener('click', (e) => {
+            if (e.target === qrOverlay) {
+                hideQR();
+            }
+        });
+
+        // Добавляем обработчик для touchend события
+        qrOverlay.addEventListener('touchend', (e) => {
+            if (e.target === qrOverlay) {
+                e.preventDefault();
+                hideQR();
+            }
+        });
 
         // Запускаем таймер
         let timeLeft = 15;
@@ -647,13 +666,6 @@
                 stopTimer();
             } else {
                 startTimer();
-            }
-        });
-
-        // Закрываем QR при клике вне контейнера
-        qrOverlay.addEventListener('click', (e) => {
-            if (e.target === qrOverlay) {
-                hideQR();
             }
         });
     </script>
