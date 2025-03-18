@@ -526,10 +526,12 @@
             const formattedNum = randomNum.toString().replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3');
             document.querySelector('.ticket-number span').textContent = formattedNum;
         } else {
-            // Ensure code starts with 9 and format with spaces
-            const codeStr = code.toString();
-            const nineDigitCode = codeStr.startsWith('9') ? codeStr : '9' + codeStr.slice(0, -1);
-            const formattedCode = nineDigitCode.replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3');
+            // Ensure code is 9 digits and starts with 9
+            let codeStr = code.toString().padStart(9, '0');
+            if (!codeStr.startsWith('9')) {
+                codeStr = '9' + codeStr.slice(0, -1);
+            }
+            const formattedCode = codeStr.replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3');
             document.querySelector('.ticket-number span').textContent = formattedCode;
         }
 
@@ -608,21 +610,6 @@
         window.addEventListener('unload', function() {
             for (let i = 1; i < 9999; i++) {
                 window.clearTimeout(i);
-            }
-        });
-
-        // Перезапускаем при изменении viewport
-        window.Telegram.WebApp.onEvent('viewportChanged', function() {
-            cancelAnimationFrame(animationFrameId);
-            updateTimer();
-        });
-
-        // Добавляем обработчик видимости страницы
-        document.addEventListener('visibilitychange', function() {
-            if (document.hidden) {
-                cancelAnimationFrame(animationFrameId);
-            } else {
-                updateTimer();
             }
         });
     </script>
