@@ -1082,6 +1082,7 @@
             params.append('quantity', quantity);
             params.append('cost', cost);
             params.append('code', ticketCode);
+            params.append('creationTime', new Date().toISOString()); // Добавляем время создания
             
             window.location.href = 'https://competidora-cmd.github.io/telegram-mini-app/ticket.html?' + params.toString();
         });
