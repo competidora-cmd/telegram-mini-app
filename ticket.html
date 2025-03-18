@@ -586,32 +586,21 @@
         ticketNumber.classList.add('active');
 
         // Запускаем таймер
-        const startTime = Date.now();
-        const duration = 15000; // 15 секунд в миллисекундах
+        let timeLeft = 15;
         const timerElement = document.getElementById('timer');
-
+        
         function updateTimer() {
-            const elapsedTime = Date.now() - startTime;
-            const remainingTime = Math.max(0, Math.ceil((duration - elapsedTime) / 1000));
-            
-            timerElement.textContent = `Действует: ${remainingTime} сек.`;
-            
-            if (remainingTime <= 0) {
-                cancelAnimationFrame(animationFrameId);
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
                 closeMiniApp();
                 return;
             }
-            
-            animationFrameId = requestAnimationFrame(updateTimer);
+            timerElement.textContent = `Действует: ${timeLeft} сек.`;
+            timeLeft--;
         }
 
-        // Запускаем анимацию
-        let animationFrameId = requestAnimationFrame(updateTimer);
-
-        // Очищаем анимацию при закрытии окна
-        window.addEventListener('unload', () => {
-            cancelAnimationFrame(animationFrameId);
-        });
+        const timerInterval = setInterval(updateTimer, 1000);
+        updateTimer(); // Запускаем первое обновление сразу
     </script>
 </body>
 </html>
