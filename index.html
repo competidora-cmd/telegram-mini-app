@@ -810,12 +810,14 @@
             
             const routeNumber = document.getElementById('routeNumber').value;
             const carrier = document.getElementById('carrier').value;
-            const route = document.getElementById('route').value;
+            const startValue = document.getElementById('routeStart').value;
+            const endValue = document.getElementById('routeEnd').value;
+            const route = `${startValue} - ${endValue}`;
             const vehicle = document.getElementById('vehicle').value;
             const quantity = document.getElementById('quantity').value;
             const cost = document.querySelector('input[name="cost"]:checked').value;
 
-            if (!routeNumber || !carrier || !route || !vehicle) {
+            if (!routeNumber || !carrier || !startValue || !endValue || !vehicle) {
                 alert('Пожалуйста, заполните все поля');
                 return;
             }
