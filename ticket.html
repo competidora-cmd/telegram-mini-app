@@ -588,6 +588,7 @@
         // Запускаем таймер
         const startTime = new Date().getTime();
         const timerElement = document.getElementById('timer');
+        let animationFrameId;
         
         function updateTimer() {
             const currentTime = new Date().getTime();
@@ -595,17 +596,22 @@
             const remainingTime = Math.max(0, 15 - elapsedTime);
             
             if (remainingTime <= 0) {
-                clearInterval(timerInterval);
+                cancelAnimationFrame(animationFrameId);
                 closeMiniApp();
                 return;
             }
             
             timerElement.textContent = `Действует: ${remainingTime} сек.`;
+            animationFrameId = requestAnimationFrame(updateTimer);
         }
 
-        // Обновляем таймер сразу и запускаем интервал
+        // Запускаем таймер
         updateTimer();
-        const timerInterval = setInterval(updateTimer, 100);
+
+        // Очищаем анимацию при закрытии
+        window.addEventListener('beforeunload', () => {
+            cancelAnimationFrame(animationFrameId);
+        });
     </script>
 </body>
 </html>
