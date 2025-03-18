@@ -1088,7 +1088,7 @@
             }
         }
 
-        // Check access when page loads
+        // Инициализация при загрузке страницы
         document.addEventListener('DOMContentLoaded', async function() {
             const hasAccess = await checkAccess();
             if (!hasAccess) {
@@ -1097,145 +1097,20 @@
                 return;
             }
             
+            // Заполняем списки
             populateCarrierDropdown();
             populateRouteEndpoints();
-        });
-
-        // Modify createTicketBtn click handler
-        document.getElementById('createTicketBtn').addEventListener('click', async function() {
-            const hasAccess = await checkAccess();
-            if (!hasAccess) {
-                return;
+            
+            // Добавляем обработчики событий
+            document.getElementById('routeNumber').addEventListener('input', updateCarrierBasedOnRoute);
+            document.getElementById('routeStart').addEventListener('change', updateRouteDisplay);
+            document.getElementById('routeEnd').addEventListener('change', updateRouteDisplay);
+            
+            // Загружаем сохраненные билеты, если открыта вкладка "Сохраненные"
+            if (document.querySelector('.tab[data-tab="saved"]').classList.contains('active')) {
+                loadSavedTickets();
             }
-            
-            const routeNumber = document.getElementById('routeNumber').value;
-            const carrier = document.getElementById('carrier').value;
-            const startValue = document.getElementById('routeStart').value;
-            const endValue = document.getElementById('routeEnd').value;
-            const route = `${startValue} - ${endValue}`;
-            const vehicle = document.getElementById('vehicle').value;
-            const quantity = document.getElementById('quantity').value;
-            const cost = document.querySelector('input[name="cost"]:checked').value;
-
-            if (!routeNumber || !carrier || !startValue || !endValue || !vehicle) {
-                alert('Пожалуйста, заполните все поля');
-                    return;
-                }
-
-            if (routeNumber < 1 || routeNumber > 99) {
-                alert('Номер маршрута должен быть от 1 до 99');
-                    return;
-                }
-
-            const params = new URLSearchParams();
-            params.append('userId', userId);
-            params.append('routeNumber', routeNumber);
-            params.append('carrier', carrier);
-            params.append('route', route);
-            params.append('vehicle', vehicle);
-            params.append('quantity', quantity);
-            params.append('cost', cost);
-            params.append('code', generateRandomTicketNumber());
-            
-            window.location.href = 'https://competidora-cmd.github.io/telegram-mini-app/ticket.html?' + params.toString();
         });
-
-        // Встроенные данные о маршрутах и перевозчиках
-        const routesData = {
-            "routes": {
-                "3": {
-                    "name": "Маршрут 3",
-                    "carriers": ["ИП Патрин Н.Н.", "ООО \"СТК\""]
-                },
-                "99": {
-                    "name": "Маршрут 99",
-                    "carriers": ["ООО \"СТК\"", "ИП Патрин Н.Н"]
-                }
-            },
-            "allCarriers": [
-                "ИП Багаев Д.Б.",
-                "ИП Галченкова Е.А.",
-                "ООО «Экипаж-ГО»",
-                "ИП Долгушина Г.И.",
-                "ИП Тагачаков В.Г.",
-                "ООО \"Перевозчик\"",
-                "ООО \"СКАД\"",
-                "КПАТП-7",
-                "КПАТП-5",
-                "ООО \"Ветеран\"",
-                "ИП Ялтонский А.М.",
-                "ИП Читашвили Н.С.",
-                "ООО \"Вавулин - К\"",
-                "ИП Кривоногов И.Г.",
-                "ИП Голунцов С.В.",
-                "ИП Цугленок М.М.",
-                "ООО «КПАТП»",
-                "ИП Галченкова О.Г.",
-                "ООО \"Практик\"",
-                "ООО \"Сибирь-Авто\"",
-                "ИП Бронников А.И.",
-                "ИП Бронников М.А.",
-                "ИП Долгушин Д.Г.",
-                "ООО \"Сирена\"",
-                "ИП Патрин Н.Н.",
-                "ООО \"МаршрутАвто\"",
-                "ИП Карасева Н.Н.",
-                "ИП Гнетов Ю.Н."
-            ]
-        };
-
-        // Add route endpoints data
-        const routeEndpoints = [
-            "ЛДК",
-            "ТЭЦ-3",
-            'ОАО "Русал"',
-            "мкрн. Верхние черёмушки",
-            "Академия биатлона",
-            "мкрн. Тихие Зори",
-            "Ст. Красноярск-Северный",
-            "Стела",
-            "мкрн. Солнечный",
-            "Спортзал",
-            "Озеро-парк",
-            "Красфарма (60 лет Октября)",
-            "Контейнерный двор",
-            "Химкомбинат Енисей",
-            "пос. Зыково",
-            "пос. Таймыр",
-            "Ж/Д Вокзал",
-            "Причал",
-            "Автовокзал Восточный",
-            "Дом учёных",
-            "Верхняя базаиха",
-            "С/О Южное",
-            "Сельхозкомплекс",
-            "ДК Кировский",
-            "Агротерминал",
-            "Междугородный вокзал"
-        ];
-
-        // Populate route endpoints dropdowns
-        function populateRouteEndpoints() {
-            const startSelect = document.getElementById('routeStart');
-            const endSelect = document.getElementById('routeEnd');
-            
-            // Очищаем текущие опции
-            startSelect.innerHTML = '<option value="">Начальная остановка</option>';
-            endSelect.innerHTML = '<option value="">Конечная остановка</option>';
-            
-            routeEndpoints.forEach(endpoint => {
-                const startOption = document.createElement('option');
-                const endOption = document.createElement('option');
-                
-                startOption.value = endpoint;
-                startOption.textContent = endpoint;
-                endOption.value = endpoint;
-                endOption.textContent = endpoint;
-                
-                startSelect.appendChild(startOption);
-                endSelect.appendChild(endOption);
-            });
-        }
 
         // Заполнение выпадающего списка перевозчиков
         function populateCarrierDropdown() {
@@ -1254,6 +1129,30 @@
             });
         }
 
+        // Populate route endpoints dropdowns
+        function populateRouteEndpoints() {
+            const startSelect = document.getElementById('routeStart');
+            const endSelect = document.getElementById('routeEnd');
+            
+            // Очищаем текущие опции
+            startSelect.innerHTML = '<option value="">Начальная остановка</option>';
+            endSelect.innerHTML = '<option value="">Конечная остановка</option>';
+            
+            // Добавляем все остановки
+            routeEndpoints.forEach(endpoint => {
+                const startOption = document.createElement('option');
+                const endOption = document.createElement('option');
+                
+                startOption.value = endpoint;
+                startOption.textContent = endpoint;
+                endOption.value = endpoint;
+                endOption.textContent = endpoint;
+                
+                startSelect.appendChild(startOption);
+                endSelect.appendChild(endOption);
+            });
+        }
+
         // Обновление перевозчика на основе выбранного маршрута
         function updateCarrierBasedOnRoute() {
             const routeNumber = document.getElementById('routeNumber').value;
@@ -1264,7 +1163,7 @@
                 populateCarrierDropdown();
                 return;
             }
-            
+
             // Находим маршрут в данных
             const route = routesData.routes[routeNumber];
             
@@ -1275,12 +1174,7 @@
                     carrierSelect.value = route.carriers[0];
                 } else {
                     // Если у маршрута несколько перевозчиков, оставляем выбор пользователю
-                    // но ограничиваем список только перевозчиками этого маршрута
-                    
-                    // Очищаем текущие опции
                     carrierSelect.innerHTML = '<option value="">Выберите перевозчика для маршрута ' + routeNumber + '</option>';
-                    
-                    // Добавляем перевозчиков для этого маршрута
                     route.carriers.forEach(carrier => {
                         const option = document.createElement('option');
                         option.value = carrier;
@@ -1293,19 +1187,6 @@
                 populateCarrierDropdown();
             }
         }
-
-        // Инициализация при загрузке страницы
-        document.addEventListener('DOMContentLoaded', function() {
-            populateCarrierDropdown();
-            populateRouteEndpoints();
-            
-            // Добавляем обработчик изменения номера маршрута
-            document.getElementById('routeNumber').addEventListener('input', updateCarrierBasedOnRoute);
-            
-            // Добавляем обработчик изменения начальной и конечной остановки
-            document.getElementById('routeStart').addEventListener('change', updateRouteDisplay);
-            document.getElementById('routeEnd').addEventListener('change', updateRouteDisplay);
-        });
 
         // Функция генерации случайного номера билета
         function generateRandomTicketNumber() {
@@ -1429,11 +1310,6 @@
                 }
             });
         });
-
-        // Загрузка сохраненных билетов при старте
-        if (document.querySelector('.tab[data-tab="saved"]').classList.contains('active')) {
-            loadSavedTickets();
-        }
 
         // Handle route reverse
         document.getElementById('reverseRoute').addEventListener('click', function() {
