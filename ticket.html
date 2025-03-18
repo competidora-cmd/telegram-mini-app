@@ -158,8 +158,8 @@
 
         .info-row {
             display: flex;
-            align-items: center;
-            padding: 16px 0;
+            align-items: flex-start;
+            padding: 16px;
             border-bottom: 1px solid rgba(0, 0, 0, 0.1);
         }
 
@@ -170,9 +170,10 @@
         .info-row svg {
             width: 24px;
             height: 24px;
-            color: #000;
+            color: #8E8E93;
             flex-shrink: 0;
-            margin-right: 16px;
+            margin-right: 12px;
+            margin-top: 2px;
         }
 
         .info-content {
@@ -180,27 +181,27 @@
         }
 
         .info-label {
-            font-size: 16px;
+            font-size: 15px;
             color: #8E8E93;
             margin-bottom: 4px;
         }
 
         .info-value {
-            font-size: 24px;
+            font-size: 17px;
             color: #000;
-            font-weight: 500;
+            font-weight: 400;
         }
 
         .route-info {
+            font-size: 15px;
             color: #8E8E93;
-            font-size: 16px;
             margin-bottom: 4px;
         }
 
         .vehicle-number {
-            font-size: 24px;
+            font-size: 17px;
             color: #000;
-            font-weight: 500;
+            font-weight: 400;
         }
 
         .close-button {
@@ -334,6 +335,11 @@
             color: #000;
             font-weight: 500;
         }
+
+        #cost {
+            font-size: 17px;
+            font-weight: 400;
+        }
     </style>
 </head>
 <body>
@@ -355,25 +361,41 @@
     </div>
 
     <div class="content-container">
-        <div class="ticket-info">
-            <div class="route-number">
-                <span id="routeNumber"></span>, <span id="route"></span>
-            </div>
-            <div class="carrier">
-                <span id="carrier"></span>
-            </div>
-            <div class="vehicle">
-                <span id="vehicle"></span>
-            </div>
-            <div class="cost">
-                <span class="info-label">Стоимость (Полный)</span>
-                <span class="info-value" id="cost"></span>
+        <div class="info-row">
+            <svg viewBox="0 0 576 512">
+                <path fill="currentColor" d="M320 48H63.1C55.16 48 47.1 55.16 47.1 64V448C47.1 456.8 55.16 464 63.1 464H284.5C296.5 482.4 311.9 498.5 329.7 511.3C326.6 511.7 323.3 512 320 512H64C28.65 512 0 483.3 0 448V64C0 28.65 28.65 0 64 0H320C355.3 0 384 28.65 384 64V198.6C366.8 203.5 350.6 210.9 336 220.5V63.1C336 55.16 328.8 47.1 320 47.1L320 48z"/>
+            </svg>
+            <div class="info-content">
+                <div class="info-label">Перевозчик</div>
+                <div class="info-value" id="carrier"></div>
             </div>
         </div>
 
         <div class="info-row">
             <svg viewBox="0 0 544 512">
                 <path fill="currentColor" d="M144 336C144 318.3 158.3 304 176 304C193.7 304 208 318.3 208 336C208 353.7 193.7 368 176 368C158.3 368 144 353.7 144 336zM368 336C368 318.3 382.3 304 400 304C417.7 304 432 318.3 432 336C432 353.7 417.7 368 400 368C382.3 368 368 353.7 368 336zM74.2 70.03C99.86 38.75 167.8 0 288 0C416.6 0 478 38.63 502.4 70.55C509.9 80.32 512 91.48 512 100.4V128C529.7 128 544 142.3 544 160V224C544 241.7 529.7 256 512 256V376C512 400.1 499.3 422.1 480 435.9V488C480 501.3 469.3 512 456 512C442.7 512 432 501.3 432 488V448H144V488C144 501.3 133.3 512 120 512C106.7 512 96 501.3 96 488V435.9C76.7 422.1 64 400.1 64 376V256C46.33 256 32 241.7 32 224V160C32 142.3 46.33 128 64 128V100.4C64 91.58 66.05 79.97 74.2 70.03zM363.7 96H461.2C445.4 78.89 399.2 48 288 48C185.8 48 133.8 78.27 115.5 96H212.3C217.8 86.44 228.2 80 240 80H336C347.8 80 358.2 86.44 363.7 96zM464 144H312V224H464V144zM112 224H264V144H112V224zM112 272V376C112 389.3 122.7 400 136 400H440C453.3 400 464 389.3 464 376V272H112z"/>
+            </svg>
+            <div class="info-content">
+                <div class="route-info">
+                    <span id="routeNumber"></span>, <span id="route"></span>
+                </div>
+                <div class="vehicle-number" id="vehicle"></div>
+            </div>
+        </div>
+
+        <div class="info-row">
+            <svg viewBox="0 0 384 512">
+                <path fill="currentColor" d="M240 32C319.5 32 384 96.47 384 176C384 255.5 319.5 320 240 320H112V368H296C309.3 368 320 378.7 320 392C320 405.3 309.3 416 296 416H112V456C112 469.3 101.3 480 88 480C74.75 480 64 469.3 64 456V416H24C10.75 416 0 405.3 0 392C0 378.7 10.75 368 24 368H64V320H24C10.75 320 0 309.3 0 296C0 282.7 10.75 272 24 272H64V79.31C64 53.18 85.18 32 111.3 32H240zM336 176C336 122.1 293 80 240 80H112V272H240C293 272 336 229 336 176z"/>
+            </svg>
+            <div class="info-content">
+                <div class="info-label">Стоимость</div>
+                <div class="info-value" id="cost"></div>
+            </div>
+        </div>
+
+        <div class="info-row">
+            <svg viewBox="0 0 48 48">
+                <path fill="currentColor" d="M38 6h-2v-4h-4v4h-16v-4h-4v4h-2c-2.21 0-3.98 1.79-3.98 4l-.02 28c0 2.21 1.79 4 4 4h28c2.21 0 4-1.79 4-4v-28c0-2.21-1.79-4-4-4zm0 32h-28v-22h28v22zm-24-18h10v10h-10z"/>
             </svg>
             <div class="info-content">
                 <div class="info-label">Дата покупки</div>
@@ -390,7 +412,6 @@
                 <div class="info-value" id="purchase-time"></div>
             </div>
         </div>
-        
     </div>
 
     <div class="bottom-background"></div>
@@ -432,15 +453,14 @@
         document.getElementById('carrier').textContent = carrier;
         document.getElementById('vehicle').textContent = vehicle;
 
-        // Update cost label based on quantity
-        const costLabel = document.querySelector('.cost .info-label');
+        // Update cost label and value
+        const costLabel = document.querySelector('.info-row:nth-child(3) .info-label');
         if (quantity > 1) {
             const ticketWord = quantity === 2 || quantity === 3 || quantity === 4 ? 'билета' : 'билетов';
             costLabel.textContent = `Стоимость (${quantity} ${ticketWord}, Полный)`;
         } else {
-            costLabel.textContent = 'Стоимость (Полный)';
+            costLabel.textContent = 'Стоимость (1 шт., Полный)';
         }
-
         document.getElementById('cost').textContent = `${totalCost}₽`;
         
         // Add purchase date and time
