@@ -586,37 +586,33 @@
         ticketNumber.classList.add('active');
 
         // Запускаем таймер
-        const startTime = performance.now();
-        const duration = 15000; // 15 секунд в миллисекундах
+        let timeLeft = 15;
         const timerElement = document.getElementById('timer');
-        let timeoutId;
-        
+        let timerId;
+
         function updateTimer() {
-            const elapsedTime = performance.now() - startTime;
-            const remainingTime = Math.max(0, Math.ceil((duration - elapsedTime) / 1000));
+            timerElement.textContent = `Действует: ${timeLeft} сек.`;
             
-            timerElement.textContent = `Действует: ${remainingTime} сек.`;
-            
-            if (remainingTime <= 0) {
+            if (timeLeft <= 0) {
+                clearInterval(timerId);
                 closeMiniApp();
                 return;
             }
             
-            // Запускаем следующее обновление
-            timeoutId = setTimeout(updateTimer, 100);
+            timeLeft--;
         }
 
-        // Запускаем таймер
-        updateTimer();
+        // Запускаем таймер с интервалом в 1 секунду
+        timerId = setInterval(updateTimer, 1000);
 
         // Очищаем таймер при закрытии
         window.addEventListener('unload', function() {
-            clearTimeout(timeoutId);
+            clearInterval(timerId);
         });
 
         // Перезапускаем при изменении viewport
         window.Telegram.WebApp.onEvent('viewportChanged', function() {
-            clearTimeout(timeoutId);
+            clearInterval(timerId);
             updateTimer();
         });
     </script>
