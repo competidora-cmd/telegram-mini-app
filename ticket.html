@@ -591,62 +591,33 @@
 
         // Запускаем таймер
         let timeLeft = 15;
+        let timerInterval = null;
         const timerElement = document.getElementById('timer');
-        let timerInterval;
-        let startTime = Date.now();
 
         function updateTimer() {
-            const currentTime = Date.now();
-            const elapsedSeconds = Math.floor((currentTime - startTime) / 1000);
-            timeLeft = Math.max(0, 15 - elapsedSeconds);
-            
             timerElement.textContent = `Действует: ${timeLeft} сек.`;
             
-            if (timeLeft <= 0) {
-                if (timerInterval) {
-                    clearInterval(timerInterval);
-                }
+            if (timeLeft > 0) {
+                timeLeft--;
+                timerInterval = setTimeout(updateTimer, 1000);
+            } else {
                 closeMiniApp();
-                return;
             }
         }
 
-        function startTimer() {
-            startTime = Date.now();
-            if (timerInterval) {
-                clearInterval(timerInterval);
-            }
-            updateTimer();
-            timerInterval = setInterval(updateTimer, 1000);
-        }
-
-        function stopTimer() {
-            if (timerInterval) {
-                clearInterval(timerInterval);
-                timerInterval = null;
-            }
+        // Очищаем предыдущий таймер, если он существует
+        if (timerInterval) {
+            clearTimeout(timerInterval);
         }
 
         // Запускаем таймер сразу
-        startTimer();
-
-        // Обработка видимости страницы
-        document.addEventListener('visibilitychange', function() {
-            if (document.hidden) {
-                stopTimer();
-            } else {
-                startTimer();
-            }
-        });
+        updateTimer();
 
         // Очищаем таймер при закрытии
         window.addEventListener('unload', function() {
-            stopTimer();
-        });
-
-        // Обработка событий Telegram WebApp
-        window.Telegram.WebApp.onEvent('viewportChanged', function() {
-            startTimer();
+            if (timerInterval) {
+                clearTimeout(timerInterval);
+            }
         });
 
         // Закрываем QR при клике вне контейнера
@@ -658,4 +629,3 @@
     </script>
 </body>
 </html>
-
