@@ -480,9 +480,20 @@
     </div>
 
     <script>
-        let tg = window.Telegram.WebApp;
-        tg.expand();
-        tg.ready();
+        let tg;
+        try {
+            tg = window.Telegram.WebApp;
+            tg.expand();
+            tg.ready();
+        } catch (error) {
+            console.error('Error initializing Telegram Web App:', error);
+            // Если не удалось инициализировать, создаем заглушку
+            tg = {
+                close: () => console.log('Close called'),
+                expand: () => console.log('Expand called'),
+                ready: () => console.log('Ready called')
+            };
+        }
 
         // Функция закрытия mini-apps
         function closeMiniApp() {
@@ -518,18 +529,9 @@
             costValue.textContent = `1 шт., Полный, ${totalCost}₽`;
         }
 
-        // Generate 9-starting ticket number if not provided
-        if (!code) {
-            const min = 900000000;
-            const max = 999999999;
-            const randomNum = Math.floor(Math.random() * (max - min + 1)) + min;
-            const formattedNum = randomNum.toString().replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3');
-            document.querySelector('.ticket-number span').textContent = formattedNum;
-        } else {
-            // Format existing code with spaces
-            const formattedCode = code.replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3');
-            document.querySelector('.ticket-number span').textContent = formattedCode;
-        }
+        // Format existing code with spaces
+        const formattedCode = code ? code.replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3') : '';
+        document.querySelector('.ticket-number span').textContent = formattedCode;
 
         // Add purchase date and time
         const now = new Date();
@@ -549,7 +551,7 @@
             vehicle: vehicle,
             quantity: quantity,
             cost: totalCost,
-            timestamp: new Date().toISOString()
+            timestamp: now.toISOString()
         };
 
         const qrCode = new QRCode(document.getElementById("qrCode"), {
@@ -585,9 +587,20 @@
         // Активируем вкладку с билетом по умолчанию
         ticketNumber.classList.add('active');
 
-        // Декоративный таймер
+        // Простой таймер без автозакрытия
         const timerElement = document.getElementById('timer');
-        timerElement.textContent = 'Действует: 15 сек.';
+        let timeLeft = 15;
+
+        function updateTimer() {
+            timerElement.textContent = `Действует: ${timeLeft} сек.`;
+            if (timeLeft > 0) {
+                timeLeft--;
+                setTimeout(updateTimer, 1000);
+            }
+        }
+
+        // Запускаем таймер
+        updateTimer();
     </script>
 </body>
 </html>
