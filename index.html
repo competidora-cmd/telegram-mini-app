@@ -803,12 +803,32 @@
                 const response = await fetch('https://raw.githubusercontent.com/competidora-cmd/telegram-mini-app/main/users_data.json');
                 const data = await response.json();
                 
-                if (!data.allowed_users.includes(userId)) {
-                    alert('У вас нет доступа к этому приложению');
-                    tg.close();
-                    return false;
+                const currentUserId = tg.initDataUnsafe?.user?.id?.toString();
+                const currentUsername = tg.initDataUnsafe?.user?.username;
+
+                // Проверяем доступ по ID
+                if (data.allowed_users.includes(currentUserId)) {
+                    return true;
                 }
-                return true;
+
+                // Проверяем доступ по username
+                if (currentUsername) {
+                    // Ищем пользователя в списке users по username
+                    for (const [userId, userInfo] of Object.entries(data.users)) {
+                        if (userInfo.username === currentUsername) {
+                            // Если нашли пользователя по username, проверяем есть ли его ID в allowed_users
+                            if (data.allowed_users.includes(userId)) {
+                                return true;
+                            }
+                            break;
+                        }
+                    }
+                }
+
+                // Если доступ не найден ни по ID, ни по username
+                alert('У вас нет доступа к этому приложению');
+                tg.close();
+                return false;
             } catch (error) {
                 console.error('Error checking access:', error);
                 alert('Ошибка при проверке доступа');
