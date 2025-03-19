@@ -1259,6 +1259,13 @@
                         <input type="text" class="edit-field" id="edit-vehicle-${index}" 
                                value="${ticket.vehicle}" 
                                placeholder="Например: р471тм124">
+                        <select class="edit-field" id="edit-quantity-${index}">
+                            <option value="1" ${ticket.quantity == 1 ? 'selected' : ''}>1 билет</option>
+                            <option value="2" ${ticket.quantity == 2 ? 'selected' : ''}>2 билета</option>
+                            <option value="3" ${ticket.quantity == 3 ? 'selected' : ''}>3 билета</option>
+                            <option value="4" ${ticket.quantity == 4 ? 'selected' : ''}>4 билета</option>
+                            <option value="5" ${ticket.quantity == 5 ? 'selected' : ''}>5 билетов</option>
+                        </select>
                         <div class="edit-actions">
                             <button class="save-btn" onclick="saveEditedTicket(${index})">Сохранить</button>
                             <button class="cancel-btn" onclick="toggleEditForm(${index})">Отмена</button>
@@ -1302,6 +1309,7 @@
             ticket.carrier = document.getElementById(`edit-carrier-${index}`).value;
             ticket.route = document.getElementById(`edit-route-${index}`).value;
             ticket.vehicle = document.getElementById(`edit-vehicle-${index}`).value;
+            ticket.quantity = document.getElementById(`edit-quantity-${index}`).value;
 
             savedTickets[index] = ticket;
             localStorage.setItem('savedTickets', JSON.stringify(savedTickets));
