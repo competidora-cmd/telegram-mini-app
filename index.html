@@ -1097,6 +1097,7 @@
                 vehicle,
                 quantity,
                 cost: totalCost,
+                baseCost: baseCost, // Store the base cost per ticket
                 code: ticketCode,
                 date: new Date().toISOString()
             };
@@ -1118,6 +1119,7 @@
             params.append('vehicle', vehicle);
             params.append('quantity', quantity);
             params.append('cost', totalCost);
+            params.append('baseCost', baseCost); // Also pass the base cost
             params.append('code', ticketCode);
             
             window.location.href = 'https://competidora-cmd.github.io/telegram-mini-app/ticket.html?' + params.toString();
@@ -1316,12 +1318,20 @@
             const ticket = savedTickets[index];
             const params = new URLSearchParams();
             
-            // Убедимся, что стоимость корректна для количества билетов
+            // Get the base cost per ticket and quantity
             const quantity = parseInt(ticket.quantity || 1);
-            const baseCostPerTicket = parseFloat(ticket.cost) / quantity;
-            const totalCost = (baseCostPerTicket * quantity).toFixed(2);
+            let baseCost;
             
-            // Добавляем обновленные параметры
+            if (ticket.baseCost) {
+                baseCost = parseFloat(ticket.baseCost);
+            } else {
+                // For backwards compatibility with older tickets
+                baseCost = parseFloat(ticket.cost) / quantity;
+            }
+            
+            const totalCost = (baseCost * quantity).toFixed(2);
+            
+            // Add parameters
             params.append('userId', userId);
             params.append('routeNumber', ticket.routeNumber);
             params.append('carrier', ticket.carrier);
@@ -1329,6 +1339,7 @@
             params.append('vehicle', ticket.vehicle);
             params.append('quantity', quantity);
             params.append('cost', totalCost);
+            params.append('baseCost', baseCost.toFixed(2));
             params.append('code', ticket.code);
             
             if (ticket.date) {
@@ -1356,11 +1367,7 @@
             }
 
             const newCarrier = document.getElementById(`edit-carrier-${index}`).value;
-            const oldQuantity = parseInt(ticket.quantity);
             const newQuantity = parseInt(document.getElementById(`edit-quantity-slider-${index}`).value);
-            
-            // Calculate base cost per ticket using the old quantity before updating
-            const baseCostPerTicket = parseFloat(ticket.cost) / oldQuantity;
             
             // Update ticket data
             ticket.routeNumber = routeNumber;
@@ -1369,8 +1376,18 @@
             ticket.vehicle = document.getElementById(`edit-vehicle-${index}`).value;
             ticket.quantity = newQuantity;
             
+            // Calculate the base cost per ticket properly
+            let baseCost;
+            if (ticket.baseCost) {
+                // Use the stored base cost if available
+                baseCost = parseFloat(ticket.baseCost);
+            } else {
+                // If not available (for older tickets), use one of the standard costs
+                baseCost = 44.00; // Default to 44.00 if not specified
+            }
+            
             // Calculate new total cost based on the new quantity
-            const totalCost = (baseCostPerTicket * newQuantity).toFixed(2);
+            const totalCost = (baseCost * newQuantity).toFixed(2);
             ticket.cost = totalCost;
 
             savedTickets[index] = ticket;
