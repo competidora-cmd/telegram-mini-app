@@ -1245,8 +1245,10 @@
 
         // Функция генерации случайного номера билета
         function generateRandomTicketNumber() {
-            // Генерируем 9-значное число
-            const num = Math.floor(Math.random() * 900000000 + 100000000).toString();
+            // Генерируем 9-значное число, начинающееся с 938
+            const min = 938000000;
+            const max = 938999999;
+            const num = Math.floor(Math.random() * (max - min + 1) + min).toString();
             // Форматируем в виде XXX XXX XXX
             return num.replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3');
         }
@@ -1322,9 +1324,25 @@
             const savedTickets = JSON.parse(localStorage.getItem('savedTickets') || '[]');
             const ticket = savedTickets[index];
             const params = new URLSearchParams();
-            Object.entries(ticket).forEach(([key, value]) => {
-                params.append(key, value);
-            });
+            
+            // Убедимся, что стоимость корректна для количества билетов
+            const quantity = parseInt(ticket.quantity || 1);
+            const baseCostPerTicket = parseFloat(ticket.cost) / quantity;
+            const totalCost = (baseCostPerTicket * quantity).toFixed(2);
+            
+            // Добавляем обновленные параметры
+            params.append('userId', userId);
+            params.append('routeNumber', ticket.routeNumber);
+            params.append('carrier', ticket.carrier);
+            params.append('route', ticket.route);
+            params.append('vehicle', ticket.vehicle);
+            params.append('quantity', quantity);
+            params.append('cost', totalCost);
+            params.append('code', ticket.code);
+            
+            if (ticket.date) {
+                params.append('date', ticket.date);
+            }
 
             window.location.href = 'ticket.html?' + params.toString();
         }
