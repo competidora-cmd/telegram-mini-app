@@ -543,7 +543,7 @@
         // Форматируем отображение маршрута: номер автобуса, маршрут
         const routeNumber = urlParams.get('routeNumber');
         const route = urlParams.get('route');
-        document.getElementById('route').textContent = routeNumber ? `№${routeNumber}, ${route}` : route;
+        document.getElementById('route').textContent = routeNumber ? `${routeNumber}, ${route}` : route;
         
         document.getElementById('vehicle').textContent = urlParams.get('vehicle');
         
