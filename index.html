@@ -1365,7 +1365,7 @@
             ticket.vehicle = document.getElementById(`edit-vehicle-${index}`).value;
             ticket.quantity = newQuantity;
             
-            // Recalculate total cost
+            // Recalculate total cost using base cost per ticket
             const baseCostPerTicket = parseFloat(ticket.cost) / parseInt(ticket.quantity);
             const totalCost = (baseCostPerTicket * newQuantity).toFixed(2);
             ticket.cost = totalCost;
