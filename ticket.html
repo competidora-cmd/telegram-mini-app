@@ -337,7 +337,7 @@
         }
 
         #cost {
-            font-size: 24px;
+            font-size: 25px;
             font-weight: 400;
         }
 
@@ -530,7 +530,12 @@
         }
         document.getElementById('ticket-number').textContent = formatTicketNumber(ticketCode);
         document.getElementById('carrier').textContent = urlParams.get('carrier');
-        document.getElementById('route').textContent = urlParams.get('route');
+        
+        // Форматируем отображение маршрута: номер автобуса, маршрут
+        const routeNumber = urlParams.get('routeNumber');
+        const route = urlParams.get('route');
+        document.getElementById('route').textContent = routeNumber ? `${routeNumber}, ${route}` : route;
+        
         document.getElementById('vehicle').textContent = urlParams.get('vehicle');
         
         // Для стоимости используем параметр из URL или оставляем пустым
