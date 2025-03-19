@@ -1356,7 +1356,11 @@
             }
 
             const newCarrier = document.getElementById(`edit-carrier-${index}`).value;
-            const newQuantity = document.getElementById(`edit-quantity-slider-${index}`).value;
+            const oldQuantity = parseInt(ticket.quantity);
+            const newQuantity = parseInt(document.getElementById(`edit-quantity-slider-${index}`).value);
+            
+            // Calculate base cost per ticket using the old quantity before updating
+            const baseCostPerTicket = parseFloat(ticket.cost) / oldQuantity;
             
             // Update ticket data
             ticket.routeNumber = routeNumber;
@@ -1365,8 +1369,7 @@
             ticket.vehicle = document.getElementById(`edit-vehicle-${index}`).value;
             ticket.quantity = newQuantity;
             
-            // Recalculate total cost using base cost per ticket
-            const baseCostPerTicket = parseFloat(ticket.cost) / parseInt(ticket.quantity);
+            // Calculate new total cost based on the new quantity
             const totalCost = (baseCostPerTicket * newQuantity).toFixed(2);
             ticket.cost = totalCost;
 
