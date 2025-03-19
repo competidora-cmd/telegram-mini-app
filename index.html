@@ -943,13 +943,8 @@
             </div>
             <div class="form-group">
                 <label for="quantity">Количество билетов</label>
-                <select id="quantity" class="form-control">
-                    <option value="1">1 билет</option>
-                    <option value="2">2 билета</option>
-                    <option value="3">3 билета</option>
-                    <option value="4">4 билета</option>
-                    <option value="5">5 билетов</option>
-                </select>
+                <input type="range" id="quantity-slider" min="1" max="5" value="1" step="1" oninput="updateQuantityDisplay(this.value)">
+                <div id="quantity-display">1 билет</div>
             </div>
             <div class="form-group">
                 <label for="cost">Стоимость</label>
@@ -1065,7 +1060,8 @@
         });
 
         // Modify createTicketBtn click handler
-        document.getElementById('createTicketBtn').addEventListener('click', async function() {
+        const createTicketBtn = document.getElementById('createTicketBtn');
+        createTicketBtn.addEventListener('click', async function() {
             const hasAccess = await checkAccess();
             if (!hasAccess) {
                 return;
@@ -1077,7 +1073,7 @@
             const endValue = document.getElementById('routeEnd').value;
             const route = `${startValue} - ${endValue}`;
             const vehicle = document.getElementById('vehicle').value;
-            const quantity = document.getElementById('quantity').value;
+            const quantity = document.getElementById('quantity-slider').value;
             const baseCost = document.querySelector('input[name="cost"]:checked').value;
             const totalCost = (parseFloat(baseCost) * parseInt(quantity)).toFixed(2);
 
@@ -1302,13 +1298,8 @@
                         <input type="text" class="edit-field" id="edit-vehicle-${index}" 
                                value="${ticket.vehicle}" 
                                placeholder="Например: р471тм124">
-                        <select class="edit-field" id="edit-quantity-${index}">
-                            <option value="1" ${ticket.quantity == 1 ? 'selected' : ''}>1 билет</option>
-                            <option value="2" ${ticket.quantity == 2 ? 'selected' : ''}>2 билета</option>
-                            <option value="3" ${ticket.quantity == 3 ? 'selected' : ''}>3 билета</option>
-                            <option value="4" ${ticket.quantity == 4 ? 'selected' : ''}>4 билета</option>
-                            <option value="5" ${ticket.quantity == 5 ? 'selected' : ''}>5 билетов</option>
-                        </select>
+                        <input type="range" class="edit-field" id="edit-quantity-slider-${index}" min="1" max="5" value="${ticket.quantity}" step="1" oninput="updateEditQuantityDisplay(${index}, this.value)">
+                        <div id="edit-quantity-display-${index}">${ticket.quantity} ${ticket.quantity === '1' ? 'билет' : 'билета'}</div>
                         <div class="edit-actions">
                             <button class="save-btn" onclick="saveEditedTicket(${index})">Сохранить</button>
                             <button class="cancel-btn" onclick="toggleEditForm(${index})">Отмена</button>
@@ -1365,7 +1356,7 @@
             }
 
             const newCarrier = document.getElementById(`edit-carrier-${index}`).value;
-            const newQuantity = document.getElementById(`edit-quantity-${index}`).value;
+            const newQuantity = document.getElementById(`edit-quantity-slider-${index}`).value;
             
             // Обновляем данные билета
             ticket.routeNumber = routeNumber;
@@ -1522,6 +1513,18 @@
                 modal.style.display = 'none';
             });
         }
+
+        // Function to update quantity display in edit form
+        function updateEditQuantityDisplay(index, value) {
+            document.getElementById(`edit-quantity-display-${index}`).textContent = `${value} ${value === '1' ? 'билет' : 'билета'}`;
+        }
+
+        // Update the createTicketBtn click handler
+        const quantitySlider = document.getElementById('quantity-slider');
+        quantitySlider.addEventListener('input', function() {
+            const quantity = quantitySlider.value;
+            document.getElementById('quantity-display').textContent = `${quantity} ${quantity === '1' ? 'билет' : 'билета'}`;
+        });
     </script>
 </body>
 
