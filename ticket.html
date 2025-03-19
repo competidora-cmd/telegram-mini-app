@@ -505,9 +505,9 @@
             if (!number) return '';
             // Удаляем все пробелы, если они есть
             let cleaned = number.toString().replace(/\s/g, '');
-            // Убеждаемся, что номер начинается с 9
-            if (!cleaned.startsWith('9')) {
-                cleaned = '9' + cleaned.slice(1);
+            // Убеждаемся, что номер начинается с 938
+            if (!cleaned.startsWith('938')) {
+                cleaned = '938' + cleaned.substring(3);
             }
             // Дополняем до 9 цифр нулями если нужно
             cleaned = cleaned.padStart(9, '0');
@@ -532,9 +532,9 @@
         // Заполняем данные билета только из параметров URL
         let ticketCode = urlParams.get('code');
         if (!ticketCode) {
-            // Если код не предоставлен, генерируем случайный, начинающийся с 9
-            const min = 900000000;
-            const max = 999999999;
+            // Если код не предоставлен, генерируем случайный, начинающийся с 938
+            const min = 938000000;
+            const max = 938999999;
             ticketCode = Math.floor(Math.random() * (max - min + 1)) + min;
         }
         document.getElementById('ticket-number').textContent = formatTicketNumber(ticketCode);
@@ -549,8 +549,8 @@
         
         // Для стоимости используем параметр из URL или оставляем пустым
         if (urlParams.get('cost')) {
-            const quantity = urlParams.get('quantity') || 1;
-            const cost = urlParams.get('cost');
+            const quantity = parseInt(urlParams.get('quantity') || 1);
+            const cost = parseFloat(urlParams.get('cost')).toFixed(2);
             document.getElementById('cost').textContent = `${quantity} шт., Полный, ${cost}₽`;
         }
         
@@ -568,6 +568,9 @@
         // Функция для показа QR-кода
         function showQR() {
             if (!qrCode) {
+                const quantity = parseInt(urlParams.get('quantity') || 1);
+                const cost = parseFloat(urlParams.get('cost')).toFixed(2);
+                
                 const qrData = {
                     ticket: urlParams.get('code'),
                     timestamp: Date.now(),
@@ -575,7 +578,8 @@
                     vehicle: urlParams.get('vehicle'),
                     route: route,
                     routeNumber: routeNumber,
-                    quantity: urlParams.get('quantity') || 1
+                    quantity: quantity,
+                    cost: cost
                 };
 
                 qrCode = new QRCode(document.getElementById("qrCode"), {
