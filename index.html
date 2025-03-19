@@ -1358,19 +1358,17 @@
             const newCarrier = document.getElementById(`edit-carrier-${index}`).value;
             const newQuantity = document.getElementById(`edit-quantity-slider-${index}`).value;
             
-            // Обновляем данные билета
+            // Update ticket data
             ticket.routeNumber = routeNumber;
             ticket.carrier = newCarrier;
             ticket.route = document.getElementById(`edit-route-${index}`).value;
             ticket.vehicle = document.getElementById(`edit-vehicle-${index}`).value;
             ticket.quantity = newQuantity;
             
-            // Пересчитываем общую стоимость
-            const baseCost = parseFloat(ticket.cost);
-            if (!isNaN(baseCost)) {
-                const totalCost = (baseCost / (ticket.quantity || 1) * newQuantity).toFixed(2);
-                ticket.cost = totalCost;
-            }
+            // Recalculate total cost
+            const baseCostPerTicket = parseFloat(ticket.cost) / parseInt(ticket.quantity);
+            const totalCost = (baseCostPerTicket * newQuantity).toFixed(2);
+            ticket.cost = totalCost;
 
             savedTickets[index] = ticket;
             localStorage.setItem('savedTickets', JSON.stringify(savedTickets));
