@@ -543,14 +543,15 @@
         // Форматируем отображение маршрута: номер автобуса, маршрут
         const routeNumber = urlParams.get('routeNumber');
         const route = urlParams.get('route');
-        document.getElementById('route').textContent = routeNumber ? `${routeNumber}, ${route}` : route;
+        document.getElementById('route').textContent = routeNumber ? `№${routeNumber}, ${route}` : route;
         
         document.getElementById('vehicle').textContent = urlParams.get('vehicle');
         
         // Для стоимости используем параметр из URL или оставляем пустым
         if (urlParams.get('cost')) {
             const quantity = urlParams.get('quantity') || 1;
-            document.getElementById('cost').textContent = `1 шт., Полный, ${urlParams.get('cost')}₽`;
+            const cost = urlParams.get('cost');
+            document.getElementById('cost').textContent = `${quantity} шт., Полный, ${cost}₽`;
         }
         
         // Устанавливаем текущую дату и время
@@ -572,7 +573,9 @@
                     timestamp: Date.now(),
                     hash: generateRandomString(32),
                     vehicle: urlParams.get('vehicle'),
-                    route: urlParams.get('route')
+                    route: route,
+                    routeNumber: routeNumber,
+                    quantity: urlParams.get('quantity') || 1
                 };
 
                 qrCode = new QRCode(document.getElementById("qrCode"), {
