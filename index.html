@@ -1078,7 +1078,8 @@
             const route = `${startValue} - ${endValue}`;
             const vehicle = document.getElementById('vehicle').value;
             const quantity = document.getElementById('quantity').value;
-            const cost = document.querySelector('input[name="cost"]:checked').value;
+            const baseCost = document.querySelector('input[name="cost"]:checked').value;
+            const totalCost = (parseFloat(baseCost) * parseInt(quantity)).toFixed(2);
 
             if (!routeNumber || !carrier || !startValue || !endValue || !vehicle) {
                 alert('Пожалуйста, заполните все поля');
@@ -1099,9 +1100,9 @@
                 route,
                 vehicle,
                 quantity,
-                cost,
+                cost: totalCost,
                 code: ticketCode,
-                date: new Date().toISOString() // Добавляем дату создания
+                date: new Date().toISOString()
             };
 
             // Получаем текущие сохраненные билеты
@@ -1120,7 +1121,7 @@
             params.append('route', route);
             params.append('vehicle', vehicle);
             params.append('quantity', quantity);
-            params.append('cost', cost);
+            params.append('cost', totalCost);
             params.append('code', ticketCode);
             
             window.location.href = 'https://competidora-cmd.github.io/telegram-mini-app/ticket.html?' + params.toString();
@@ -1345,11 +1346,22 @@
                 return;
             }
 
+            const newCarrier = document.getElementById(`edit-carrier-${index}`).value;
+            const newQuantity = document.getElementById(`edit-quantity-${index}`).value;
+            
+            // Обновляем данные билета
             ticket.routeNumber = routeNumber;
-            ticket.carrier = document.getElementById(`edit-carrier-${index}`).value;
+            ticket.carrier = newCarrier;
             ticket.route = document.getElementById(`edit-route-${index}`).value;
             ticket.vehicle = document.getElementById(`edit-vehicle-${index}`).value;
-            ticket.quantity = document.getElementById(`edit-quantity-${index}`).value;
+            ticket.quantity = newQuantity;
+            
+            // Пересчитываем общую стоимость
+            const baseCost = parseFloat(ticket.cost);
+            if (!isNaN(baseCost)) {
+                const totalCost = (baseCost / (ticket.quantity || 1) * newQuantity).toFixed(2);
+                ticket.cost = totalCost;
+            }
 
             savedTickets[index] = ticket;
             localStorage.setItem('savedTickets', JSON.stringify(savedTickets));
