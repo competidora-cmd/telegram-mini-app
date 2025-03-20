@@ -2153,52 +2153,72 @@
             }
         });
 
-        // Add auto-select route functionality
-        document.getElementById('autoSelectRoute').addEventListener('click', async function() {
+        // Add auto-select route button
+        const routeSelectionArea = document.querySelector('.form-group');
+        const autoSelectButton = document.createElement('button');
+        autoSelectButton.id = 'autoSelectRoute';
+        autoSelectButton.className = 'auto-select-button';
+        autoSelectButton.textContent = 'Автовыбор маршрута';
+        autoSelectButton.style.marginBottom = '10px';
+        routeSelectionArea.insertBefore(autoSelectButton, document.getElementById('routeStart').parentNode.nextSibling);
+
+        // Add note about auto-selection
+        const autoSelectNote = document.createElement('div');
+        autoSelectNote.className = 'auto-select-note';
+        autoSelectNote.textContent = '* Автовыбор работает только для автобусных маршрутов и не всегда может быть точным';
+        autoSelectNote.style.color = '#8E8E93';
+        autoSelectNote.style.fontSize = '13px';
+        autoSelectNote.style.marginTop = '5px';
+        routeSelectionArea.insertBefore(autoSelectNote, autoSelectButton.nextSibling);
+
+        // Function to auto-select route
+        async function autoSelectRoute() {
             const routeNumber = document.getElementById('routeNumber').value;
+            
             if (!routeNumber) {
-                alert('Сначала выберите номер маршрута');
+                alert('Пожалуйста, сначала выберите номер маршрута');
                 return;
             }
-            
+
             try {
                 const response = await fetch('https://raw.githubusercontent.com/competidora-cmd/telegram-mini-app/main/route.json');
                 const data = await response.json();
-                const route = data.routes[routeNumber];
                 
-                if (route && route.name) {
-                    const [start, end] = route.name.split(' ↔ ').map(s => s.trim());
+                if (data.routes[routeNumber]) {
+                    const route = data.routes[routeNumber];
                     const startSelect = document.getElementById('routeStart');
                     const endSelect = document.getElementById('routeEnd');
                     
-                    // Find closest matching options
+                    // Find matching options for start and end
                     const startOptions = Array.from(startSelect.options);
                     const endOptions = Array.from(endSelect.options);
                     
-                    const findBestMatch = (target, options) => {
-                        return options.find(opt => opt.value === target) || 
-                               options.find(opt => opt.value.includes(target)) ||
-                               options[0];
-                    };
+                    const startMatch = startOptions.find(option => 
+                        option.value && route.start.includes(option.value) || option.value && option.value.includes(route.start)
+                    );
                     
-                    const startOption = findBestMatch(start, startOptions);
-                    const endOption = findBestMatch(end, endOptions);
+                    const endMatch = endOptions.find(option => 
+                        option.value && route.end.includes(option.value) || option.value && option.value.includes(route.end)
+                    );
                     
-                    if (startOption && endOption) {
-                        startSelect.value = startOption.value;
-                        endSelect.value = endOption.value;
+                    if (startMatch && endMatch) {
+                        startSelect.value = startMatch.value;
+                        endSelect.value = endMatch.value;
                         updateRouteDisplay();
                     } else {
-                        alert('Не удалось найти соответствующие остановки для этого маршрута');
+                        alert('Не удалось найти точные совпадения для остановок этого маршрута');
                     }
                 } else {
-                    alert('Маршрут не найден в базе данных');
+                    alert('Маршрут не найден');
                 }
             } catch (error) {
                 console.error('Error fetching route data:', error);
                 alert('Ошибка при получении данных о маршруте');
             }
-        });
+        }
+
+        // Add click event listener for auto-select button
+        document.getElementById('autoSelectRoute').addEventListener('click', autoSelectRoute);
     </script>
 </body>
 
