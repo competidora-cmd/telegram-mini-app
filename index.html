@@ -1761,26 +1761,21 @@
             }
 
             const newCarrier = document.getElementById(`edit-carrier-${index}`).value;
-            const newQuantity = parseInt(document.getElementById(`edit-quantity-slider-${index}`).value);
+            const newQuantity = parseInt(document.getElementById(`edit-quantity-input-${index}`).value);
             
-            // Update ticket data
             ticket.routeNumber = routeNumber;
             ticket.carrier = newCarrier;
             ticket.route = document.getElementById(`edit-route-${index}`).value;
             ticket.vehicle = document.getElementById(`edit-vehicle-${index}`).value;
             ticket.quantity = newQuantity;
             
-            // Calculate the base cost per ticket properly
             let baseCost;
             if (ticket.baseCost) {
-                // Use the stored base cost if available
                 baseCost = parseFloat(ticket.baseCost);
             } else {
-                // If not available (for older tickets), use one of the standard costs
-                baseCost = 44.00; // Default to 44.00 if not specified
+                baseCost = 44.00;
             }
             
-            // Calculate new total cost based on the new quantity
             const totalCost = (baseCost * newQuantity).toFixed(2);
             ticket.cost = totalCost;
 
@@ -2008,22 +2003,18 @@
             let isDragging = false;
 
             function updateSlider(percentage) {
-                // Snap to nearest step (0%, 25%, 50%, 75%, 100%)
                 const steps = [0, 25, 50, 75, 100];
                 const closestStep = steps.reduce((prev, curr) => 
                     Math.abs(curr - percentage) < Math.abs(prev - percentage) ? curr : prev
                 );
 
-                // Update handle and track position
                 handle.style.left = `${closestStep}%`;
                 track.style.width = `${closestStep}%`;
 
-                // Update quantity value (1-5)
                 const quantity = (closestStep / 25) + 1;
                 quantityInput.value = quantity;
                 quantityDisplay.textContent = `${quantity} ${quantity === 1 ? 'билет' : 'билета'}`;
 
-                // Update active states
                 dots.forEach((dot, index) => {
                     dot.classList.toggle('active', index * 25 <= closestStep);
                 });
@@ -2034,6 +2025,7 @@
 
             function handleMove(event) {
                 if (!isDragging) return;
+                event.preventDefault(); // Предотвращаем стандартное поведение
                 
                 const rect = sliderContainer.getBoundingClientRect();
                 const x = event.type.includes('touch') ? 
@@ -2047,14 +2039,22 @@
             }
 
             function handleStart(event) {
+                event.preventDefault(); // Предотвращаем стандартное поведение
+                event.stopPropagation(); // Останавливаем всплытие события
                 isDragging = true;
-                document.addEventListener('mousemove', handleMove);
-                document.addEventListener('touchmove', handleMove);
+                
+                // Привязываем обработчики к document
+                document.addEventListener('mousemove', handleMove, { passive: false });
+                document.addEventListener('touchmove', handleMove, { passive: false });
                 document.addEventListener('mouseup', handleEnd);
                 document.addEventListener('touchend', handleEnd);
             }
 
-            function handleEnd() {
+            function handleEnd(event) {
+                if (event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
                 isDragging = false;
                 document.removeEventListener('mousemove', handleMove);
                 document.removeEventListener('touchmove', handleMove);
@@ -2062,20 +2062,30 @@
                 document.removeEventListener('touchend', handleEnd);
             }
 
-            // Click on container to jump to position
+            // Обработчик клика по слайдеру
             sliderContainer.addEventListener('click', function(event) {
-                const rect = sliderContainer.getBoundingClientRect();
-                const x = event.clientX - rect.left;
-                const percentage = (x / rect.width) * 100;
-                updateSlider(percentage);
+                event.preventDefault();
+                event.stopPropagation();
+                
+                if (!event.target.classList.contains('slider-handle')) {
+                    const rect = sliderContainer.getBoundingClientRect();
+                    const x = event.clientX - rect.left;
+                    const percentage = (x / rect.width) * 100;
+                    updateSlider(percentage);
+                }
             });
 
-            // Drag handling
-            handle.addEventListener('mousedown', handleStart);
-            handle.addEventListener('touchstart', handleStart);
+            // Добавляем обработчики для перетаскивания
+            handle.addEventListener('mousedown', handleStart, { passive: false });
+            handle.addEventListener('touchstart', handleStart, { passive: false });
 
-            // Initialize slider
-            updateSlider(0);
+            // Устанавливаем начальное значение
+            updateSlider((quantityInput.value - 1) * 25);
+
+            // Предотвращаем скролл страницы при перетаскивании на мобильных устройствах
+            sliderContainer.addEventListener('touchmove', function(e) {
+                e.preventDefault();
+            }, { passive: false });
         });
     </script>
 </body>
