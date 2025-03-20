@@ -32,7 +32,9 @@
 
         body {
 
-            background: #fff;
+            background: var(--tg-theme-bg-color, #fff);
+
+            color: var(--tg-theme-text-color, #000);
 
             min-height: 100vh;
 
@@ -72,6 +74,8 @@
 
             margin: 0 -16px 20px;
 
+            background: var(--tg-theme-bg-color, #fff);
+
         }
 
 
@@ -84,7 +88,7 @@
 
             text-align: center;
 
-            color: #8E8E93;
+            color: var(--tg-theme-hint-color, #8E8E93);
 
             cursor: pointer;
 
@@ -118,7 +122,7 @@
 
         .tab.active {
 
-            color: #000;
+            color: var(--tg-theme-text-color, #000);
 
         }
 
@@ -126,7 +130,7 @@
 
         .tab.active svg {
 
-            color: #E31E24;
+            color: var(--tg-theme-button-color, #E31E24);
 
         }
 
@@ -146,7 +150,7 @@
 
             height: 2px;
 
-            background: #E31E24;
+            background: var(--tg-theme-button-color, #E31E24);
 
         }
 
@@ -184,7 +188,7 @@
 
             font-weight: 400;
 
-            color: #8E8E93;
+            color: var(--tg-theme-hint-color, #8E8E93);
 
             font-size: 15px;
 
@@ -204,9 +208,9 @@
 
             font-size: 17px;
 
-            background: #fff;
+            background: var(--tg-theme-secondary-bg-color, #F5F5F5);
 
-            color: #000;
+            color: var(--tg-theme-text-color, #000);
 
         }
 
@@ -216,7 +220,7 @@
 
             outline: none;
 
-            border-color: #E31E24;
+            border-color: var(--tg-theme-button-color, #E31E24);
 
         }
 
@@ -224,7 +228,7 @@
 
         input::placeholder {
 
-            color: #8E8E93;
+            color: var(--tg-theme-hint-color, #8E8E93);
 
         }
 
@@ -236,13 +240,13 @@
 
             padding: 16px;
 
-            background: #E31E24;
+            background: var(--tg-theme-button-color, #E31E24);
 
             border: none;
 
             border-radius: 14px;
 
-            color: white;
+            color: var(--tg-theme-button-text-color, #fff);
 
             font-size: 17px;
 
@@ -284,9 +288,7 @@
 
         .ticket-item {
 
-            background: #fff;
-
-            border: 1px solid rgba(0, 0, 0, 0.1);
+            background: var(--tg-theme-secondary-bg-color, #F5F5F5);
 
             border-radius: 12px;
 
@@ -322,9 +324,11 @@
 
             font-size: 20px;
 
-            color: #E31E24;
+            color: var(--tg-theme-button-color, #E31E24);
 
             margin-bottom: 4px;
+
+            font-weight: 500;
 
         }
 
@@ -334,7 +338,7 @@
 
             font-size: 15px;
 
-            color: #8E8E93;
+            color: var(--tg-theme-hint-color, #8E8E93);
 
         }
 
@@ -382,9 +386,9 @@
 
         .edit-btn, .open-btn {
 
-            background: #F7F7F7;
+            background: var(--tg-theme-bg-color, #fff);
 
-            color: #000;
+            color: var(--tg-theme-text-color, #000);
 
         }
 
@@ -586,7 +590,7 @@
 
             padding: 12px;
 
-            background: #F7F7F7;
+            background: var(--tg-theme-secondary-bg-color, #F5F5F5);
 
             border-radius: 10px;
 
@@ -610,7 +614,7 @@
 
             font-size: 17px;
 
-            color: #8E8E93;
+            color: var(--tg-theme-hint-color, #8E8E93);
 
             transition: all 0.2s;
 
@@ -620,7 +624,7 @@
 
         .cost-option input:checked + span {
 
-            color: #000;
+            color: var(--tg-theme-text-color, #000);
 
             font-weight: 500;
 
@@ -704,9 +708,9 @@
 
             font-size: 17px;
 
-            background: #fff;
+            background: var(--tg-theme-secondary-bg-color, #F5F5F5);
 
-            color: #000;
+            color: var(--tg-theme-text-color, #000);
 
             height: 48px;
 
@@ -1186,7 +1190,18 @@
                 "ООО \"МаршрутАвто\"",
                 "ИП Карасева Н.Н.",
                 "ИП Гнетов Ю.Н.",
-                "МП Городской Транспорт",
+                "Планета (ул. 9 Мая)",
+                "Фанпарк Бобровый лог",
+                "с/х Удачный",
+                "ж/к Ясный",
+                "ИТК",
+                "мкрн.Солнечный (ул. Светлова)",
+                "ж/д больница",
+                "Шинное кладбище",
+                "Профилакторий з-да КраМЗ",
+                "Парк Прищепка",
+                "пос. Овинный",
+                "Плодово-ягодная станция"
             ]
         };
 
