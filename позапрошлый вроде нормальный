@@ -30,9 +30,9 @@
 
         .timer {
             text-align: center;
-            font-size: 28px;
+            font-size: 22px;
             font-weight: 500;
-            margin: 20px 0;
+            margin: 16px 0;
             color: #000;
         }
 
@@ -49,45 +49,48 @@
         .ticket-number {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             width: 50%;
-            padding: 20px;
+            padding: 16px;
             position: relative;
             border-bottom: 2px solid #E31E24;
         }
 
         .ticket-number svg {
-            width: 28px;
-            height: 28px;
+            width: 24px;
+            height: 24px;
             color: #E31E24;
         }
 
         .ticket-number span {
-            font-size: 24px;
+            font-size: 20px;
             font-weight: 500;
             color: #E31E24;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .control-section {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             width: 50%;
             justify-content: center;
             color: #8E8E93;
             cursor: pointer;
-            padding: 20px;
+            padding: 16px;
             position: relative;
         }
 
         .control-section svg {
-            width: 28px;
-            height: 28px;
+            width: 24px;
+            height: 24px;
             color: #8E8E93;
         }
 
         .control-section span {
-            font-size: 20px;
+            font-size: 17px;
             font-weight: 400;
             color: #8E8E93;
         }
@@ -162,9 +165,9 @@
         .info-row {
             display: flex;
             align-items: flex-start;
-            padding: 20px;
+            padding: 16px;
             border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-            min-height: 90px;
+            min-height: 80px;
         }
 
         .info-row:last-child {
@@ -172,11 +175,11 @@
         }
 
         .info-row svg {
-            width: 28px;
-            height: 28px;
+            width: 24px;
+            height: 24px;
             color: #000;
             flex-shrink: 0;
-            margin-right: 16px;
+            margin-right: 12px;
             margin-top: 2px;
         }
 
@@ -188,28 +191,28 @@
         }
 
         .info-label {
-            font-size: 17px;
+            font-size: 15px;
             color: #8E8E93;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             line-height: 1.2;
         }
 
         .info-value {
-            font-size: 22px;
+            font-size: 19px;
             color: #000;
             font-weight: 500;
             line-height: 1.2;
         }
 
         .route-info {
-            font-size: 17px;
+            font-size: 15px;
             color: #8E8E93;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             line-height: 1.2;
         }
 
         .vehicle-number {
-            font-size: 22px;
+            font-size: 19px;
             color: #000;
             font-weight: 500;
             line-height: 1.2;
@@ -217,15 +220,15 @@
 
         .close-button {
             position: fixed;
-            bottom: calc(24px + env(safe-area-inset-bottom));
+            bottom: calc(28px + env(safe-area-inset-bottom));
             left: 16px;
             right: 16px;
             background: #E31E24;
             color: white;
             border: none;
-            padding: 18px;
+            padding: 16px;
             border-radius: 14px;
-            font-size: 18px;
+            font-size: 17px;
             font-weight: 600;
             cursor: pointer;
             z-index: 2;
@@ -238,7 +241,7 @@
             bottom: 0;
             left: 0;
             right: 0;
-            height: calc(90px + env(safe-area-inset-bottom));
+            height: calc(100px + env(safe-area-inset-bottom));
             background: #F7F7F7;
             border-top: 1px solid rgba(0, 0, 0, 0.1);
             z-index: 1;
