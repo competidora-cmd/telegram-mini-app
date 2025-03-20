@@ -1185,7 +1185,19 @@
                 "ИП Патрин Н.Н.",
                 "ООО \"МаршрутАвто\"",
                 "ИП Карасева Н.Н.",
-                "ИП Гнетов Ю.Н."
+                "ИП Гнетов Ю.Н.",
+                "Планета (ул. 9 Мая)",
+                "Фанпарк Бобровый лог",
+                "с/х Удачный",
+                "ж/к Ясный",
+                "ИТК",
+                "мкрн.Солнечный (ул. Светлова)",
+                "ж/д больница",
+                "Шинное кладбище",
+                "Профилакторий з-да КраМЗ",
+                "Парк Прищепка",
+                "пос. Овинный",
+                "Плодово-ягодная станция"
             ]
         };
 
@@ -1470,7 +1482,19 @@
             "Госпиталь ВОВ",
             "пос. Энергетиков",
             "Северный",
-            "Цимлянская"
+            "Цимлянская",
+            "Планета (ул. 9 Мая)",
+            "Фанпарк Бобровый лог",
+            "с/х Удачный",
+            "ж/к Ясный",
+            "ИТК",
+            "мкрн.Солнечный (ул. Светлова)",
+            "ж/д больница",
+            "Шинное кладбище",
+            "Профилакторий з-да КраМЗ",
+            "Парк Прищепка",
+            "пос. Овинный",
+            "Плодово-ягодная станция"
         ];
 
         // Populate route endpoints dropdowns
@@ -1478,6 +1502,11 @@
             const startSelect = document.getElementById('routeStart');
             const endSelect = document.getElementById('routeEnd');
             
+            // Clear existing options first
+            startSelect.innerHTML = '<option value="">Начальная остановка</option>';
+            endSelect.innerHTML = '<option value="">Конечная остановка</option>';
+            
+            // Add endpoints once to each dropdown
             routeEndpoints.forEach(endpoint => {
                 const startOption = document.createElement('option');
                 const endOption = document.createElement('option');
