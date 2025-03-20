@@ -2153,25 +2153,7 @@
             }
         });
 
-        // Add auto-select route button
-        const routeSelectionArea = document.querySelector('.form-group');
-        const autoSelectButton = document.createElement('button');
-        autoSelectButton.id = 'autoSelectRoute';
-        autoSelectButton.className = 'auto-select-button';
-        autoSelectButton.textContent = 'Автовыбор маршрута';
-        autoSelectButton.style.marginBottom = '10px';
-        routeSelectionArea.insertBefore(autoSelectButton, document.getElementById('routeStart').parentNode.nextSibling);
-
-        // Add note about auto-selection
-        const autoSelectNote = document.createElement('div');
-        autoSelectNote.className = 'auto-select-note';
-        autoSelectNote.textContent = '* Автовыбор работает только для автобусных маршрутов и не всегда может быть точным';
-        autoSelectNote.style.color = '#8E8E93';
-        autoSelectNote.style.fontSize = '13px';
-        autoSelectNote.style.marginTop = '5px';
-        routeSelectionArea.insertBefore(autoSelectNote, autoSelectButton.nextSibling);
-
-        // Function to auto-select route
+        // Remove duplicate button creation code and update the auto-select route function
         async function autoSelectRoute() {
             const routeNumber = document.getElementById('routeNumber').value;
             
@@ -2182,6 +2164,9 @@
 
             try {
                 const response = await fetch('https://raw.githubusercontent.com/competidora-cmd/telegram-mini-app/main/route.json');
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
                 const data = await response.json();
                 
                 if (data.routes[routeNumber]) {
@@ -2194,17 +2179,28 @@
                     const endOptions = Array.from(endSelect.options);
                     
                     const startMatch = startOptions.find(option => 
-                        option.value && route.start.includes(option.value) || option.value && option.value.includes(route.start)
+                        option.value && (
+                            route.start.includes(option.value) || 
+                            option.value.includes(route.start)
+                        )
                     );
                     
                     const endMatch = endOptions.find(option => 
-                        option.value && route.end.includes(option.value) || option.value && option.value.includes(route.end)
+                        option.value && (
+                            route.end.includes(option.value) || 
+                            option.value.includes(route.end)
+                        )
                     );
                     
                     if (startMatch && endMatch) {
                         startSelect.value = startMatch.value;
                         endSelect.value = endMatch.value;
-                        updateRouteDisplay();
+                        // Update the route display after setting values
+                        const startValue = startSelect.value;
+                        const endValue = endSelect.value;
+                        if (startValue && endValue) {
+                            document.getElementById('route').value = `${startValue} - ${endValue}`;
+                        }
                     } else {
                         alert('Не удалось найти точные совпадения для остановок этого маршрута');
                     }
@@ -2217,8 +2213,16 @@
             }
         }
 
-        // Add click event listener for auto-select button
-        document.getElementById('autoSelectRoute').addEventListener('click', autoSelectRoute);
+        // Remove duplicate event listener code and add it to DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // ... existing DOMContentLoaded code ...
+            
+            // Add event listener for auto-select route button
+            const autoSelectRouteBtn = document.getElementById('autoSelectRoute');
+            if (autoSelectRouteBtn) {
+                autoSelectRouteBtn.addEventListener('click', autoSelectRoute);
+            }
+        });
     </script>
 </body>
 
