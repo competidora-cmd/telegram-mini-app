@@ -574,7 +574,10 @@
         let qrCode = null;
 
         // Функция для показа QR-кода
-        function showQR() {
+        function showQR(e) {
+            // Prevent any default behavior
+            e.preventDefault();
+            
             if (!qrCode) {
                 const quantity = parseInt(urlParams.get('quantity') || 1);
                 const cost = parseFloat(urlParams.get('cost')).toFixed(2);
@@ -590,7 +593,11 @@
                     cost: cost
                 };
 
-                qrCode = new QRCode(document.getElementById("qrCode"), {
+                // Clear previous QR code if exists
+                const qrElement = document.getElementById("qrCode");
+                qrElement.innerHTML = '';
+
+                qrCode = new QRCode(qrElement, {
                     text: JSON.stringify(qrData),
                     width: 256,
                     height: 256,
@@ -615,9 +622,11 @@
         }
 
         // Добавляем обработчик события напрямую
-        controlSection.onclick = showQR;
+        controlSection.addEventListener('click', showQR);
+        controlSection.addEventListener('touchend', showQR);
 
-        function hideQR() {
+        function hideQR(e) {
+            if (e) e.preventDefault();
             qrOverlay.style.display = 'none';
             controlSection.classList.remove('active');
             ticketNumber.classList.add('active');
@@ -625,6 +634,12 @@
 
         // Закрыть QR при клике вне контейнера
         qrOverlay.addEventListener('click', (e) => {
+            if (e.target === qrOverlay) {
+                hideQR();
+            }
+        });
+
+        qrOverlay.addEventListener('touchend', (e) => {
             if (e.target === qrOverlay) {
                 hideQR();
             }
