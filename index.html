@@ -682,23 +682,11 @@
 
             align-items: center;
 
-            overflow-x: auto;
+            width: 100%;
+
+            flex-wrap: wrap;
 
             padding: 4px;
-
-            -webkit-overflow-scrolling: touch;
-
-            scrollbar-width: none; /* Firefox */
-
-            -ms-overflow-style: none; /* IE and Edge */
-
-        }
-
-
-
-        .route-selector::-webkit-scrollbar {
-
-            display: none; /* Chrome, Safari and Opera */
 
         }
 
@@ -722,9 +710,9 @@
 
             height: 48px;
 
-            min-width: 200px;
+            min-width: 0;
 
-            max-width: calc(50% - 24px); /* Учитываем кнопку реверса и отступы */
+            width: calc(50% - 24px);
 
         }
 
@@ -885,6 +873,38 @@
             background: #E31E24;
 
             color: white;
+
+        }
+
+
+
+        @media (max-width: 480px) {
+
+            .route-selector {
+
+                flex-direction: column;
+
+                gap: 12px;
+
+            }
+
+
+
+            .route-endpoint {
+
+                width: 100%;
+
+            }
+
+
+
+            .reverse-btn {
+
+                align-self: center;
+
+                transform: rotate(90deg);
+
+            }
 
         }
 
@@ -1542,6 +1562,43 @@
         quantitySlider.addEventListener('input', function() {
             const quantity = quantitySlider.value;
             document.getElementById('quantity-display').textContent = `${quantity} ${quantity === '1' ? 'билет' : 'билета'}`;
+        });
+
+        // Add keyboard handling for input fields
+        document.addEventListener('DOMContentLoaded', function() {
+            // Existing DOMContentLoaded code...
+            
+            // Add keyboard handling for edit form inputs
+            function handleEditFormInputs() {
+                const editForms = document.querySelectorAll('.edit-form');
+                editForms.forEach(form => {
+                    const inputs = form.querySelectorAll('input[type="text"], input[type="number"]');
+                    inputs.forEach(input => {
+                        // Handle enter key
+                        input.addEventListener('keydown', function(e) {
+                            if (e.key === 'Enter') {
+                                e.preventDefault();
+                                input.blur(); // Remove focus from input
+                            }
+                        });
+
+                        // Handle input blur (when focus is lost)
+                        input.addEventListener('blur', function() {
+                            // Small delay to ensure the value is updated
+                            setTimeout(() => {
+                                window.scrollTo(0, 0);
+                            }, 100);
+                        });
+                    });
+                });
+            }
+
+            // Call handleEditFormInputs when loading saved tickets
+            const originalLoadSavedTickets = loadSavedTickets;
+            loadSavedTickets = function() {
+                originalLoadSavedTickets();
+                handleEditFormInputs();
+            };
         });
     </script>
 </body>
