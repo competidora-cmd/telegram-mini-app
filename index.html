@@ -654,11 +654,11 @@
 
             display: flex;
 
-            flex-direction: column;
+                flex-direction: column;
 
-            gap: 12px;
+                gap: 12px;
 
-        }
+            }
 
 
 
@@ -672,7 +672,7 @@
 
             padding: 16px;
 
-        }
+            }
 
 
 
@@ -706,7 +706,7 @@
 
             margin-bottom: 4px;
 
-        }
+            }
 
 
 
@@ -888,19 +888,19 @@
 
             .ticket-actions {
 
-                width: 100%;
+            width: 100%;
 
                 justify-content: space-between;
 
                 min-width: unset;
 
-            }
+        }
 
 
 
             .edit-btn, .open-btn, .delete-btn {
 
-                flex: 1;
+            flex: 1;
 
                 width: auto;
 
@@ -1132,6 +1132,90 @@
 
         }
 
+
+
+        /* Add these new styles */
+        .custom-slider {
+            position: relative;
+            width: 100%;
+            height: 60px;
+            padding: 15px 0;
+        }
+
+        .slider-rail {
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background-color: #E9E9EA;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .slider-track {
+            position: absolute;
+            height: 2px;
+            background-color: #E31E24;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .slider-dots {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+        }
+
+        .slider-dot {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background-color: #fff;
+            border: 2px solid #E9E9EA;
+            border-radius: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            transition: border-color 0.2s;
+        }
+
+        .slider-dot.active {
+            border-color: #E31E24;
+        }
+
+        .slider-handle {
+            position: absolute;
+            width: 28px;
+            height: 28px;
+            background-color: #fff;
+            border-radius: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+            box-shadow: 0 0 1px rgba(0,0,0,0.1), 0 3px 6px rgba(0,0,0,0.1);
+            transition: box-shadow 0.2s;
+        }
+
+        .slider-handle:hover {
+            box-shadow: 0 0 2px rgba(0,0,0,0.15), 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        .slider-marks {
+            position: absolute;
+            width: 100%;
+            top: calc(50% + 16px);
+        }
+
+        .slider-mark {
+            position: absolute;
+            transform: translateX(-50%);
+            color: #8E8E93;
+            font-size: 14px;
+        }
+
+        .slider-mark.active {
+            color: #000;
+        }
+
     </style>
 
 </head>
@@ -1187,7 +1271,26 @@
             </div>
             <div class="form-group">
                 <label for="quantity">Количество билетов</label>
-                <input type="range" id="quantity-slider" min="1" max="5" value="1" step="1" oninput="updateQuantityDisplay(this.value)">
+                <div class="custom-slider" id="quantity-slider-container">
+                    <div class="slider-rail"></div>
+                    <div class="slider-track"></div>
+                    <div class="slider-dots">
+                        <span class="slider-dot active" style="left: 0%"></span>
+                        <span class="slider-dot" style="left: 25%"></span>
+                        <span class="slider-dot" style="left: 50%"></span>
+                        <span class="slider-dot" style="left: 75%"></span>
+                        <span class="slider-dot" style="left: 100%"></span>
+                    </div>
+                    <div class="slider-handle" style="left: 0%"></div>
+                    <div class="slider-marks">
+                        <span class="slider-mark active" style="left: 0%">1</span>
+                        <span class="slider-mark" style="left: 25%">2</span>
+                        <span class="slider-mark" style="left: 50%">3</span>
+                        <span class="slider-mark" style="left: 75%">4</span>
+                        <span class="slider-mark" style="left: 100%">5</span>
+                    </div>
+                </div>
+                <input type="hidden" id="quantity-input" value="1">
                 <div id="quantity-display">1 билет</div>
             </div>
             <div class="form-group">
@@ -1317,7 +1420,7 @@
             const endValue = document.getElementById('routeEnd').value;
             const route = `${startValue} - ${endValue}`;
             const vehicle = document.getElementById('vehicle').value;
-            const quantity = document.getElementById('quantity-slider').value;
+            const quantity = document.getElementById('quantity-input').value;
             const baseCost = document.querySelector('input[name="cost"]:checked').value;
             const totalCost = (parseFloat(baseCost) * parseInt(quantity)).toFixed(2);
 
@@ -1833,23 +1936,25 @@
         }
 
         // Update the createTicketBtn click handler
-        const quantitySlider = document.getElementById('quantity-slider');
-        quantitySlider.addEventListener('input', function() {
-            const quantity = quantitySlider.value;
-            document.getElementById('quantity-display').textContent = `${quantity} ${quantity === '1' ? 'билет' : 'билета'}`;
+        const quantitySlider = document.getElementById('quantity-slider-container');
+        quantitySlider.addEventListener('click', function(event) {
+            const rect = quantitySlider.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const percentage = (x / rect.width) * 100;
+            updateSlider(percentage);
         });
 
         // Add keyboard handling for input fields
         document.addEventListener('DOMContentLoaded', function() {
             // Add keyboard handling for text and number inputs only
             const inputs = document.querySelectorAll('input[type="text"], input[type="number"]');
-            inputs.forEach(input => {
-                // Handle enter key
-                input.addEventListener('keydown', function(e) {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        input.blur(); // Remove focus from input
-                    }
+                    inputs.forEach(input => {
+                        // Handle enter key
+                        input.addEventListener('keydown', function(e) {
+                            if (e.key === 'Enter') {
+                                e.preventDefault();
+                                input.blur(); // Remove focus from input
+                            }
                 });
             });
 
@@ -1876,6 +1981,88 @@
             select.style.backgroundRepeat = 'no-repeat';
             select.style.backgroundPosition = 'right 16px center';
             select.style.paddingRight = '40px';
+        });
+
+        // Add this new JavaScript code
+        document.addEventListener('DOMContentLoaded', function() {
+            const sliderContainer = document.getElementById('quantity-slider-container');
+            const handle = sliderContainer.querySelector('.slider-handle');
+            const track = sliderContainer.querySelector('.slider-track');
+            const quantityInput = document.getElementById('quantity-input');
+            const quantityDisplay = document.getElementById('quantity-display');
+            const dots = sliderContainer.querySelectorAll('.slider-dot');
+            const marks = sliderContainer.querySelectorAll('.slider-mark');
+            let isDragging = false;
+
+            function updateSlider(percentage) {
+                // Snap to nearest step (0%, 25%, 50%, 75%, 100%)
+                const steps = [0, 25, 50, 75, 100];
+                const closestStep = steps.reduce((prev, curr) => 
+                    Math.abs(curr - percentage) < Math.abs(prev - percentage) ? curr : prev
+                );
+
+                // Update handle and track position
+                handle.style.left = `${closestStep}%`;
+                track.style.width = `${closestStep}%`;
+
+                // Update quantity value (1-5)
+                const quantity = (closestStep / 25) + 1;
+                quantityInput.value = quantity;
+                quantityDisplay.textContent = `${quantity} ${quantity === 1 ? 'билет' : 'билета'}`;
+
+                // Update active states
+                dots.forEach((dot, index) => {
+                    dot.classList.toggle('active', index * 25 <= closestStep);
+                });
+                marks.forEach((mark, index) => {
+                    mark.classList.toggle('active', index * 25 <= closestStep);
+                });
+            }
+
+            function handleMove(event) {
+                if (!isDragging) return;
+                
+                const rect = sliderContainer.getBoundingClientRect();
+                const x = event.type.includes('touch') ? 
+                    event.touches[0].clientX - rect.left :
+                    event.clientX - rect.left;
+                
+                let percentage = (x / rect.width) * 100;
+                percentage = Math.max(0, Math.min(100, percentage));
+                
+                updateSlider(percentage);
+            }
+
+            function handleStart(event) {
+                isDragging = true;
+                document.addEventListener('mousemove', handleMove);
+                document.addEventListener('touchmove', handleMove);
+                document.addEventListener('mouseup', handleEnd);
+                document.addEventListener('touchend', handleEnd);
+            }
+
+            function handleEnd() {
+                isDragging = false;
+                document.removeEventListener('mousemove', handleMove);
+                document.removeEventListener('touchmove', handleMove);
+                document.removeEventListener('mouseup', handleEnd);
+                document.removeEventListener('touchend', handleEnd);
+            }
+
+            // Click on container to jump to position
+            sliderContainer.addEventListener('click', function(event) {
+                const rect = sliderContainer.getBoundingClientRect();
+                const x = event.clientX - rect.left;
+                const percentage = (x / rect.width) * 100;
+                updateSlider(percentage);
+            });
+
+            // Drag handling
+            handle.addEventListener('mousedown', handleStart);
+            handle.addEventListener('touchstart', handleStart);
+
+            // Initialize slider
+            updateSlider(0);
         });
     </script>
 </body>
