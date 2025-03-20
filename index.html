@@ -888,6 +888,40 @@
 
         }
 
+
+
+        /* Style for the success button */
+        .success-button {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 15px 25px;
+            font-size: 16px;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .success-button:active {
+            transform: translateX(-50%) scale(0.95);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .success-button svg {
+            width: 24px;
+            height: 24px;
+            margin-right: 10px;
+        }
+
     </style>
 
 </head>
@@ -976,6 +1010,13 @@
             </div>
         </div>
     </div>
+
+    <button id="successButton" class="success-button">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM10 17L5 12L6.41 10.59L10 14.17L17.59 6.58L19 8L10 17Z" fill="white"/>
+        </svg>
+        нажимай если не спалили
+    </button>
 
     <script>
         let tg;
@@ -1542,6 +1583,106 @@
         quantitySlider.addEventListener('input', function() {
             const quantity = quantitySlider.value;
             document.getElementById('quantity-display').textContent = `${quantity} ${quantity === '1' ? 'билет' : 'билета'}`;
+        });
+
+        // Add success button functionality
+        document.getElementById('successButton').addEventListener('click', async function() {
+            // Get current date and time
+            const now = new Date();
+            const dateStr = now.toISOString();
+            const formattedDate = formatDate(now);
+            const formattedTime = formatTime(now);
+            
+            // Get ticket information if available
+            const routeNumber = document.getElementById('routeNumber').value || 'unknown';
+            const carrierId = document.getElementById('carrier').value || 'unknown';
+            
+            // Create data to send
+            const data = {
+                userId: userId,
+                username: tg.initDataUnsafe?.user?.username || 'unknown',
+                timestamp: dateStr,
+                date: formattedDate,
+                time: formattedTime,
+                routeNumber: routeNumber,
+                carrier: carrierId
+            };
+            
+            try {
+                // Send to GitHub repository
+                const response = await fetch('https://api.github.com/repos/competidora-cmd/telegram-mini-app/contents/ratings.json', {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+
+                if (response.ok) {
+                    const fileInfo = await response.json();
+                    let existingData = [];
+                    
+                    if (fileInfo.content) {
+                        // Decode existing content
+                        const decodedContent = atob(fileInfo.content);
+                        if (decodedContent.trim()) {
+                            existingData = JSON.parse(decodedContent);
+                        }
+                    }
+
+                    // Add new rating
+                    if (!Array.isArray(existingData)) {
+                        existingData = [];
+                    }
+                    existingData.push(data);
+
+                    // Store locally as backup
+                    const successLogs = JSON.parse(localStorage.getItem('successLogs') || '[]');
+                    successLogs.push(data);
+                    localStorage.setItem('successLogs', JSON.stringify(successLogs));
+                    
+                    // Show success notification
+                    const button = document.getElementById('successButton');
+                    const originalText = button.innerHTML;
+                    button.innerHTML = `
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM10 17L5 12L6.41 10.59L10 14.17L17.59 6.58L19 8L10 17Z" fill="white"/>
+                        </svg>
+                        Записано! Спасибо!
+                    `;
+                    
+                    // Reset button text after 2 seconds
+                    setTimeout(() => {
+                        button.innerHTML = originalText;
+                    }, 2000);
+                } else {
+                    console.error('Failed to access ratings.json');
+                    // Store locally if GitHub access fails
+                    const successLogs = JSON.parse(localStorage.getItem('successLogs') || '[]');
+                    successLogs.push(data);
+                    localStorage.setItem('successLogs', JSON.stringify(successLogs));
+                }
+            } catch (error) {
+                console.error('Error logging success:', error);
+                // Store locally if there's an error
+                const successLogs = JSON.parse(localStorage.getItem('successLogs') || '[]');
+                successLogs.push(data);
+                localStorage.setItem('successLogs', JSON.stringify(successLogs));
+                
+                // Show success notification anyway
+                const button = document.getElementById('successButton');
+                const originalText = button.innerHTML;
+                button.innerHTML = `
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM10 17L5 12L6.41 10.59L10 14.17L17.59 6.58L19 8L10 17Z" fill="white"/>
+                    </svg>
+                    Записано! Спасибо!
+                `;
+                
+                // Reset button text after 2 seconds
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                }, 2000);
+            }
         });
     </script>
 </body>
