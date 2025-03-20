@@ -170,7 +170,7 @@
 
         .form-group {
 
-            margin-bottom: 28px;
+            margin-bottom: 24px;
 
             position: relative;
 
@@ -182,15 +182,13 @@
 
             display: block;
 
-            margin-bottom: 8px;
+            margin-bottom: 10px;
 
             font-weight: 400;
 
             color: #8E8E93;
 
-            font-size: 13px;
-
-            letter-spacing: -0.08px;
+            font-size: 15px;
 
         }
 
@@ -200,7 +198,7 @@
 
             width: 100%;
 
-            padding: 15px;
+            padding: 16px;
 
             border: 1px solid rgba(60, 60, 67, 0.1);
 
@@ -214,6 +212,25 @@
 
             transition: all 0.2s ease;
 
+            -webkit-appearance: none;
+
+            appearance: none;
+
+        }
+
+
+
+        /* Стили для выпадающего списка */
+        select {
+
+            background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%238E8E93' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+
+            background-repeat: no-repeat;
+
+            background-position: right 16px center;
+
+            padding-right: 40px; /* Место для стрелки */
+
         }
 
 
@@ -221,6 +238,8 @@
         input::placeholder {
 
             color: #8E8E93;
+
+            font-size: 17px;
 
         }
 
@@ -239,7 +258,6 @@
 
 
         /* iOS-style Range Input */
-
         input[type="range"] {
 
             -webkit-appearance: none;
@@ -306,37 +324,9 @@
 
 
 
-        input[type="range"]:focus {
-
-            outline: none;
-
-        }
-
-
-
-        input[type="range"]:focus::-webkit-slider-thumb {
-
-            box-shadow: 0 0 1px rgba(0,0,0,0.1), 0 4px 8px rgba(0,0,0,0.15);
-
-            transform: scale(1.1);
-
-        }
-
-
-
-        input[type="range"]:active::-webkit-slider-thumb {
-
-            transform: scale(1.15);
-
-            box-shadow: 0 0 1px rgba(0,0,0,0.1), 0 5px 10px rgba(0,0,0,0.2);
-
-        }
-
-
-
         #quantity-display {
 
-            text-align: center;
+            text-align: left;
 
             color: #000;
 
@@ -368,7 +358,7 @@
 
             width: 100%;
 
-            padding: 15px;
+            padding: 16px;
 
             border: 1px solid rgba(60, 60, 67, 0.1);
 
@@ -382,20 +372,87 @@
 
             transition: all 0.2s ease;
 
+            -webkit-appearance: none;
+
+            appearance: none;
+
+            background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%238E8E93' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+
+            background-repeat: no-repeat;
+
+            background-position: right 16px center;
+
+            padding-right: 40px;
+
         }
 
 
 
-        .route-endpoint:focus {
+        /* Стили для мобильных устройств */
+        @media (max-width: 480px) {
 
-            border-color: #007AFF;
+            .container {
 
-            box-shadow: 0 0 0 1px rgba(0, 122, 255, 0.1);
+                padding: 16px;
+
+            }
+
+
+
+            .form-group {
+
+                margin-bottom: 20px;
+
+            }
+
+
+
+            label {
+
+                font-size: 15px;
+
+                margin-bottom: 8px;
+
+                opacity: 0.8;
+
+            }
+
+
+
+            input, select, .route-endpoint {
+
+                padding: 16px;
+
+                font-size: 17px;
+
+            }
+
+
+
+            select, .route-endpoint {
+
+                background-position: right 16px center;
+
+                padding-right: 40px;
+
+            }
+
+
+
+            /* Увеличиваем область касания для выпадающих списков */
+            select:focus, .route-endpoint:focus {
+
+                border-color: #007AFF;
+
+                box-shadow: 0 0 0 1px rgba(0, 122, 255, 0.1);
+
+            }
 
         }
 
 
 
+        /* Остальные стили остаются без изменений */
         .cost-selector {
 
             display: flex;
@@ -528,36 +585,7 @@
 
 
 
-        @media (max-width: 480px) {
-
-            .container {
-
-                padding: 16px;
-
-            }
-
-
-
-            .form-group {
-
-                margin-bottom: 24px;
-
-            }
-
-
-
-            input[type="range"] {
-
-                margin: 20px 0;
-
-            }
-
-        }
-
-
-
         /* Visual feedback for invalid inputs */
-
         input:invalid {
 
             border-color: #FF3B30;
@@ -577,7 +605,6 @@
 
 
         /* Helper text styles */
-
         .helper-text {
 
             font-size: 12px;
@@ -601,7 +628,6 @@
 
 
         /* Error message styles */
-
         .error-message {
 
             font-size: 12px;
