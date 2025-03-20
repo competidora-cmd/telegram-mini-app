@@ -1783,6 +1783,72 @@
                 e.preventDefault();
             }, { passive: false });
         }
+
+        // Обновим обработчик переключения вкладок
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Удаляем активный класс у всех вкладок и контента
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                // Добавляем активный класс текущей вкладке
+                tab.classList.add('active');
+                const contentId = tab.dataset.tab + '-content';
+                const content = document.getElementById(contentId);
+                content.classList.add('active');
+                
+                // Если переключились на вкладку сохраненных, загружаем билеты
+                if (tab.dataset.tab === 'saved') {
+                    loadSavedTickets();
+                }
+            });
+        });
+
+        // Обновим функцию toggleEditForm
+        function toggleEditForm(index) {
+            const form = document.getElementById(`edit-form-${index}`);
+            if (!form) return;
+            
+            const isActive = form.classList.toggle('active');
+            if (isActive) {
+                const savedTickets = JSON.parse(localStorage.getItem('savedTickets') || '[]');
+                const ticket = savedTickets[index];
+                // Инициализируем слайдер с небольшой задержкой, чтобы DOM успел обновиться
+                setTimeout(() => {
+                    initializeEditSlider(index, parseInt(ticket.quantity));
+                }, 50);
+            }
+        }
+
+        // Обновим функцию saveEditedTicket
+        function saveEditedTicket(index) {
+            const savedTickets = JSON.parse(localStorage.getItem('savedTickets') || '[]');
+            const ticket = savedTickets[index];
+
+            const routeNumber = document.getElementById(`edit-routeNumber-${index}`).value;
+            if (routeNumber < 1 || routeNumber > 99) {
+                alert('Номер маршрута должен быть от 1 до 99');
+                return;
+            }
+
+            const newCarrier = document.getElementById(`edit-carrier-${index}`).value;
+            const newQuantity = parseInt(document.getElementById(`edit-quantity-input-${index}`).value);
+            
+            // Обновляем данные билета
+            ticket.routeNumber = routeNumber;
+            ticket.carrier = newCarrier;
+            ticket.route = document.getElementById(`edit-route-${index}`).value;
+            ticket.vehicle = document.getElementById(`edit-vehicle-${index}`).value;
+            ticket.quantity = newQuantity;
+            
+            // Пересчитываем стоимость
+            const baseCost = ticket.baseCost || 44.00;
+            const totalCost = (parseFloat(baseCost) * newQuantity).toFixed(2);
+            ticket.cost = totalCost;
+
+            // Сохраняем изменения
+            savedTickets[index] = ticket;
+            localStorage.setItem('savedTickets', JSON.stringify(savedTickets));
     </script>
 </body>
 
