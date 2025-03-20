@@ -1818,7 +1818,7 @@
 
         // Add keyboard handling for input fields
         document.addEventListener('DOMContentLoaded', function() {
-            // Add keyboard handling for all input fields
+            // Add keyboard handling for text and number inputs only
             const inputs = document.querySelectorAll('input[type="text"], input[type="number"]');
             inputs.forEach(input => {
                 // Handle enter key
@@ -1830,14 +1830,29 @@
                 });
             });
 
-            // Handle clicks outside of inputs
+            // Handle clicks outside of inputs, but not on select elements
             document.addEventListener('click', function(e) {
-                if (!e.target.matches('input[type="text"], input[type="number"]')) {
-                    document.activeElement.blur();
+                const activeElement = document.activeElement;
+                if (activeElement && 
+                    !e.target.matches('select, select *') && // Don't blur if clicking on select elements
+                    !e.target.matches('input[type="text"], input[type="number"]') && // Don't blur if clicking on inputs
+                    (activeElement.tagName === 'INPUT' || activeElement.tagName === 'SELECT')) {
+                    activeElement.blur();
                 }
             });
             
             // ... rest of your existing DOMContentLoaded code ...
+        });
+
+        // Also ensure select elements have proper styling
+        const selectElements = document.querySelectorAll('select');
+        selectElements.forEach(select => {
+            select.style.webkitAppearance = 'none';
+            select.style.appearance = 'none';
+            select.style.backgroundImage = `url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%238E8E93' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`;
+            select.style.backgroundRepeat = 'no-repeat';
+            select.style.backgroundPosition = 'right 16px center';
+            select.style.paddingRight = '40px';
         });
     </script>
 </body>
