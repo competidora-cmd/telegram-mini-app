@@ -1291,6 +1291,7 @@
                     </div>
                 </div>
                 <input type="hidden" id="quantity-input" value="1">
+                <div id="quantity-display">1 билет</div>
             </div>
             <div class="form-group">
                 <label for="cost">Стоимость</label>
@@ -1649,27 +1650,13 @@
                         <input type="text" class="edit-field" id="edit-vehicle-${index}" 
                                value="${ticket.vehicle}" 
                                placeholder="Например: р471тм124">
-                        <label>Количество билетов</label>
-                        <div class="custom-slider" id="edit-quantity-slider-${index}">
-                            <div class="slider-rail"></div>
-                            <div class="slider-track"></div>
-                            <div class="slider-dots">
-                                <span class="slider-dot active" style="left: 0%"></span>
-                                <span class="slider-dot" style="left: 25%"></span>
-                                <span class="slider-dot" style="left: 50%"></span>
-                                <span class="slider-dot" style="left: 75%"></span>
-                                <span class="slider-dot" style="left: 100%"></span>
-                            </div>
-                            <div class="slider-handle" style="left: ${(ticket.quantity - 1) * 25}%"></div>
-                            <div class="slider-marks">
-                                <span class="slider-mark active" style="left: 0%">1</span>
-                                <span class="slider-mark" style="left: 25%">2</span>
-                                <span class="slider-mark" style="left: 50%">3</span>
-                                <span class="slider-mark" style="left: 75%">4</span>
-                                <span class="slider-mark" style="left: 100%">5</span>
-                            </div>
+                        <input type="range" class="edit-field" id="edit-quantity-slider-${index}" min="1" max="5" value="${ticket.quantity}" step="1" oninput="updateEditQuantityDisplay(${index}, this.value)">
+                        <div id="edit-quantity-display-${index}">${ticket.quantity} ${ticket.quantity === '1' ? 'билет' : 'билета'}</div>
+                        <div class="edit-actions">
+                            <button class="save-btn" onclick="saveEditedTicket(${index})">Сохранить</button>
+                            <button class="cancel-btn" onclick="toggleEditForm(${index})">Отмена</button>
                         </div>
-                        <input type="hidden" id="edit-quantity-input-${index}" value="${ticket.quantity}">
+                    </div>
                 `;
                 container.appendChild(ticketElement);
 
