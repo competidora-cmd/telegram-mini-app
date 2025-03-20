@@ -32,9 +32,7 @@
 
         body {
 
-            background: var(--tg-theme-bg-color, #fff);
-
-            color: var(--tg-theme-text-color, #000);
+            background: #fff;
 
             min-height: 100vh;
 
@@ -52,13 +50,13 @@
 
         .container {
 
-            max-width: 600px;
+            max-width: 480px;
 
             margin: 0 auto;
 
             width: 100%;
 
-            padding: 16px;
+            padding: 20px 16px;
 
         }
 
@@ -68,13 +66,17 @@
 
             display: flex;
 
-            margin-bottom: 20px;
+            margin: 0 -16px 24px;
 
             border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 
-            margin: 0 -16px 20px;
+            background: #fff;
 
-            background: var(--tg-theme-bg-color, #fff);
+            position: sticky;
+
+            top: 0;
+
+            z-index: 100;
 
         }
 
@@ -84,11 +86,11 @@
 
             flex: 1;
 
-            padding: 16px;
+            padding: 16px 12px;
 
             text-align: center;
 
-            color: var(--tg-theme-hint-color, #8E8E93);
+            color: #8E8E93;
 
             cursor: pointer;
 
@@ -104,7 +106,9 @@
 
             font-size: 15px;
 
-            font-weight: 400;
+            font-weight: 500;
+
+            transition: color 0.2s;
 
         }
 
@@ -116,13 +120,15 @@
 
             height: 20px;
 
+            transition: color 0.2s;
+
         }
 
 
 
         .tab.active {
 
-            color: var(--tg-theme-text-color, #000);
+            color: #000;
 
         }
 
@@ -130,7 +136,7 @@
 
         .tab.active svg {
 
-            color: var(--tg-theme-button-color, #E31E24);
+            color: #E31E24;
 
         }
 
@@ -150,23 +156,9 @@
 
             height: 2px;
 
-            background: var(--tg-theme-button-color, #E31E24);
+            background: #E31E24;
 
-        }
-
-
-
-        .tab-content {
-
-            display: none;
-
-        }
-
-
-
-        .tab-content.active {
-
-            display: block;
+            border-radius: 1px;
 
         }
 
@@ -174,7 +166,7 @@
 
         .form-group {
 
-            margin-bottom: 20px;
+            margin-bottom: 24px;
 
         }
 
@@ -184,11 +176,11 @@
 
             display: block;
 
-            margin-bottom: 8px;
+            margin-bottom: 10px;
 
-            font-weight: 400;
+            font-weight: 500;
 
-            color: var(--tg-theme-hint-color, #8E8E93);
+            color: #8E8E93;
 
             font-size: 15px;
 
@@ -200,17 +192,37 @@
 
             width: 100%;
 
-            padding: 12px;
+            padding: 14px 16px;
 
             border: 1px solid rgba(0, 0, 0, 0.1);
 
-            border-radius: 10px;
+            border-radius: 12px;
 
             font-size: 17px;
 
-            background: var(--tg-theme-secondary-bg-color, #F5F5F5);
+            background: #fff;
 
-            color: var(--tg-theme-text-color, #000);
+            color: #000;
+
+            transition: border-color 0.2s;
+
+            -webkit-appearance: none;
+
+            appearance: none;
+
+        }
+
+
+
+        select {
+
+            background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%238E8E93' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+
+            background-repeat: no-repeat;
+
+            background-position: right 16px center;
+
+            padding-right: 40px;
 
         }
 
@@ -220,7 +232,7 @@
 
             outline: none;
 
-            border-color: var(--tg-theme-button-color, #E31E24);
+            border-color: #E31E24;
 
         }
 
@@ -228,339 +240,81 @@
 
         input::placeholder {
 
-            color: var(--tg-theme-hint-color, #8E8E93);
+            color: #8E8E93;
 
         }
 
 
 
-        button {
-
-            width: 100%;
-
-            padding: 16px;
-
-            background: var(--tg-theme-button-color, #E31E24);
-
-            border: none;
-
-            border-radius: 14px;
-
-            color: var(--tg-theme-button-text-color, #fff);
-
-            font-size: 17px;
-
-            font-weight: 500;
-
-            cursor: pointer;
-
-            margin-top: 24px;
-
-        }
-
-
-
-        .error {
-
-            color: #E31E24;
-
-            font-size: 13px;
-
-            margin-top: 4px;
-
-            display: none;
-
-        }
-
-
-
-        .saved-tickets {
+        .route-selector {
 
             display: flex;
-
-            flex-direction: column;
 
             gap: 12px;
-
-        }
-
-
-
-        .ticket-item {
-
-            background: var(--tg-theme-secondary-bg-color, #F5F5F5);
-
-            border-radius: 12px;
-
-            padding: 16px;
-
-        }
-
-
-
-        .ticket-info {
-
-            display: flex;
-
-            justify-content: space-between;
 
             align-items: center;
 
-            gap: 12px;
+            margin-top: 10px;
 
         }
 
 
 
-        .ticket-details {
+        .route-endpoint {
 
             flex: 1;
 
-        }
-
-
-
-        .ticket-number {
-
-            font-size: 20px;
-
-            color: var(--tg-theme-button-color, #E31E24);
-
-            margin-bottom: 4px;
-
-            font-weight: 500;
+            min-width: 0;
 
         }
 
 
 
-        .ticket-route {
+        .reverse-btn {
 
-            font-size: 15px;
+            width: 40px;
 
-            color: var(--tg-theme-hint-color, #8E8E93);
+            height: 40px;
 
-        }
-
-
-
-        .ticket-actions {
-
-            display: flex;
-
-            gap: 8px;
-
-            flex-wrap: nowrap;
-
-            justify-content: flex-end;
-
-            min-width: 240px;
-
-        }
-
-
-
-        .edit-btn, .open-btn, .delete-btn {
-
-            padding: 8px 12px;
-
-            border: none;
-
-            border-radius: 8px;
-
-            font-size: 15px;
-
-            cursor: pointer;
-
-            white-space: nowrap;
-
-            text-align: center;
-
-            width: 80px;
-
-            flex-shrink: 0;
-
-        }
-
-
-
-        .edit-btn, .open-btn {
-
-            background: var(--tg-theme-bg-color, #fff);
-
-            color: var(--tg-theme-text-color, #000);
-
-        }
-
-
-
-        .delete-btn {
-
-            background: #FFE5E5;
-
-            color: #E31E24;
-
-        }
-
-
-
-        .edit-form {
-
-            display: none;
-
-            margin-top: 12px;
-
-            padding-top: 12px;
-
-            border-top: 1px solid rgba(0, 0, 0, 0.1);
-
-        }
-
-
-
-        .edit-form.active {
-
-            display: block;
-
-        }
-
-
-
-        .edit-field {
-
-            width: 100%;
-
-            padding: 8px 12px;
-
-            margin-bottom: 8px;
-
-            border: 1px solid rgba(0, 0, 0, 0.1);
-
-            border-radius: 8px;
-
-            font-size: 15px;
-
-        }
-
-
-
-        .edit-actions {
-
-            display: flex;
-
-            gap: 8px;
-
-            margin-top: 12px;
-
-        }
-
-
-
-        .save-btn, .cancel-btn {
-
-            flex: 1;
-
-            padding: 8px 16px;
-
-            border-radius: 8px;
-
-            border: none;
-
-            font-size: 15px;
-
-            cursor: pointer;
-
-            margin: 0;
-
-        }
-
-
-
-        .save-btn {
-
-            background: #E31E24;
-
-            color: white;
-
-        }
-
-
-
-        .cancel-btn {
+            padding: 0;
 
             background: #F7F7F7;
 
-            color: #000;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+
+            border-radius: 10px;
+
+            cursor: pointer;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            flex-shrink: 0;
+
+            transition: background-color 0.2s;
 
         }
 
 
 
-        @media (max-width: 480px) {
+        .reverse-btn:hover {
 
-            .ticket-info {
-
-                flex-direction: column;
-
-                align-items: flex-start;
-
-                gap: 12px;
-
-            }
-
-
-
-            .ticket-actions {
-
-                width: 100%;
-
-                justify-content: space-between;
-
-                min-width: unset;
-
-            }
-
-
-
-            .edit-btn, .open-btn, .delete-btn {
-
-                flex: 1;
-
-                width: auto;
-
-                min-width: 70px;
-
-            }
+            background: #E8E8E8;
 
         }
 
 
 
-        @media (max-width: 360px) {
+        .reverse-btn svg {
 
-            .ticket-actions {
+            width: 20px;
 
-                flex-wrap: wrap;
+            height: 20px;
 
-                gap: 8px;
-
-            }
-
-
-
-            .edit-btn, .open-btn, .delete-btn {
-
-                min-width: calc(50% - 4px);
-
-            }
-
-
-
-            .delete-btn {
-
-                width: 100%;
-
-            }
+            color: #8E8E93;
 
         }
 
@@ -572,7 +326,7 @@
 
             gap: 12px;
 
-            margin-top: 8px;
+            margin-top: 10px;
 
         }
 
@@ -588,11 +342,11 @@
 
             justify-content: center;
 
-            padding: 12px;
+            padding: 14px;
 
-            background: var(--tg-theme-secondary-bg-color, #F5F5F5);
+            background: #F7F7F7;
 
-            border-radius: 10px;
+            border-radius: 12px;
 
             cursor: pointer;
 
@@ -614,9 +368,11 @@
 
             font-size: 17px;
 
-            color: var(--tg-theme-hint-color, #8E8E93);
+            font-weight: 500;
 
-            transition: all 0.2s;
+            color: #8E8E93;
+
+            transition: color 0.2s;
 
         }
 
@@ -624,9 +380,7 @@
 
         .cost-option input:checked + span {
 
-            color: var(--tg-theme-text-color, #000);
-
-            font-weight: 500;
+            color: #000;
 
         }
 
@@ -640,141 +394,279 @@
 
 
 
-        .edit-field {
+        #quantity-slider {
+
+            -webkit-appearance: none;
 
             width: 100%;
 
-            padding: 12px;
+            height: 4px;
 
-            margin-bottom: 12px;
+            border-radius: 2px;
 
-            border: 1px solid rgba(0, 0, 0, 0.1);
+            background: #F7F7F7;
 
-            border-radius: 10px;
+            margin: 24px 0;
+
+            cursor: pointer;
+
+        }
+
+
+
+        #quantity-slider::-webkit-slider-thumb {
+
+            -webkit-appearance: none;
+
+            width: 24px;
+
+            height: 24px;
+
+            border-radius: 50%;
+
+            background: #E31E24;
+
+            cursor: pointer;
+
+            border: none;
+
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+        }
+
+
+
+        #quantity-display {
+
+            text-align: center;
 
             font-size: 15px;
 
-            background: #fff;
+            color: #8E8E93;
+
+            margin-top: 8px;
+
+            font-weight: 500;
 
         }
 
 
 
-        .edit-field::placeholder {
+        button {
+
+            width: 100%;
+
+            padding: 16px;
+
+            background: #E31E24;
+
+            border: none;
+
+            border-radius: 14px;
+
+            color: white;
+
+            font-size: 17px;
+
+            font-weight: 600;
+
+            cursor: pointer;
+
+            margin-top: 32px;
+
+            transition: opacity 0.2s;
+
+        }
+
+
+
+        button:hover {
+
+            opacity: 0.9;
+
+        }
+
+
+
+        .saved-tickets {
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 16px;
+
+        }
+
+
+
+        .ticket-item {
+
+            background: #fff;
+
+            border: 1px solid rgba(0, 0, 0, 0.1);
+
+            border-radius: 16px;
+
+            padding: 20px;
+
+        }
+
+
+
+        .ticket-info {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: flex-start;
+
+            gap: 16px;
+
+        }
+
+
+
+        .ticket-details {
+
+            flex: 1;
+
+            min-width: 0;
+
+        }
+
+
+
+        .ticket-number {
+
+            font-size: 22px;
+
+            color: #E31E24;
+
+            margin-bottom: 6px;
+
+            font-weight: 600;
+
+        }
+
+
+
+        .ticket-route {
+
+            font-size: 15px;
 
             color: #8E8E93;
 
-        }
+            white-space: nowrap;
 
+            overflow: hidden;
 
-
-        .edit-field:focus {
-
-            outline: none;
-
-            border-color: #E31E24;
+            text-overflow: ellipsis;
 
         }
 
 
 
-        .route-selector {
+        .ticket-actions {
 
             display: flex;
 
             gap: 8px;
 
-            align-items: center;
-
-            width: 100%;
-
-            flex-wrap: wrap;
-
-            padding: 4px;
+            flex-wrap: nowrap;
 
         }
 
 
 
-        .route-endpoint {
+        .edit-btn, .open-btn, .delete-btn {
 
-            flex: 1;
+            padding: 10px 16px;
 
-            padding: 12px;
-
-            border: 1px solid rgba(0, 0, 0, 0.1);
+            border: none;
 
             border-radius: 10px;
 
-            font-size: 17px;
+            font-size: 15px;
 
-            background: var(--tg-theme-secondary-bg-color, #F5F5F5);
-
-            color: var(--tg-theme-text-color, #000);
-
-            height: 48px;
-
-            min-width: 0;
-
-            width: calc(50% - 24px);
-
-        }
-
-
-
-        .reverse-btn {
-
-            padding: 4px;
-
-            background: #F7F7F7;
-
-            border: 1px solid rgba(0, 0, 0, 0.1);
-
-            border-radius: 8px;
+            font-weight: 500;
 
             cursor: pointer;
 
-            display: flex;
+            margin: 0;
 
-            align-items: center;
+            min-width: 90px;
 
-            justify-content: center;
-
-            width: 32px;
-
-            height: 32px;
-
-            flex-shrink: 0;
-
-            margin: 0 4px;
+            text-align: center;
 
         }
 
 
 
-        .reverse-btn:hover {
+        .edit-btn, .open-btn {
 
-            background: #E8E8E8;
+            background: #F7F7F7;
+
+            color: #000;
 
         }
 
 
 
-        .reverse-btn svg {
+        .delete-btn {
 
-            width: 16px;
+            background: #FFE5E5;
 
-            height: 16px;
+            color: #E31E24;
 
-            color: #8E8E93;
+        }
+
+
+
+        @media (max-width: 480px) {
+
+            .container {
+
+                padding: 16px;
+
+            }
+
+
+
+            .ticket-info {
+
+                flex-direction: column;
+
+            }
+
+
+
+            .ticket-actions {
+
+                width: 100%;
+
+                justify-content: space-between;
+
+            }
+
+
+
+            .edit-btn, .open-btn, .delete-btn {
+
+                flex: 1;
+
+                min-width: 0;
+
+                padding: 12px;
+
+            }
 
         }
 
 
 
         .modal-backdrop {
-
-            display: none;
 
             position: fixed;
 
@@ -790,9 +682,13 @@
 
             z-index: 1000;
 
+            display: none;
+
             align-items: center;
 
             justify-content: center;
+
+            backdrop-filter: blur(4px);
 
         }
 
@@ -800,17 +696,17 @@
 
         .modal {
 
-            background: white;
+            background: #fff;
 
-            border-radius: 14px;
+            border-radius: 16px;
 
-            padding: 20px;
+            padding: 24px;
 
-            width: 85%;
+            width: 90%;
 
             max-width: 320px;
 
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
 
         }
 
@@ -820,11 +716,13 @@
 
             font-size: 18px;
 
-            font-weight: 500;
+            font-weight: 600;
 
-            margin-bottom: 16px;
+            margin-bottom: 24px;
 
             text-align: center;
+
+            color: #000;
 
         }
 
@@ -836,7 +734,7 @@
 
             gap: 12px;
 
-            margin-top: 20px;
+            margin-top: 24px;
 
         }
 
@@ -846,13 +744,13 @@
 
             flex: 1;
 
-            padding: 12px;
+            padding: 14px;
 
-            border-radius: 10px;
-
-            border: none;
+            border-radius: 12px;
 
             font-size: 16px;
+
+            font-weight: 500;
 
             cursor: pointer;
 
@@ -877,38 +775,6 @@
             background: #E31E24;
 
             color: white;
-
-        }
-
-
-
-        @media (max-width: 480px) {
-
-            .route-selector {
-
-                flex-direction: column;
-
-                gap: 12px;
-
-            }
-
-
-
-            .route-endpoint {
-
-                width: 100%;
-
-            }
-
-
-
-            .reverse-btn {
-
-                align-self: center;
-
-                transform: rotate(90deg);
-
-            }
 
         }
 
