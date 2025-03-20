@@ -1311,6 +1311,7 @@
                     <div style="color: #8E8E93; font-size: 13px; margin-bottom: 8px;">
                         * Автовыбор работает только для автобусных маршрутов и не всегда может быть точным
                     </div>
+                    <input type="hidden" id="route">
                     <select id="routeStart" class="route-endpoint">
                         <option value="">Начальная остановка</option>
                     </select>
@@ -2174,36 +2175,12 @@
                     const startSelect = document.getElementById('routeStart');
                     const endSelect = document.getElementById('routeEnd');
                     
-                    // Find matching options for start and end
-                    const startOptions = Array.from(startSelect.options);
-                    const endOptions = Array.from(endSelect.options);
+                    // Directly set the values from route.json
+                    startSelect.value = route.start;
+                    endSelect.value = route.end;
                     
-                    const startMatch = startOptions.find(option => 
-                        option.value && (
-                            route.start.includes(option.value) || 
-                            option.value.includes(route.start)
-                        )
-                    );
-                    
-                    const endMatch = endOptions.find(option => 
-                        option.value && (
-                            route.end.includes(option.value) || 
-                            option.value.includes(route.end)
-                        )
-                    );
-                    
-                    if (startMatch && endMatch) {
-                        startSelect.value = startMatch.value;
-                        endSelect.value = endMatch.value;
-                        // Update the route display after setting values
-                        const startValue = startSelect.value;
-                        const endValue = endSelect.value;
-                        if (startValue && endValue) {
-                            document.getElementById('route').value = `${startValue} - ${endValue}`;
-                        }
-                    } else {
-                        alert('Не удалось найти точные совпадения для остановок этого маршрута');
-                    }
+                    // Update the route display
+                    document.getElementById('route').value = `${route.start} - ${route.end}`;
                 } else {
                     alert('Маршрут не найден');
                 }
