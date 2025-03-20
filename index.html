@@ -1556,6 +1556,29 @@
                     </div>
                 `;
                 container.appendChild(ticketElement);
+
+                // Add keyboard handling for edit form inputs
+                const editFormInputs = document.querySelectorAll(`#edit-form-${index} input[type="text"], #edit-form-${index} input[type="number"]`);
+                editFormInputs.forEach(input => {
+                    // Handle enter key
+                    input.addEventListener('keydown', function(e) {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            input.blur(); // Remove focus and hide keyboard
+                        }
+                    });
+                });
+            });
+
+            // Add click handler to dismiss keyboard when clicking outside inputs
+            document.addEventListener('click', function(e) {
+                const activeElement = document.activeElement;
+                if (activeElement && 
+                    !e.target.matches('input[type="text"], input[type="number"]') && // Don't blur if clicking on inputs
+                    !e.target.matches('select, select *') && // Don't blur if clicking on select elements
+                    (activeElement.tagName === 'INPUT' || activeElement.tagName === 'SELECT')) {
+                    activeElement.blur();
+                }
             });
         }
 
