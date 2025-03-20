@@ -44,6 +44,8 @@
 
             flex-direction: column;
 
+            font-size: 17px; /* Увеличиваем базовый размер шрифта */
+
         }
 
 
@@ -57,6 +59,8 @@
             width: 100%;
 
             padding: 20px;
+
+            padding-top: 12px; /* Уменьшаем отступ сверху для кнопки "Закрыть" */
 
         }
 
@@ -686,6 +690,10 @@
 
             gap: 12px;
 
+            font-size: 19px; /* Увеличиваем размер шрифта */
+
+            margin-bottom: 16px;
+
         }
 
 
@@ -700,11 +708,11 @@
 
         .ticket-number {
 
-            font-size: 20px;
+            font-size: 24px; /* Увеличиваем размер номера билета */
 
             color: #E31E24;
 
-            margin-bottom: 4px;
+            margin-bottom: 8px;
 
         }
 
@@ -1130,6 +1138,71 @@
 
             }
 
+        }
+
+
+
+        /* Стили для кнопки "Закрыть" */
+        .close-btn {
+            font-size: 17px;
+            color: #007AFF;
+            background: none;
+            border: none;
+            padding: 0;
+            margin-bottom: 16px;
+            cursor: pointer;
+        }
+
+        /* Стили для заголовка */
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .header h1 {
+            font-size: 22px;
+            font-weight: 600;
+            margin: 0;
+            margin-bottom: 4px;
+        }
+
+        .header p {
+            font-size: 15px;
+            color: #8E8E93;
+            margin: 0;
+        }
+
+        /* Стили для информации о билете */
+        .ticket-info {
+            font-size: 19px; /* Увеличиваем размер шрифта */
+            margin-bottom: 16px;
+        }
+
+        .ticket-number {
+            font-size: 24px; /* Увеличиваем размер номера билета */
+            color: #E31E24;
+            margin-bottom: 8px;
+        }
+
+        .control-text {
+            color: #000; /* Делаем "Контроль" черным */
+            font-size: 17px;
+            font-weight: 500;
+        }
+
+        .carrier-info, .route-info, .vehicle-info {
+            margin-bottom: 16px;
+            font-size: 17px;
+        }
+
+        .info-label {
+            color: #8E8E93;
+            margin-bottom: 4px;
+        }
+
+        .info-value {
+            color: #000;
+            font-weight: 500;
         }
 
     </style>
@@ -1851,6 +1924,33 @@
                 originalLoadSavedTickets();
                 handleEditFormInputs();
             };
+        });
+
+        // Добавляем обработчик для скрытия клавиатуры
+        document.addEventListener('click', function(e) {
+            if (!e.target.matches('input')) {
+                // Если клик был не по полю ввода, скрываем клавиатуру
+                document.activeElement.blur();
+            }
+        });
+
+        // Добавляем обработчик для кнопки "Ввод"
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                // Скрываем клавиатуру
+                document.activeElement.blur();
+            }
+        });
+
+        // Добавляем обработчик для всех полей ввода
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    this.blur();
+                }
+            });
         });
     </script>
 </body>
