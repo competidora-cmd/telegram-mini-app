@@ -1216,6 +1216,47 @@
             color: #000;
         }
 
+        .carrier-selection {
+            display: flex;
+            gap: 8px;
+            align-items: flex-start;
+        }
+
+        .auto-select-btn {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 16px;
+            background: #F7F7F7;
+            border: 1px solid rgba(60, 60, 67, 0.1);
+            border-radius: 14px;
+            color: #000;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .auto-select-btn:hover {
+            background: #E8E8E8;
+        }
+
+        .auto-select-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        @media (max-width: 480px) {
+            .carrier-selection {
+                flex-direction: column;
+            }
+            
+            .auto-select-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
     </style>
 
 </head>
@@ -1244,10 +1285,17 @@
             </div>
             <div class="input-group">
                 <label for="carrier">Перевозчик</label>
-                <select id="carrier" required>
-                    <option value="">Выберите перевозчика</option>
-                    <!-- Опции будут добавлены динамически -->
-                </select>
+                <div class="carrier-selection">
+                    <select id="carrier" required>
+                        <option value="">Выберите перевозчика</option>
+                    </select>
+                    <button id="autoSelectCarrier" class="auto-select-btn">
+                        <svg viewBox="0 0 24 24" width="20" height="20">
+                            <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm4.59-12.42L10 14.17l-2.59-2.58L6 13l4 4 8-8z"/>
+                        </svg>
+                        Автовыбор
+                    </button>
+                </div>
             </div>
             <div class="form-group">
                 <label for="route">Маршрут</label>
@@ -1512,6 +1560,7 @@
                 "ИП Карасева Н.Н.",
                 "ИП Гнетов Ю.Н.",
                 "МП Городской Транспорт",
+                "АО \"СТК\"",
             ]
         };
 
@@ -1539,44 +1588,35 @@
         }
 
         // Обновление перевозчика на основе выбранного маршрута
-        function updateCarrierBasedOnRoute() {
+        async function updateCarrierBasedOnRoute() {
             const routeNumber = document.getElementById('routeNumber').value;
             const carrierSelect = document.getElementById('carrier');
             
-            // Если маршрут не выбран
             if (!routeNumber) return;
             
-            // Находим маршрут в данных
-            const route = routesData.routes[routeNumber];
+            const data = await fetchRoutesData();
+            const route = data.routes[routeNumber];
             
-            // Если маршрут найден и у него есть перевозчики
             if (route && route.carriers && route.carriers.length > 0) {
-                // Если у маршрута только один перевозчик, выбираем его
+                carrierSelect.innerHTML = '';
+                
+                const emptyOption = document.createElement('option');
+                emptyOption.value = '';
+                emptyOption.textContent = 'Выберите перевозчика для маршрута ' + routeNumber;
+                carrierSelect.appendChild(emptyOption);
+                
+                route.carriers.forEach(carrier => {
+                    const option = document.createElement('option');
+                    option.value = carrier;
+                    option.textContent = carrier;
+                    carrierSelect.appendChild(option);
+                });
+                
+                // If there's only one carrier, select it automatically
                 if (route.carriers.length === 1) {
                     carrierSelect.value = route.carriers[0];
-                } else {
-                    // Если у маршрута несколько перевозчиков, оставляем выбор пользователю
-                    // но ограничиваем список только перевозчиками этого маршрута
-                    
-                    // Очищаем текущие опции
-                    carrierSelect.innerHTML = '';
-                    
-                    // Добавляем пустую опцию
-                    const emptyOption = document.createElement('option');
-                    emptyOption.value = '';
-                    emptyOption.textContent = 'Выберите перевозчика для маршрута ' + routeNumber;
-                    carrierSelect.appendChild(emptyOption);
-                    
-                    // Добавляем перевозчиков для этого маршрута
-                    route.carriers.forEach(carrier => {
-                        const option = document.createElement('option');
-                        option.value = carrier;
-                        option.textContent = carrier;
-                        carrierSelect.appendChild(option);
-                    });
                 }
             } else {
-                // Если маршрут не найден, показываем всех перевозчиков
                 populateCarrierDropdown();
             }
         }
@@ -2061,6 +2101,42 @@
 
             // Initialize slider
             updateSlider(0);
+        });
+
+        // Add this after the routesData declaration
+        async function fetchRoutesData() {
+            try {
+                const response = await fetch('https://raw.githubusercontent.com/competidora-cmd/telegram-mini-app/main/routes.json');
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('Error fetching routes data:', error);
+                return routesData; // Fallback to local data if fetch fails
+            }
+        }
+
+        // Add auto-select carrier button functionality
+        document.getElementById('autoSelectCarrier').addEventListener('click', async function() {
+            const routeNumber = document.getElementById('routeNumber').value;
+            if (!routeNumber) {
+                alert('Сначала выберите номер маршрута');
+                return;
+            }
+            
+            const data = await fetchRoutesData();
+            const route = data.routes[routeNumber];
+            
+            if (route && route.carriers && route.carriers.length > 0) {
+                const carrierSelect = document.getElementById('carrier');
+                if (route.carriers.length === 1) {
+                    carrierSelect.value = route.carriers[0];
+                } else {
+                    // If multiple carriers, show them in the dropdown
+                    updateCarrierBasedOnRoute();
+                }
+            } else {
+                alert('Для этого маршрута нет доступных перевозчиков');
+            }
         });
     </script>
 </body>
