@@ -1652,66 +1652,378 @@
                         <label>Количество билетов</label>
                         <div class="custom-slider" id="edit-quantity-slider-${index}">
                             <div class="slider-rail"></div>
-                            <div class="slider-track" style="width: ${(ticket.quantity - 1) * 25}%"></div>
+                            <div class="slider-track"></div>
                             <div class="slider-dots">
-                                <span class="slider-dot ${ticket.quantity >= 1 ? 'active' : ''}" style="left: 0%"></span>
-                                <span class="slider-dot ${ticket.quantity >= 2 ? 'active' : ''}" style="left: 25%"></span>
-                                <span class="slider-dot ${ticket.quantity >= 3 ? 'active' : ''}" style="left: 50%"></span>
-                                <span class="slider-dot ${ticket.quantity >= 4 ? 'active' : ''}" style="left: 75%"></span>
-                                <span class="slider-dot ${ticket.quantity >= 5 ? 'active' : ''}" style="left: 100%"></span>
+                                <span class="slider-dot active" style="left: 0%"></span>
+                                <span class="slider-dot" style="left: 25%"></span>
+                                <span class="slider-dot" style="left: 50%"></span>
+                                <span class="slider-dot" style="left: 75%"></span>
+                                <span class="slider-dot" style="left: 100%"></span>
                             </div>
                             <div class="slider-handle" style="left: ${(ticket.quantity - 1) * 25}%"></div>
                             <div class="slider-marks">
-                                <span class="slider-mark ${ticket.quantity >= 1 ? 'active' : ''}" style="left: 0%">1</span>
-                                <span class="slider-mark ${ticket.quantity >= 2 ? 'active' : ''}" style="left: 25%">2</span>
-                                <span class="slider-mark ${ticket.quantity >= 3 ? 'active' : ''}" style="left: 50%">3</span>
-                                <span class="slider-mark ${ticket.quantity >= 4 ? 'active' : ''}" style="left: 75%">4</span>
-                                <span class="slider-mark ${ticket.quantity >= 5 ? 'active' : ''}" style="left: 100%">5</span>
+                                <span class="slider-mark active" style="left: 0%">1</span>
+                                <span class="slider-mark" style="left: 25%">2</span>
+                                <span class="slider-mark" style="left: 50%">3</span>
+                                <span class="slider-mark" style="left: 75%">4</span>
+                                <span class="slider-mark" style="left: 100%">5</span>
                             </div>
                         </div>
                         <input type="hidden" id="edit-quantity-input-${index}" value="${ticket.quantity}">
-                        <div class="edit-actions">
-                            <button class="save-btn" onclick="saveEditedTicket(${index})">Сохранить</button>
-                            <button class="cancel-btn" onclick="toggleEditForm(${index})">Отмена</button>
-                        </div>
-                    </div>
                 `;
                 container.appendChild(ticketElement);
 
-                // Инициализируем слайдер после добавления в DOM
-                setTimeout(() => {
-                    initializeEditSlider(index, ticket.quantity);
-                }, 0);
+                // Add keyboard handling for edit form inputs
+                const editFormInputs = document.querySelectorAll(`#edit-form-${index} input[type="text"], #edit-form-${index} input[type="number"]`);
+                editFormInputs.forEach(input => {
+                    // Handle enter key
+                    input.addEventListener('keydown', function(e) {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            input.blur(); // Remove focus and hide keyboard
+                        }
+                    });
+                });
+            });
+
+            // Add click handler to dismiss keyboard when clicking outside inputs
+            document.addEventListener('click', function(e) {
+                const activeElement = document.activeElement;
+                if (activeElement && 
+                    !e.target.matches('input[type="text"], input[type="number"]') && // Don't blur if clicking on inputs
+                    !e.target.matches('select, select *') && // Don't blur if clicking on select elements
+                    (activeElement.tagName === 'INPUT' || activeElement.tagName === 'SELECT')) {
+                    activeElement.blur();
+                }
             });
         }
 
-        // Новая функция для инициализации слайдера в форме редактирования
-        function initializeEditSlider(index, initialValue) {
-            const sliderId = `edit-quantity-slider-${index}`;
-            const inputId = `edit-quantity-input-${index}`;
-            const sliderContainer = document.getElementById(sliderId);
+        // Открытие сохраненного билета
+        function openSavedTicket(index) {
+            const savedTickets = JSON.parse(localStorage.getItem('savedTickets') || '[]');
+            const ticket = savedTickets[index];
+            const params = new URLSearchParams();
             
-            if (!sliderContainer) return;
+            // Generate a new ticket number
+            const newTicketCode = generateRandomTicketNumber();
+            
+            // Get the base cost per ticket and quantity
+            const quantity = parseInt(ticket.quantity || 1);
+            let baseCost;
+            
+            if (ticket.baseCost) {
+                baseCost = parseFloat(ticket.baseCost);
+            } else {
+                // For backwards compatibility with older tickets
+                baseCost = parseFloat(ticket.cost) / quantity;
+            }
+            
+            const totalCost = (baseCost * quantity).toFixed(2);
+            
+            // Add parameters
+            params.append('userId', userId);
+            params.append('routeNumber', ticket.routeNumber);
+            params.append('carrier', ticket.carrier);
+            params.append('route', ticket.route);
+            params.append('vehicle', ticket.vehicle);
+            params.append('quantity', quantity);
+            params.append('cost', totalCost);
+            params.append('baseCost', baseCost.toFixed(2));
+            params.append('code', newTicketCode); // Use the new ticket code
+            
+            if (ticket.date) {
+                params.append('date', ticket.date);
+            }
 
+            // Update the ticket code in localStorage
+            ticket.code = newTicketCode;
+            savedTickets[index] = ticket;
+            localStorage.setItem('savedTickets', JSON.stringify(savedTickets));
+
+            window.location.href = 'ticket.html?' + params.toString();
+        }
+
+        // Переключение формы редактирования
+        function toggleEditForm(index) {
+            const form = document.getElementById(`edit-form-${index}`);
+            form.classList.toggle('active');
+        }
+
+        // Сохранение отредактированного билета
+        function saveEditedTicket(index) {
+            const savedTickets = JSON.parse(localStorage.getItem('savedTickets') || '[]');
+            const ticket = savedTickets[index];
+
+            const routeNumber = document.getElementById(`edit-routeNumber-${index}`).value;
+            if (routeNumber < 1 || routeNumber > 99) {
+                alert('Номер маршрута должен быть от 1 до 99');
+                return;
+            }
+
+            const newCarrier = document.getElementById(`edit-carrier-${index}`).value;
+            const newQuantity = parseInt(document.getElementById(`edit-quantity-slider-${index}`).value);
+            
+            // Update ticket data
+            ticket.routeNumber = routeNumber;
+            ticket.carrier = newCarrier;
+            ticket.route = document.getElementById(`edit-route-${index}`).value;
+            ticket.vehicle = document.getElementById(`edit-vehicle-${index}`).value;
+            ticket.quantity = newQuantity;
+            
+            // Calculate the base cost per ticket properly
+            let baseCost;
+            if (ticket.baseCost) {
+                // Use the stored base cost if available
+                baseCost = parseFloat(ticket.baseCost);
+            } else {
+                // If not available (for older tickets), use one of the standard costs
+                baseCost = 44.00; // Default to 44.00 if not specified
+            }
+            
+            // Calculate new total cost based on the new quantity
+            const totalCost = (baseCost * newQuantity).toFixed(2);
+            ticket.cost = totalCost;
+
+            savedTickets[index] = ticket;
+            localStorage.setItem('savedTickets', JSON.stringify(savedTickets));
+            loadSavedTickets();
+            toggleEditForm(index);
+        }
+
+        // Переключение вкладок
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.tab + '-content').classList.add('active');
+                
+                if (tab.dataset.tab === 'saved') {
+                    loadSavedTickets();
+                }
+            });
+        });
+
+        // Загрузка сохраненных билетов при старте
+        if (document.querySelector('.tab[data-tab="saved"]').classList.contains('active')) {
+            loadSavedTickets();
+        }
+
+        // Add route endpoints data
+        const routeEndpoints = [
+            "ЛДК",
+            "ТЭЦ-3",
+            'ОАО "Русал"',
+            "мкрн. Верхние черёмушки",
+            "Академия биатлона",
+            "мкрн. Тихие Зори",
+            "Ст. Красноярск-Северный",
+            "Стела",
+            "мкрн. Солнечный",
+            "Спортзал",
+            "Озеро-парк",
+            "Красфарма (60 лет Октября)",
+            "Контейнерный двор",
+            "Химкомбинат Енисей",
+            "пос. Зыково",
+            "пос. Таймыр",
+            "Ж/Д Вокзал",
+            "Причал",
+            "А/В Восточный",
+            "Дом учёных",
+            "Верхняя базаиха",
+            "С/О Южное",
+            "Сельхозкомплекс",
+            "ДК Кировский",
+            "Агротерминал",
+            "Междугородный вокзал",
+            'Спорткомплекс "Радуга"',
+            'ООО "Красфарма"',
+            "Парашютная",
+            "Госпиталь ВОВ",
+            "пос. Энергетиков",
+            "Северный",
+            "Цимлянская",
+            "Планета (ул. 9 Мая)",
+            "Фанпарк Бобровый лог",
+            "с/х Удачный",
+            "ж/к Ясный",
+            "ИТК",
+            "мкрн.Солнечный (ул. Светлова)",
+            "ж/д больница",
+            "Шинное кладбище",
+            "Профилакторий з-да КраМЗ",
+            "Парк Прищепка",
+            "пос. Овинный",
+            "Плодово-ягодная станция"
+        ];
+
+        // Populate route endpoints dropdowns
+        function populateRouteEndpoints() {
+            const startSelect = document.getElementById('routeStart');
+            const endSelect = document.getElementById('routeEnd');
+            
+            // Clear existing options first
+            startSelect.innerHTML = '<option value="">Начальная остановка</option>';
+            endSelect.innerHTML = '<option value="">Конечная остановка</option>';
+            
+            // Add endpoints once to each dropdown
+            routeEndpoints.forEach(endpoint => {
+                const startOption = document.createElement('option');
+                const endOption = document.createElement('option');
+                
+                startOption.value = endpoint;
+                startOption.textContent = endpoint;
+                endOption.value = endpoint;
+                endOption.textContent = endpoint;
+                
+                startSelect.appendChild(startOption);
+                endSelect.appendChild(endOption);
+            });
+        }
+
+        // Handle route reverse
+        document.getElementById('reverseRoute').addEventListener('click', function() {
+            const startSelect = document.getElementById('routeStart');
+            const endSelect = document.getElementById('routeEnd');
+            
+            const tempValue = startSelect.value;
+            startSelect.value = endSelect.value;
+            endSelect.value = tempValue;
+            
+            updateRouteDisplay();
+        });
+
+        // Update route display when endpoints change
+        function updateRouteDisplay() {
+            const startValue = document.getElementById('routeStart').value;
+            const endValue = document.getElementById('routeEnd').value;
+            
+            if (startValue && endValue) {
+                document.getElementById('route').value = `${startValue} - ${endValue}`;
+            }
+        }
+
+        // Add event listeners for endpoint changes
+        document.getElementById('routeStart').addEventListener('change', updateRouteDisplay);
+        document.getElementById('routeEnd').addEventListener('change', updateRouteDisplay);
+
+        // Initialize route endpoints on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            populateRouteEndpoints();
+            // ... existing DOMContentLoaded code ...
+        });
+
+        // Add delete ticket functionality
+        function confirmDeleteTicket(index) {
+            const modalBackdrop = document.getElementById('delete-confirmation');
+            const modal = document.querySelector('.modal');
+            const deleteBtn = document.querySelector('.delete-btn');
+            const cancelBtn = document.querySelector('.modal-cancel');
+            const confirmBtn = document.querySelector('.modal-confirm');
+
+            // Show the modal
+            modalBackdrop.style.display = 'flex';
+            modal.style.display = 'block';
+
+            // Add event listeners for modal actions
+            cancelBtn.addEventListener('click', function() {
+                modalBackdrop.style.display = 'none';
+                modal.style.display = 'none';
+            });
+
+            confirmBtn.addEventListener('click', function() {
+                const savedTickets = JSON.parse(localStorage.getItem('savedTickets') || '[]');
+                savedTickets.splice(index, 1);
+                localStorage.setItem('savedTickets', JSON.stringify(savedTickets));
+                loadSavedTickets();
+                modalBackdrop.style.display = 'none';
+                modal.style.display = 'none';
+            });
+        }
+
+        // Function to update quantity display in edit form
+        function updateEditQuantityDisplay(index, value) {
+            document.getElementById(`edit-quantity-display-${index}`).textContent = `${value} ${value === '1' ? 'билет' : 'билета'}`;
+        }
+
+        // Update the createTicketBtn click handler
+        const quantitySlider = document.getElementById('quantity-slider-container');
+        quantitySlider.addEventListener('click', function(event) {
+            const rect = quantitySlider.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const percentage = (x / rect.width) * 100;
+            updateSlider(percentage);
+        });
+
+        // Add keyboard handling for input fields
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add keyboard handling for text and number inputs only
+            const inputs = document.querySelectorAll('input[type="text"], input[type="number"]');
+                    inputs.forEach(input => {
+                        // Handle enter key
+                        input.addEventListener('keydown', function(e) {
+                            if (e.key === 'Enter') {
+                                e.preventDefault();
+                                input.blur(); // Remove focus from input
+                            }
+                });
+            });
+
+            // Handle clicks outside of inputs, but not on select elements
+            document.addEventListener('click', function(e) {
+                const activeElement = document.activeElement;
+                if (activeElement && 
+                    !e.target.matches('select, select *') && // Don't blur if clicking on select elements
+                    !e.target.matches('input[type="text"], input[type="number"]') && // Don't blur if clicking on inputs
+                    (activeElement.tagName === 'INPUT' || activeElement.tagName === 'SELECT')) {
+                    activeElement.blur();
+                }
+            });
+            
+            // ... rest of your existing DOMContentLoaded code ...
+        });
+
+        // Also ensure select elements have proper styling
+        const selectElements = document.querySelectorAll('select');
+        selectElements.forEach(select => {
+            select.style.webkitAppearance = 'none';
+            select.style.appearance = 'none';
+            select.style.backgroundImage = `url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%238E8E93' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`;
+            select.style.backgroundRepeat = 'no-repeat';
+            select.style.backgroundPosition = 'right 16px center';
+            select.style.paddingRight = '40px';
+        });
+
+        // Add this new JavaScript code
+        document.addEventListener('DOMContentLoaded', function() {
+            const sliderContainer = document.getElementById('quantity-slider-container');
             const handle = sliderContainer.querySelector('.slider-handle');
             const track = sliderContainer.querySelector('.slider-track');
-            const quantityInput = document.getElementById(inputId);
+            const quantityInput = document.getElementById('quantity-input');
+            const quantityDisplay = document.getElementById('quantity-display');
             const dots = sliderContainer.querySelectorAll('.slider-dot');
             const marks = sliderContainer.querySelectorAll('.slider-mark');
             let isDragging = false;
 
             function updateSlider(percentage) {
+                // Snap to nearest step (0%, 25%, 50%, 75%, 100%)
                 const steps = [0, 25, 50, 75, 100];
                 const closestStep = steps.reduce((prev, curr) => 
                     Math.abs(curr - percentage) < Math.abs(prev - percentage) ? curr : prev
                 );
 
+                // Update handle and track position
                 handle.style.left = `${closestStep}%`;
                 track.style.width = `${closestStep}%`;
 
+                // Update quantity value (1-5)
                 const quantity = (closestStep / 25) + 1;
                 quantityInput.value = quantity;
+                quantityDisplay.textContent = `${quantity} ${quantity === 1 ? 'билет' : 'билета'}`;
 
+                // Update active states
                 dots.forEach((dot, index) => {
                     dot.classList.toggle('active', index * 25 <= closestStep);
                 });
@@ -1722,7 +2034,6 @@
 
             function handleMove(event) {
                 if (!isDragging) return;
-                event.preventDefault();
                 
                 const rect = sliderContainer.getBoundingClientRect();
                 const x = event.type.includes('touch') ? 
@@ -1736,21 +2047,14 @@
             }
 
             function handleStart(event) {
-                event.preventDefault();
-                event.stopPropagation();
                 isDragging = true;
-                
-                document.addEventListener('mousemove', handleMove, { passive: false });
-                document.addEventListener('touchmove', handleMove, { passive: false });
+                document.addEventListener('mousemove', handleMove);
+                document.addEventListener('touchmove', handleMove);
                 document.addEventListener('mouseup', handleEnd);
                 document.addEventListener('touchend', handleEnd);
             }
 
-            function handleEnd(event) {
-                if (event) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
+            function handleEnd() {
                 isDragging = false;
                 document.removeEventListener('mousemove', handleMove);
                 document.removeEventListener('touchmove', handleMove);
@@ -1758,97 +2062,21 @@
                 document.removeEventListener('touchend', handleEnd);
             }
 
-            // Обработчик клика по слайдеру
+            // Click on container to jump to position
             sliderContainer.addEventListener('click', function(event) {
-                event.preventDefault();
-                event.stopPropagation();
-                
-                if (!event.target.classList.contains('slider-handle')) {
-                    const rect = sliderContainer.getBoundingClientRect();
-                    const x = event.clientX - rect.left;
-                    const percentage = (x / rect.width) * 100;
-                    updateSlider(percentage);
-                }
+                const rect = sliderContainer.getBoundingClientRect();
+                const x = event.clientX - rect.left;
+                const percentage = (x / rect.width) * 100;
+                updateSlider(percentage);
             });
 
-            // Добавляем обработчики для перетаскивания
-            handle.addEventListener('mousedown', handleStart, { passive: false });
-            handle.addEventListener('touchstart', handleStart, { passive: false });
+            // Drag handling
+            handle.addEventListener('mousedown', handleStart);
+            handle.addEventListener('touchstart', handleStart);
 
-            // Устанавливаем начальное значение
-            updateSlider((initialValue - 1) * 25);
-
-            // Предотвращаем скролл страницы при перетаскивании на мобильных устройствах
-            sliderContainer.addEventListener('touchmove', function(e) {
-                e.preventDefault();
-            }, { passive: false });
-        }
-
-        // Обновим обработчик переключения вкладок
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                // Удаляем активный класс у всех вкладок и контента
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                
-                // Добавляем активный класс текущей вкладке
-                tab.classList.add('active');
-                const contentId = tab.dataset.tab + '-content';
-                const content = document.getElementById(contentId);
-                content.classList.add('active');
-                
-                // Если переключились на вкладку сохраненных, загружаем билеты
-                if (tab.dataset.tab === 'saved') {
-                    loadSavedTickets();
-                }
-            });
+            // Initialize slider
+            updateSlider(0);
         });
-
-        // Обновим функцию toggleEditForm
-        function toggleEditForm(index) {
-            const form = document.getElementById(`edit-form-${index}`);
-            if (!form) return;
-            
-            const isActive = form.classList.toggle('active');
-            if (isActive) {
-                const savedTickets = JSON.parse(localStorage.getItem('savedTickets') || '[]');
-                const ticket = savedTickets[index];
-                // Инициализируем слайдер с небольшой задержкой, чтобы DOM успел обновиться
-                setTimeout(() => {
-                    initializeEditSlider(index, parseInt(ticket.quantity));
-                }, 50);
-            }
-        }
-
-        // Обновим функцию saveEditedTicket
-        function saveEditedTicket(index) {
-            const savedTickets = JSON.parse(localStorage.getItem('savedTickets') || '[]');
-            const ticket = savedTickets[index];
-
-            const routeNumber = document.getElementById(`edit-routeNumber-${index}`).value;
-            if (routeNumber < 1 || routeNumber > 99) {
-                alert('Номер маршрута должен быть от 1 до 99');
-                return;
-            }
-
-            const newCarrier = document.getElementById(`edit-carrier-${index}`).value;
-            const newQuantity = parseInt(document.getElementById(`edit-quantity-input-${index}`).value);
-            
-            // Обновляем данные билета
-            ticket.routeNumber = routeNumber;
-            ticket.carrier = newCarrier;
-            ticket.route = document.getElementById(`edit-route-${index}`).value;
-            ticket.vehicle = document.getElementById(`edit-vehicle-${index}`).value;
-            ticket.quantity = newQuantity;
-            
-            // Пересчитываем стоимость
-            const baseCost = ticket.baseCost || 44.00;
-            const totalCost = (parseFloat(baseCost) * newQuantity).toFixed(2);
-            ticket.cost = totalCost;
-
-            // Сохраняем изменения
-            savedTickets[index] = ticket;
-            localStorage.setItem('savedTickets', JSON.stringify(savedTickets));
     </script>
 </body>
 
