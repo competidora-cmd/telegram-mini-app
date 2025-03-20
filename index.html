@@ -2175,9 +2175,28 @@
                     const startSelect = document.getElementById('routeStart');
                     const endSelect = document.getElementById('routeEnd');
                     
-                    // Directly set the values from route.json
-                    startSelect.value = route.start;
-                    endSelect.value = route.end;
+                    // Ensure options exist for the route stops
+                    function ensureOption(select, value) {
+                        let option = Array.from(select.options).find(opt => opt.value === value);
+                        if (!option) {
+                            option = document.createElement('option');
+                            option.value = value;
+                            option.textContent = value;
+                            select.appendChild(option);
+                        }
+                        return option;
+                    }
+                    
+                    // Add and select the options from route.json
+                    if (route.start) {
+                        ensureOption(startSelect, route.start);
+                        startSelect.value = route.start;
+                    }
+                    
+                    if (route.end) {
+                        ensureOption(endSelect, route.end);
+                        endSelect.value = route.end;
+                    }
                     
                     // Update the route display
                     document.getElementById('route').value = `${route.start} - ${route.end}`;
