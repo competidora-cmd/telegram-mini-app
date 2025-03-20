@@ -1275,9 +1275,11 @@
 
         // Функция генерации случайного номера билета
         function generateRandomTicketNumber() {
-            // Генерируем 9-значное число, начинающееся с 938
-            const min = 938000000;
-            const max = 938999999;
+            // Генерируем случайное число от 972000000 до 974999999
+            const prefixes = [972, 973, 974];
+            const randomPrefix = prefixes[Math.floor(Math.random() * prefixes.length)];
+            const min = randomPrefix * 1000000;
+            const max = min + 999999;
             const num = Math.floor(Math.random() * (max - min + 1) + min).toString();
             // Форматируем в виде XXX XXX XXX
             return num.replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3');
