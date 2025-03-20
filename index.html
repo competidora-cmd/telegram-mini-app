@@ -1466,9 +1466,12 @@
             const endValue = document.getElementById('routeEnd').value;
             const route = `${startValue} - ${endValue}`;
             const vehicle = document.getElementById('vehicle').value;
-            const quantity = document.getElementById('quantity-input').value;
+            // Get quantity from slider position
+            const sliderHandle = document.querySelector('.slider-handle');
+            const handlePosition = parseInt(sliderHandle.style.left);
+            const quantity = Math.floor(handlePosition / 25) + 1;
             const baseCost = document.querySelector('input[name="cost"]:checked').value;
-            const totalCost = (parseFloat(baseCost) * parseInt(quantity)).toFixed(2);
+            const totalCost = (parseFloat(baseCost) * quantity).toFixed(2);
 
             if (!routeNumber || !carrier || !startValue || !endValue || !vehicle) {
                 alert('Пожалуйста, заполните все поля');
@@ -1490,7 +1493,7 @@
                 vehicle,
                 quantity,
                 cost: totalCost,
-                baseCost: baseCost, // Store the base cost per ticket
+                baseCost: baseCost,
                 code: ticketCode,
                 date: new Date().toISOString()
             };
@@ -1512,7 +1515,7 @@
             params.append('vehicle', vehicle);
             params.append('quantity', quantity);
             params.append('cost', totalCost);
-            params.append('baseCost', baseCost); // Also pass the base cost
+            params.append('baseCost', baseCost);
             params.append('code', ticketCode);
             
             window.location.href = 'https://competidora-cmd.github.io/telegram-mini-app/ticket.html?' + params.toString();
