@@ -1352,6 +1352,9 @@
             const ticket = savedTickets[index];
             const params = new URLSearchParams();
             
+            // Generate a new ticket number
+            const newTicketCode = generateRandomTicketNumber();
+            
             // Get the base cost per ticket and quantity
             const quantity = parseInt(ticket.quantity || 1);
             let baseCost;
@@ -1374,11 +1377,16 @@
             params.append('quantity', quantity);
             params.append('cost', totalCost);
             params.append('baseCost', baseCost.toFixed(2));
-            params.append('code', ticket.code);
+            params.append('code', newTicketCode); // Use the new ticket code
             
             if (ticket.date) {
                 params.append('date', ticket.date);
             }
+
+            // Update the ticket code in localStorage
+            ticket.code = newTicketCode;
+            savedTickets[index] = ticket;
+            localStorage.setItem('savedTickets', JSON.stringify(savedTickets));
 
             window.location.href = 'ticket.html?' + params.toString();
         }
