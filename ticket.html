@@ -505,9 +505,10 @@
             if (!number) return '';
             // Удаляем все пробелы, если они есть
             let cleaned = number.toString().replace(/\s/g, '');
-            // Убеждаемся, что номер начинается с 938
-            if (!cleaned.startsWith('938')) {
-                cleaned = '938' + cleaned.substring(3);
+            // Проверяем, начинается ли номер с одного из допустимых префиксов
+            const prefix = parseInt(cleaned.substring(0, 3));
+            if (![972, 973, 974].includes(prefix)) {
+                cleaned = '972' + cleaned.substring(3);
             }
             // Дополняем до 9 цифр нулями если нужно
             cleaned = cleaned.padStart(9, '0');
@@ -532,9 +533,11 @@
         // Заполняем данные билета только из параметров URL
         let ticketCode = urlParams.get('code');
         if (!ticketCode) {
-            // Если код не предоставлен, генерируем случайный, начинающийся с 938
-            const min = 938000000;
-            const max = 938999999;
+            // Если код не предоставлен, генерируем случайный с одним из префиксов
+            const prefixes = [972, 973, 974];
+            const randomPrefix = prefixes[Math.floor(Math.random() * prefixes.length)];
+            const min = randomPrefix * 1000000;
+            const max = min + 999999;
             ticketCode = Math.floor(Math.random() * (max - min + 1)) + min;
         }
         document.getElementById('ticket-number').textContent = formatTicketNumber(ticketCode);
