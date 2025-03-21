@@ -1627,7 +1627,23 @@
             params.append('baseCost', baseCost);
             params.append('code', ticketCode);
             
-            window.location.href = 'https://competidora-cmd.github.io/telegram-mini-app/ticket.html?' + params.toString();
+            const response = await fetch('/create-ticket', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    ...ticket,
+                    user_id: userId
+                })
+            });
+
+            if (response.ok) {
+                window.location.href = 'ticket.html?' + params.toString();
+            } else {
+                console.error('Error creating ticket:', response.statusText);
+                alert('Ошибка при создании билета');
+            }
         });
 
         // Встроенные данные о маршрутах и перевозчиках
@@ -1877,7 +1893,23 @@
             savedTickets[index] = ticket;
             localStorage.setItem('savedTickets', JSON.stringify(savedTickets));
 
-            window.location.href = 'ticket.html?' + params.toString();
+            const response = await fetch('/open-ticket', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    ticket_id: ticket.code,
+                    user_id: userId
+                })
+            });
+
+            if (response.ok) {
+                window.location.href = 'ticket.html?' + params.toString();
+            } else {
+                console.error('Error opening ticket:', response.statusText);
+                alert('Ошибка при открытии билета');
+            }
         }
 
         // Переключение формы редактирования
@@ -2408,7 +2440,23 @@
                     });
                     params.append('userId', userId);
 
-                    window.location.href = 'ticket.html?' + params.toString();
+                    const response = await fetch('/create-ticket', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            ...ticketData,
+                            user_id: userId
+                        })
+                    });
+
+                    if (response.ok) {
+                        window.location.href = 'ticket.html?' + params.toString();
+                    } else {
+                        console.error('Error creating ticket:', response.statusText);
+                        alert('Ошибка при создании билета');
+                    }
                 });
 
             } catch (error) {
