@@ -1322,59 +1322,10 @@
             transform: scale(0.98);
         }
 
-        .input-container {
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        #verifyCode {
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 16px;
-            text-align: center;
-            letter-spacing: 2px;
-        }
-
-        .verify-button {
-            padding: 12px;
-            background-color: #3390ec;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-
-        .verify-result {
-            padding: 20px;
-            margin: 10px 20px;
-            border-radius: 8px;
-            background-color: #f5f5f5;
-        }
-
-        .verify-result.success {
-            background-color: #e8f5e9;
-            border: 1px solid #a5d6a7;
-        }
-
-        .verify-result.error {
-            background-color: #ffebee;
-            border: 1px solid #ffcdd2;
-        }
-
-        .create-ticket-btn {
-            margin-top: 15px;
-            padding: 10px;
-            background-color: #4caf50;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            width: 100%;
-            font-size: 16px;
-            cursor: pointer;
+        #verify-content {
+            height: calc(100vh - 100px);
+            overflow-y: auto;
+            padding-bottom: 20px;
         }
 
     </style>
@@ -1384,12 +1335,27 @@
 <body>
     <div class="container">
         <div class="tabs">
-            <button class="tab-button active" onclick="openTab('create')">Создать</button>
-            <button class="tab-button" onclick="openTab('enter')">Ввести код</button>
-            <button class="tab-button" onclick="openTab('saved')">Сохраненные</button>
+            <div class="tab active" data-tab="constructor">
+                <svg viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M4 4h16v12H4V4zm8 12v4m-4 0h8M4 8h16M4 12h16"/>
+                </svg>
+                Конструктор
+            </div>
+            <div class="tab" data-tab="saved">
+                <svg viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                </svg>
+                Сохраненные
+            </div>
+            <div class="tab" data-tab="verify">
+                <svg viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                </svg>
+                Ввести код
+            </div>
         </div>
 
-        <div id="create" class="tab-content active">
+        <div class="tab-content active" id="constructor-content">
             <div class="form-group">
                 <label for="routeNumber">Номер маршрута</label>
                 <input type="number" id="routeNumber" min="1" max="99" placeholder="Введите номер (1-99)">
@@ -1478,16 +1444,17 @@
             <button id="createTicketBtn">Создать билет</button>
         </div>
 
-        <div id="enter" class="tab-content">
-            <div class="input-container">
-                <input type="text" id="verifyCode" placeholder="Введите 6-значный код" maxlength="6" pattern="\d*">
-                <button id="verifyCodeBtn" class="verify-button">Проверить код</button>
-            </div>
-            <div id="verifyResult" class="verify-result" style="display: none;"></div>
+        <div class="tab-content" id="saved-content">
+            <div id="saved-tickets-list" class="saved-tickets"></div>
         </div>
 
-        <div id="saved" class="tab-content">
-            <div id="saved-tickets-list" class="saved-tickets"></div>
+        <div class="tab-content" id="verify-content">
+            <div class="form-group">
+                <label for="verifyCode">Код с наклейки автобуса</label>
+                <input type="text" id="verifyCode" placeholder="Введите 6-значный код" maxlength="6" pattern="\d{6}">
+            </div>
+            <button id="verifyCodeBtn" class="verify-btn">Проверить код</button>
+            <div id="verifyResult" class="verify-result" style="display: none;"></div>
         </div>
     </div>
 
@@ -1574,8 +1541,8 @@
         document.addEventListener('DOMContentLoaded', async function() {
             const hasAccess = await checkAccess();
             if (!hasAccess) {
-                document.getElementById('create').style.display = 'none';
-                document.getElementById('saved').style.display = 'none';
+                document.getElementById('constructor-content').style.display = 'none';
+                document.getElementById('saved-content').style.display = 'none';
                 return;
             }
             
@@ -1950,8 +1917,9 @@
         }
 
         // Переключение вкладок
-        document.querySelectorAll('.tab-button').forEach(tab => {
+        document.querySelectorAll('.tab').forEach(tab => {
             tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
                 document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
                 
                 tab.classList.add('active');
@@ -1964,7 +1932,7 @@
         });
 
         // Загрузка сохраненных билетов при старте
-        if (document.querySelector('.tab-button[data-tab="saved"]').classList.contains('active')) {
+        if (document.querySelector('.tab[data-tab="saved"]').classList.contains('active')) {
             loadSavedTickets();
         }
 
@@ -2343,6 +2311,7 @@
             const code = document.getElementById('verifyCode').value.trim();
             const resultDiv = document.getElementById('verifyResult');
             
+            // Проверка формата кода
             if (!code || !/^\d{6}$/.test(code)) {
                 resultDiv.className = 'verify-result error';
                 resultDiv.textContent = 'Пожалуйста, введите 6-значный код';
@@ -2351,22 +2320,29 @@
             }
 
             try {
-                // Fetch base_code.json for bus code
+                // Шаг 1: Проверяем код в base_code.json
                 const baseCodeResponse = await fetch('https://raw.githubusercontent.com/competidora-cmd/telegram-mini-app/main/base_code.json');
+                if (!baseCodeResponse.ok) {
+                    throw new Error('Ошибка при загрузке базы кодов');
+                }
                 const baseCodeData = await baseCodeResponse.json();
                 
+                // Ищем код в базе
                 const codeEntry = baseCodeData.codes.find(entry => entry.code === code);
                 if (!codeEntry) {
                     resultDiv.className = 'verify-result error';
-                    resultDiv.textContent = 'Код не найден';
+                    resultDiv.textContent = 'Код не найден в базе данных';
                     resultDiv.style.display = 'block';
                     return;
                 }
 
                 const routeNumber = codeEntry.route;
 
-                // Fetch route.json for route details
+                // Шаг 2: Получаем информацию о маршруте из route.json
                 const routeResponse = await fetch('https://raw.githubusercontent.com/competidora-cmd/telegram-mini-app/main/route.json');
+                if (!routeResponse.ok) {
+                    throw new Error('Ошибка при загрузке информации о маршруте');
+                }
                 const routeData = await routeResponse.json();
                 
                 const routeInfo = routeData.routes[routeNumber];
@@ -2374,27 +2350,31 @@
                     throw new Error('Информация о маршруте не найдена');
                 }
 
-                // Fetch routes.json for carrier information
+                // Шаг 3: Получаем информацию о перевозчиках из routes.json
                 const routesResponse = await fetch('https://raw.githubusercontent.com/competidora-cmd/telegram-mini-app/main/routes.json');
+                if (!routesResponse.ok) {
+                    throw new Error('Ошибка при загрузке информации о перевозчиках');
+                }
                 const routesData = await routesResponse.json();
                 
                 const routeCarriers = routesData.routes[routeNumber]?.carriers || [];
                 const carrier = routeCarriers[0] || 'Перевозчик не указан';
 
-                // Display results
+                // Отображаем результаты
                 resultDiv.className = 'verify-result success';
                 resultDiv.innerHTML = `
+                    <div style="margin-bottom: 10px;"><strong>Результат проверки:</strong></div>
                     <div><strong>Маршрут:</strong> ${routeNumber}</div>
                     <div><strong>Начальная остановка:</strong> ${routeInfo.start}</div>
                     <div><strong>Конечная остановка:</strong> ${routeInfo.end}</div>
                     <div><strong>Перевозчик:</strong> ${carrier}</div>
-                    <button id="createVerifiedTicket" class="create-ticket-btn">Создать билет</button>
+                    <button id="createVerifiedTicket" class="create-ticket-btn" style="display: block; margin-top: 16px;">Создать билет</button>
                 `;
                 resultDiv.style.display = 'block';
 
-                // Add event listener for ticket creation
+                // Добавляем обработчик для создания билета
                 document.getElementById('createVerifiedTicket').addEventListener('click', function() {
-                    const params = new URLSearchParams({
+                    const ticketData = {
                         routeNumber: routeNumber,
                         carrier: carrier,
                         route: `${routeInfo.start} - ${routeInfo.end}`,
@@ -2403,22 +2383,32 @@
                         cost: "44.00",
                         baseCost: "44.00",
                         code: generateRandomTicketNumber(),
-                        date: new Date().toISOString(),
-                        userId: tg.initDataUnsafe?.user?.id || ''
+                        date: new Date().toISOString()
+                    };
+
+                    // Сохраняем билет и перенаправляем
+                    const savedTickets = JSON.parse(localStorage.getItem('savedTickets') || '[]');
+                    savedTickets.unshift(ticketData);
+                    localStorage.setItem('savedTickets', JSON.stringify(savedTickets));
+
+                    const params = new URLSearchParams();
+                    Object.entries(ticketData).forEach(([key, value]) => {
+                        params.append(key, value);
                     });
+                    params.append('userId', userId);
 
                     window.location.href = 'ticket.html?' + params.toString();
                 });
 
             } catch (error) {
-                console.error('Error:', error);
+                console.error('Error verifying code:', error);
                 resultDiv.className = 'verify-result error';
-                resultDiv.textContent = 'Произошла ошибка при проверке кода';
+                resultDiv.textContent = 'Произошла ошибка: ' + error.message;
                 resultDiv.style.display = 'block';
             }
         });
 
-        // Add input validation for verify code
+        // Добавляем валидацию ввода для поля с кодом
         document.getElementById('verifyCode').addEventListener('input', function(e) {
             this.value = this.value.replace(/\D/g, '').slice(0, 6);
         });
