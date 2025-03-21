@@ -1351,11 +1351,11 @@
                     <path fill="currentColor" d="M4 4h16v12H4V4zm8 12v4m-4 0h8M4 8h16M4 12h16"/>
                 </svg>
                 Конструктор
-            </div>
+        </div>
             <div class="tab" data-tab="saved">
                 <svg viewBox="0 0 24 24">
                     <path fill="currentColor" d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
-                </svg>
+            </svg>
                 Сохраненные
             </div>
             <div class="tab" data-tab="verify">
@@ -1548,102 +1548,105 @@
             }
         }
 
-        // Check access when page loads
+        // Переносим инициализацию после проверки доступа
         document.addEventListener('DOMContentLoaded', async function() {
             const hasAccess = await checkAccess();
             if (!hasAccess) {
                 document.getElementById('constructor-content').style.display = 'none';
                 document.getElementById('saved-content').style.display = 'none';
+                document.getElementById('verify-content').style.display = 'none';
                 return;
             }
             
-            populateCarrierDropdown();
+            // Инициализация вкладок
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    
+                    tab.classList.add('active');
+                    document.getElementById(tab.dataset.tab + '-content').classList.add('active');
+                    
+                    if (tab.dataset.tab === 'saved') {
+                        loadSavedTickets();
+                    }
+                });
+            });
+
+            // Заполняем списки после проверки доступа
+            await populateCarrierDropdown();
             populateRouteEndpoints();
-        });
 
-        // Modify createTicketBtn click handler
-        const createTicketBtn = document.getElementById('createTicketBtn');
-        createTicketBtn.addEventListener('click', async function() {
-            const hasAccess = await checkAccess();
-            if (!hasAccess) {
-                return;
-            }
+            // Добавляем обработчики событий
+            document.getElementById('routeNumber').addEventListener('change', updateCarrierBasedOnRoute);
+            document.getElementById('routeStart').addEventListener('change', updateRouteDisplay);
+            document.getElementById('routeEnd').addEventListener('change', updateRouteDisplay);
             
-            const routeNumber = document.getElementById('routeNumber').value;
-            const carrier = document.getElementById('carrier').value;
-            const startValue = document.getElementById('routeStart').value;
-            const endValue = document.getElementById('routeEnd').value;
-            const route = `${startValue} - ${endValue}`;
-            const vehicle = document.getElementById('vehicle').value;
-            const sliderHandle = document.querySelector('.slider-handle');
-            const handlePosition = parseInt(sliderHandle.style.left);
-            const quantity = Math.floor(handlePosition / 25) + 1;
-            const baseCost = document.querySelector('input[name="cost"]:checked').value;
-            const totalCost = (parseFloat(baseCost) * quantity).toFixed(2);
-            const randomNumber = generateRandomTicketNumber();
-
-            if (!routeNumber || !carrier || !startValue || !endValue || !vehicle) {
-                alert('Пожалуйста, заполните все поля');
-                return;
+            // Инициализация автовыбора
+            const autoSelectRouteBtn = document.getElementById('autoSelectRoute');
+            if (autoSelectRouteBtn) {
+                autoSelectRouteBtn.addEventListener('click', autoSelectRoute);
             }
 
-            try {
-                // Создаем объект билета с user_id
-                const ticketData = {
-                    code: userId.toString(), // Передаем user_id в поле code
-                    route: route,
-                    carrier: carrier,
-                    vehicle: vehicle,
-                    cost: totalCost,
-                    random_number: randomNumber
-                };
-
-                // Отправляем запрос на создание билета
-                const response = await fetch('/create-ticket', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(ticketData)
-                });
-
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-
-                // Сохраняем билет локально
-                const savedTickets = JSON.parse(localStorage.getItem('savedTickets') || '[]');
-                savedTickets.unshift({
-                routeNumber,
-                carrier,
-                route,
-                vehicle,
-                quantity,
-                cost: totalCost,
-                baseCost: baseCost,
-                    code: randomNumber,
-                date: new Date().toISOString()
-                });
-            localStorage.setItem('savedTickets', JSON.stringify(savedTickets));
-
-                // Перенаправляем на страницу билета
-            const params = new URLSearchParams();
-            params.append('userId', userId);
-            params.append('routeNumber', routeNumber);
-            params.append('carrier', carrier);
-            params.append('route', route);
-            params.append('vehicle', vehicle);
-            params.append('quantity', quantity);
-            params.append('cost', totalCost);
-            params.append('baseCost', baseCost);
-                params.append('code', randomNumber);
-                
-                window.location.href = 'ticket.html?' + params.toString();
-            } catch (error) {
-                console.error('Error creating ticket:', error);
-                alert('Ошибка при создании билета');
+            // Загружаем сохраненные билеты, если открыта соответствующая вкладка
+            if (document.querySelector('.tab[data-tab="saved"]').classList.contains('active')) {
+                loadSavedTickets();
             }
         });
+
+        // Обновляем функцию populateCarrierDropdown для работы с async/await
+        async function populateCarrierDropdown() {
+            try {
+                const data = await fetchRoutesData();
+                const carriers = data.allCarriers || routesData.allCarriers;
+                const carrierSelect = document.getElementById('carrier');
+                
+                // Очищаем текущие опции
+                carrierSelect.innerHTML = '';
+                
+                // Добавляем пустую опцию
+                const emptyOption = document.createElement('option');
+                emptyOption.value = '';
+                emptyOption.textContent = 'Выберите перевозчика';
+                carrierSelect.appendChild(emptyOption);
+                
+                // Добавляем всех перевозчиков
+                carriers.forEach(carrier => {
+                    const option = document.createElement('option');
+                    option.value = carrier;
+                    option.textContent = carrier;
+                    carrierSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error populating carrier dropdown:', error);
+            }
+        }
+
+        // Обновляем функцию populateRouteEndpoints
+        function populateRouteEndpoints() {
+            const startSelect = document.getElementById('routeStart');
+            const endSelect = document.getElementById('routeEnd');
+            
+            if (!startSelect || !endSelect) return;
+            
+            // Очищаем существующие опции
+            startSelect.innerHTML = '<option value="">Начальная остановка</option>';
+            endSelect.innerHTML = '<option value="">Конечная остановка</option>';
+            
+            // Добавляем остановки
+            routeEndpoints.forEach(endpoint => {
+                const startOption = document.createElement('option');
+                const endOption = document.createElement('option');
+                
+                startOption.value = endpoint;
+                startOption.textContent = endpoint;
+                endOption.value = endpoint;
+                endOption.textContent = endpoint;
+                
+                startSelect.appendChild(startOption);
+                endSelect.appendChild(endOption);
+            });
+        }
 
         // Встроенные данные о маршрутах и перевозчиках
         const routesData = {
@@ -1690,69 +1693,6 @@
                 "АО \"СТК\"",
             ]
         };
-
-        // Заполнение выпадающего списка перевозчиков
-        function populateCarrierDropdown() {
-            const carriers = routesData.allCarriers;
-            const carrierSelect = document.getElementById('carrier');
-            
-            // Очищаем текущие опции
-            carrierSelect.innerHTML = '';
-            
-            // Добавляем пустую опцию
-            const emptyOption = document.createElement('option');
-            emptyOption.value = '';
-            emptyOption.textContent = 'Выберите перевозчика';
-            carrierSelect.appendChild(emptyOption);
-            
-            // Добавляем всех перевозчиков
-            carriers.forEach(carrier => {
-                const option = document.createElement('option');
-                option.value = carrier;
-                option.textContent = carrier;
-                carrierSelect.appendChild(option);
-            });
-        }
-
-        // Обновление перевозчика на основе выбранного маршрута
-        async function updateCarrierBasedOnRoute() {
-            const routeNumber = document.getElementById('routeNumber').value;
-            const carrierSelect = document.getElementById('carrier');
-            
-            if (!routeNumber) return;
-            
-            const data = await fetchRoutesData();
-            const route = data.routes[routeNumber];
-            
-            if (route && route.carriers && route.carriers.length > 0) {
-                    carrierSelect.innerHTML = '';
-                    
-                    const emptyOption = document.createElement('option');
-                    emptyOption.value = '';
-                    emptyOption.textContent = 'Выберите перевозчика для маршрута ' + routeNumber;
-                    carrierSelect.appendChild(emptyOption);
-                    
-                    route.carriers.forEach(carrier => {
-                        const option = document.createElement('option');
-                        option.value = carrier;
-                        option.textContent = carrier;
-                        carrierSelect.appendChild(option);
-                    });
-                
-                // If there's only one carrier, select it automatically
-                if (route.carriers.length === 1) {
-                    carrierSelect.value = route.carriers[0];
-                }
-            } else {
-                populateCarrierDropdown();
-            }
-        }
-
-        // Заполняем выпадающий список при загрузке страницы
-        document.addEventListener('DOMContentLoaded', function() {
-            populateCarrierDropdown();
-            document.getElementById('routeNumber').addEventListener('change', updateCarrierBasedOnRoute);
-        });
 
         // Функция генерации случайного номера билета
         function generateRandomTicketNumber() {
@@ -1882,17 +1822,17 @@
 
                 // Перенаправляем на страницу билета
                 const params = new URLSearchParams();
-                params.append('userId', userId);
-                params.append('routeNumber', ticket.routeNumber);
-                params.append('carrier', ticket.carrier);
-                params.append('route', ticket.route);
-                params.append('vehicle', ticket.vehicle);
+            params.append('userId', userId);
+            params.append('routeNumber', ticket.routeNumber);
+            params.append('carrier', ticket.carrier);
+            params.append('route', ticket.route);
+            params.append('vehicle', ticket.vehicle);
                 params.append('quantity', ticket.quantity);
                 params.append('cost', ticket.cost);
                 params.append('baseCost', ticket.baseCost);
                 params.append('code', newTicketCode);
-                
-                window.location.href = 'ticket.html?' + params.toString();
+
+            window.location.href = 'ticket.html?' + params.toString();
             } catch (error) {
                 console.error('Error opening ticket:', error);
                 alert('Ошибка при открытии билета');
@@ -1945,21 +1885,6 @@
             loadSavedTickets();
             toggleEditForm(index);
         }
-
-        // Переключение вкладок
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                
-                tab.classList.add('active');
-                document.getElementById(tab.dataset.tab + '-content').classList.add('active');
-                
-                if (tab.dataset.tab === 'saved') {
-                    loadSavedTickets();
-                }
-            });
-        });
 
         // Загрузка сохраненных билетов при старте
         if (document.querySelector('.tab[data-tab="saved"]').classList.contains('active')) {
@@ -2014,30 +1939,6 @@
             "пос. Овинный",
             "Плодово-ягодная станция"
         ];
-
-        // Populate route endpoints dropdowns
-        function populateRouteEndpoints() {
-            const startSelect = document.getElementById('routeStart');
-            const endSelect = document.getElementById('routeEnd');
-            
-            // Clear existing options first
-            startSelect.innerHTML = '<option value="">Начальная остановка</option>';
-            endSelect.innerHTML = '<option value="">Конечная остановка</option>';
-            
-            // Add endpoints once to each dropdown
-            routeEndpoints.forEach(endpoint => {
-                const startOption = document.createElement('option');
-                const endOption = document.createElement('option');
-                
-                startOption.value = endpoint;
-                startOption.textContent = endpoint;
-                endOption.value = endpoint;
-                endOption.textContent = endpoint;
-                
-                startSelect.appendChild(startOption);
-                endSelect.appendChild(endOption);
-            });
-        }
 
         // Handle route reverse
         document.getElementById('reverseRoute').addEventListener('click', function() {
