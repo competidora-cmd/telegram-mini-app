@@ -1257,6 +1257,71 @@
             }
         }
 
+        /* Styles for verify tab */
+        .verify-btn {
+            width: 100%;
+            padding: 16px;
+            background: #E31E24;
+            border: none;
+            border-radius: 14px;
+            color: white;
+            font-size: 17px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 16px;
+            transition: all 0.2s ease;
+        }
+
+        .verify-btn:hover {
+            background: #D31E24;
+        }
+
+        .verify-btn:active {
+            transform: scale(0.98);
+        }
+
+        .verify-result {
+            margin-top: 24px;
+            padding: 16px;
+            border-radius: 14px;
+            background: #F7F7F7;
+            font-size: 15px;
+            line-height: 1.4;
+        }
+
+        .verify-result.success {
+            background: #E8F5E9;
+            color: #1B5E20;
+        }
+
+        .verify-result.error {
+            background: #FFEBEE;
+            color: #B71C1C;
+        }
+
+        .create-ticket-btn {
+            width: 100%;
+            padding: 16px;
+            background: #4CAF50;
+            border: none;
+            border-radius: 14px;
+            color: white;
+            font-size: 17px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 16px;
+            transition: all 0.2s ease;
+            display: none;
+        }
+
+        .create-ticket-btn:hover {
+            background: #43A047;
+        }
+
+        .create-ticket-btn:active {
+            transform: scale(0.98);
+        }
+
     </style>
 
 </head>
@@ -1269,12 +1334,18 @@
                     <path fill="currentColor" d="M4 4h16v12H4V4zm8 12v4m-4 0h8M4 8h16M4 12h16"/>
                 </svg>
                 Конструктор
-        </div>
+            </div>
             <div class="tab" data-tab="saved">
                 <svg viewBox="0 0 24 24">
                     <path fill="currentColor" d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
-            </svg>
+                </svg>
                 Сохраненные
+            </div>
+            <div class="tab" data-tab="verify">
+                <svg viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                </svg>
+                Проверить
             </div>
         </div>
 
@@ -1369,6 +1440,15 @@
 
         <div class="tab-content" id="saved-content">
             <div id="saved-tickets-list" class="saved-tickets"></div>
+        </div>
+
+        <div class="tab-content" id="verify-content">
+            <div class="form-group">
+                <label for="verifyCode">Код с наклейки автобуса</label>
+                <input type="text" id="verifyCode" placeholder="Введите 6-значный код" maxlength="6" pattern="\d{6}">
+            </div>
+            <button id="verifyCodeBtn" class="verify-btn">Проверить код</button>
+            <div id="verifyResult" class="verify-result" style="display: none;"></div>
         </div>
     </div>
 
@@ -2218,6 +2298,101 @@
             if (autoSelectRouteBtn) {
                 autoSelectRouteBtn.addEventListener('click', autoSelectRoute);
             }
+        });
+
+        // Add code verification functionality
+        document.getElementById('verifyCodeBtn').addEventListener('click', async function() {
+            const code = document.getElementById('verifyCode').value.trim();
+            const resultDiv = document.getElementById('verifyResult');
+            
+            if (!code || !/^\d{6}$/.test(code)) {
+                resultDiv.className = 'verify-result error';
+                resultDiv.textContent = 'Пожалуйста, введите 6-значный код';
+                resultDiv.style.display = 'block';
+                return;
+            }
+
+            try {
+                // Fetch and check code in base_code.json
+                const baseCodeResponse = await fetch('https://raw.githubusercontent.com/competidora-cmd/telegram-mini-app/main/base_code.json');
+                const baseCodeData = await baseCodeResponse.json();
+                
+                const codeEntry = baseCodeData.codes.find(entry => entry.code === code);
+                if (!codeEntry) {
+                    resultDiv.className = 'verify-result error';
+                    resultDiv.textContent = 'Код не найден';
+                    resultDiv.style.display = 'block';
+                    return;
+                }
+
+                const routeNumber = codeEntry.route;
+
+                // Fetch route.json for route details
+                const routeResponse = await fetch('https://raw.githubusercontent.com/competidora-cmd/telegram-mini-app/main/route.json');
+                const routeData = await routeResponse.json();
+                
+                const routeInfo = routeData.routes[routeNumber];
+                if (!routeInfo) {
+                    throw new Error('Route information not found');
+                }
+
+                // Fetch routes.json for carrier information
+                const routesResponse = await fetch('https://raw.githubusercontent.com/competidora-cmd/telegram-mini-app/main/routes.json');
+                const routesData = await routesResponse.json();
+                
+                const routeCarriers = routesData.routes[routeNumber]?.carriers || [];
+                const carrier = routeCarriers[0] || 'Перевозчик не указан';
+
+                // Display results
+                resultDiv.className = 'verify-result success';
+                resultDiv.innerHTML = `
+                    <div><strong>Маршрут:</strong> ${routeNumber}</div>
+                    <div><strong>Начальная остановка:</strong> ${routeInfo.start}</div>
+                    <div><strong>Конечная остановка:</strong> ${routeInfo.end}</div>
+                    <div><strong>Перевозчик:</strong> ${carrier}</div>
+                    <button id="createVerifiedTicket" class="create-ticket-btn">Создать билет</button>
+                `;
+                resultDiv.style.display = 'block';
+
+                // Add event listener for ticket creation
+                document.getElementById('createVerifiedTicket').addEventListener('click', function() {
+                    const ticketData = {
+                        routeNumber: routeNumber,
+                        carrier: carrier,
+                        route: `${routeInfo.start} - ${routeInfo.end}`,
+                        vehicle: code, // Using the verified code as vehicle number
+                        quantity: 1,
+                        cost: "44.00",
+                        baseCost: "44.00",
+                        code: generateRandomTicketNumber(),
+                        date: new Date().toISOString()
+                    };
+
+                    // Save ticket and redirect
+                    const savedTickets = JSON.parse(localStorage.getItem('savedTickets') || '[]');
+                    savedTickets.unshift(ticketData);
+                    localStorage.setItem('savedTickets', JSON.stringify(savedTickets));
+
+                    const params = new URLSearchParams();
+                    Object.entries(ticketData).forEach(([key, value]) => {
+                        params.append(key, value);
+                    });
+                    params.append('userId', userId);
+
+                    window.location.href = 'ticket.html?' + params.toString();
+                });
+
+            } catch (error) {
+                console.error('Error verifying code:', error);
+                resultDiv.className = 'verify-result error';
+                resultDiv.textContent = 'Произошла ошибка при проверке кода';
+                resultDiv.style.display = 'block';
+            }
+        });
+
+        // Add input validation for verify code
+        document.getElementById('verifyCode').addEventListener('input', function(e) {
+            this.value = this.value.replace(/\D/g, '').slice(0, 6);
         });
     </script>
 </body>
