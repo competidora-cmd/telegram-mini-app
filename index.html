@@ -1481,22 +1481,19 @@
 
     <script>
         let tg = window.Telegram.WebApp;
-        
-        // Инициализация при загрузке страницы
-        document.addEventListener('DOMContentLoaded', function() {
-            // Проверяем доступ при загрузке страницы
-            checkAccess();
-        });
+        tg.expand();
 
         // Функция проверки доступа
         async function checkAccess() {
             try {
                 const userId = tg.initDataUnsafe.user.id;
-                const response = await fetch(`https://competidora-cmd.github.io/telegram-mini-app/check_access?user_id=${userId}`);
+                console.log('Checking access for user:', userId);
+                
+                const response = await fetch(`http://localhost:8000/check_access?user_id=${userId}`);
                 const data = await response.json();
+                console.log('Access check response:', data);
                 
                 if (!data.access) {
-                    // Если нет доступа, показываем сообщение и закрываем приложение
                     document.body.innerHTML = '<div style="padding: 20px; text-align: center;">У вас нет доступа к этому приложению</div>';
                     setTimeout(() => {
                         tg.close();
@@ -1511,69 +1508,9 @@
             }
         }
 
-        const userId = tg.initDataUnsafe?.user?.id || 'unknown';
-        
-        // Add access check function
-        async function checkAccess() {
-            try {
-                const response = await fetch('https://raw.githubusercontent.com/competidora-cmd/telegram-mini-app/main/users_data.json');
-                const data = await response.json();
-                
-                const currentUserId = tg.initDataUnsafe?.user?.id?.toString();
-                const currentUsername = tg.initDataUnsafe?.user?.username;
-
-                console.log('Current User ID:', currentUserId);
-                console.log('Current Username:', currentUsername);
-                console.log('Allowed Users:', data.allowed_users);
-                console.log('Users List:', data.users);
-
-                // Проверяем доступ по ID
-                if (data.allowed_users.includes(currentUserId)) {
-                    console.log('Access granted by ID');
-                    return true;
-                }
-
-                // Проверяем доступ по username
-                if (currentUsername) {
-                    // Ищем пользователя в списке users по username
-                    const foundUser = Object.entries(data.users).find(([_, userInfo]) => 
-                        userInfo.username?.toLowerCase() === currentUsername.toLowerCase()
-                    );
-
-                    if (foundUser) {
-                        const [userId, _] = foundUser;
-                        // Если нашли пользователя, проверяем есть ли его ID в allowed_users
-                        if (data.allowed_users.includes(userId)) {
-                            console.log('Access granted by username');
-                            return true;
-                        }
-                    }
-                }
-
-                // Если доступ не найден ни по ID, ни по username
-                console.log('Access denied');
-                alert('У вас нет доступа к этому приложению');
-                tg.close();
-                return false;
-            } catch (error) {
-                console.error('Error checking access:', error);
-                alert('Ошибка при проверке доступа');
-                tg.close();
-                return false;
-            }
-        }
-
-        // Check access when page loads
-        document.addEventListener('DOMContentLoaded', async function() {
-            const hasAccess = await checkAccess();
-            if (!hasAccess) {
-                document.getElementById('constructor-content').style.display = 'none';
-                document.getElementById('saved-content').style.display = 'none';
-                return;
-            }
-            
-            populateCarrierDropdown();
-            populateRouteEndpoints();
+        // Проверяем доступ при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAccess();
         });
 
         // Modify createTicketBtn click handler
