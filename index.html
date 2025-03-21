@@ -1258,68 +1258,61 @@
         }
 
         /* Styles for verify tab */
-        .verify-btn {
-            width: 100%;
-            padding: 16px;
-            background: #E31E24;
-            border: none;
-            border-radius: 14px;
+        .verify-container {
+            padding: 15px;
+            max-width: 100%;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        #verifyCode {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .verify-button {
+            padding: 10px 20px;
+            background-color: #007AFF;
             color: white;
-            font-size: 17px;
-            font-weight: 500;
+            border: none;
+            border-radius: 5px;
             cursor: pointer;
-            margin-top: 16px;
-            transition: all 0.2s ease;
-        }
-
-        .verify-btn:hover {
-            background: #D31E24;
-        }
-
-        .verify-btn:active {
-            transform: scale(0.98);
         }
 
         .verify-result {
-            margin-top: 24px;
-            padding: 16px;
-            border-radius: 14px;
-            background: #F7F7F7;
-            font-size: 15px;
-            line-height: 1.4;
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 10px;
         }
 
         .verify-result.success {
-            background: #E8F5E9;
-            color: #1B5E20;
+            background-color: #d4edda;
+            color: #155724;
         }
 
         .verify-result.error {
-            background: #FFEBEE;
-            color: #B71C1C;
+            background-color: #f8d7da;
+            color: #721c24;
         }
 
         .create-ticket-btn {
+            display: block;
             width: 100%;
-            padding: 16px;
-            background: #4CAF50;
-            border: none;
-            border-radius: 14px;
+            padding: 10px;
+            margin-top: 10px;
+            background-color: #28a745;
             color: white;
-            font-size: 17px;
-            font-weight: 500;
+            border: none;
+            border-radius: 5px;
             cursor: pointer;
-            margin-top: 16px;
-            transition: all 0.2s ease;
-            display: none;
-        }
-
-        .create-ticket-btn:hover {
-            background: #43A047;
-        }
-
-        .create-ticket-btn:active {
-            transform: scale(0.98);
         }
 
     </style>
@@ -1442,13 +1435,14 @@
             <div id="saved-tickets-list" class="saved-tickets"></div>
         </div>
 
-        <div class="tab-content" id="verify-content">
-            <div class="form-group">
-                <label for="verifyCode">Код с наклейки автобуса</label>
-                <input type="text" id="verifyCode" placeholder="Введите 6-значный код" maxlength="6" pattern="\d{6}">
+        <div id="verifyTab" class="tab-content">
+            <div class="verify-container">
+                <div class="input-group">
+                    <input type="text" id="verifyCode" placeholder="Введите 6-значный код" maxlength="6" pattern="\d*">
+                    <button id="verifyCodeBtn" class="verify-button">Создать билет</button>
+                </div>
+                <div id="verifyResult" class="verify-result" style="display: none;"></div>
             </div>
-            <button id="verifyCodeBtn" class="verify-btn">Проверить код</button>
-            <div id="verifyResult" class="verify-result" style="display: none;"></div>
         </div>
     </div>
 
@@ -2313,7 +2307,7 @@
             }
 
             try {
-                // Fetch and check code in base_code.json
+                // Fetch base_code.json for code verification
                 const baseCodeResponse = await fetch('https://raw.githubusercontent.com/competidora-cmd/telegram-mini-app/main/base_code.json');
                 const baseCodeData = await baseCodeResponse.json();
                 
@@ -2333,7 +2327,7 @@
                 
                 const routeInfo = routeData.routes[routeNumber];
                 if (!routeInfo) {
-                    throw new Error('Route information not found');
+                    throw new Error('Информация о маршруте не найдена');
                 }
 
                 // Fetch routes.json for carrier information
@@ -2343,49 +2337,31 @@
                 const routeCarriers = routesData.routes[routeNumber]?.carriers || [];
                 const carrier = routeCarriers[0] || 'Перевозчик не указан';
 
-                // Display results
-                resultDiv.className = 'verify-result success';
-                resultDiv.innerHTML = `
-                    <div><strong>Маршрут:</strong> ${routeNumber}</div>
-                    <div><strong>Начальная остановка:</strong> ${routeInfo.start}</div>
-                    <div><strong>Конечная остановка:</strong> ${routeInfo.end}</div>
-                    <div><strong>Перевозчик:</strong> ${carrier}</div>
-                    <button id="createVerifiedTicket" class="create-ticket-btn">Создать билет</button>
-                `;
-                resultDiv.style.display = 'block';
+                // Generate random ticket number
+                const ticketNumber = Math.floor(Math.random() * 900000000) + 100000000;
+                const formattedTicketNumber = String(ticketNumber).match(/.{1,3}/g).join(' ');
 
-                // Add event listener for ticket creation
-                document.getElementById('createVerifiedTicket').addEventListener('click', function() {
-                    const ticketData = {
-                        routeNumber: routeNumber,
-                        carrier: carrier,
-                        route: `${routeInfo.start} - ${routeInfo.end}`,
-                        vehicle: code, // Using the verified code as vehicle number
-                        quantity: 1,
-                        cost: "44.00",
-                        baseCost: "44.00",
-                        code: generateRandomTicketNumber(),
-                        date: new Date().toISOString()
-                    };
-
-                    // Save ticket and redirect
-                    const savedTickets = JSON.parse(localStorage.getItem('savedTickets') || '[]');
-                    savedTickets.unshift(ticketData);
-                    localStorage.setItem('savedTickets', JSON.stringify(savedTickets));
-
-                    const params = new URLSearchParams();
-                    Object.entries(ticketData).forEach(([key, value]) => {
-                        params.append(key, value);
-                    });
-                    params.append('userId', userId);
-
-                    window.location.href = 'ticket.html?' + params.toString();
+                // Create URL parameters for ticket
+                const params = new URLSearchParams({
+                    userId: tg.initDataUnsafe.user.id,
+                    routeNumber: routeNumber,
+                    carrier: carrier,
+                    route: `${routeInfo.start} - ${routeInfo.end}`,
+                    vehicle: code,
+                    quantity: '1',
+                    cost: '44.00',
+                    baseCost: '44.00',
+                    code: formattedTicketNumber,
+                    date: new Date().toISOString()
                 });
 
+                // Redirect to ticket page
+                window.location.href = 'ticket.html?' + params.toString();
+
             } catch (error) {
-                console.error('Error verifying code:', error);
+                console.error('Error:', error);
                 resultDiv.className = 'verify-result error';
-                resultDiv.textContent = 'Произошла ошибка при проверке кода';
+                resultDiv.textContent = 'Произошла ошибка при создании билета';
                 resultDiv.style.display = 'block';
             }
         });
