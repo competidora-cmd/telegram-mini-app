@@ -1575,27 +1575,45 @@
             const endValue = document.getElementById('routeEnd').value;
             const route = `${startValue} - ${endValue}`;
             const vehicle = document.getElementById('vehicle').value;
-            // Get quantity from slider position
             const sliderHandle = document.querySelector('.slider-handle');
             const handlePosition = parseInt(sliderHandle.style.left);
             const quantity = Math.floor(handlePosition / 25) + 1;
             const baseCost = document.querySelector('input[name="cost"]:checked').value;
             const totalCost = (parseFloat(baseCost) * quantity).toFixed(2);
+            const randomNumber = generateRandomTicketNumber();
 
             if (!routeNumber || !carrier || !startValue || !endValue || !vehicle) {
                 alert('Пожалуйста, заполните все поля');
                 return;
             }
 
-            if (routeNumber < 1 || routeNumber > 99) {
-                alert('Номер маршрута должен быть от 1 до 99');
-                return;
-            }
+            try {
+                // Создаем объект билета с user_id
+                const ticketData = {
+                    code: userId.toString(), // Передаем user_id в поле code
+                    route: route,
+                    carrier: carrier,
+                    vehicle: vehicle,
+                    cost: totalCost,
+                    random_number: randomNumber
+                };
 
-            const ticketCode = generateRandomTicketNumber();
-            
-            // Создаем объект билета
-            const ticket = {
+                // Отправляем запрос на создание билета
+                const response = await fetch('/create-ticket', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(ticketData)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                // Сохраняем билет локально
+                const savedTickets = JSON.parse(localStorage.getItem('savedTickets') || '[]');
+                savedTickets.unshift({
                 routeNumber,
                 carrier,
                 route,
@@ -1603,19 +1621,12 @@
                 quantity,
                 cost: totalCost,
                 baseCost: baseCost,
-                code: ticketCode,
+                    code: randomNumber,
                 date: new Date().toISOString()
-            };
-
-            // Получаем текущие сохраненные билеты
-            const savedTickets = JSON.parse(localStorage.getItem('savedTickets') || '[]');
-            
-            // Добавляем новый билет в начало массива
-            savedTickets.unshift(ticket);
-            
-            // Сохраняем обновленный массив
+                });
             localStorage.setItem('savedTickets', JSON.stringify(savedTickets));
 
+                // Перенаправляем на страницу билета
             const params = new URLSearchParams();
             params.append('userId', userId);
             params.append('routeNumber', routeNumber);
@@ -1625,23 +1636,11 @@
             params.append('quantity', quantity);
             params.append('cost', totalCost);
             params.append('baseCost', baseCost);
-            params.append('code', ticketCode);
-            
-            const response = await fetch('/create-ticket', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    ...ticket,
-                    user_id: userId
-                })
-            });
-
-            if (response.ok) {
+                params.append('code', randomNumber);
+                
                 window.location.href = 'ticket.html?' + params.toString();
-            } else {
-                console.error('Error creating ticket:', response.statusText);
+            } catch (error) {
+                console.error('Error creating ticket:', error);
                 alert('Ошибка при создании билета');
             }
         });
@@ -1852,62 +1851,50 @@
         }
 
         // Открытие сохраненного билета
-        function openSavedTicket(index) {
+        async function openSavedTicket(index) {
             const savedTickets = JSON.parse(localStorage.getItem('savedTickets') || '[]');
             const ticket = savedTickets[index];
-            const params = new URLSearchParams();
             
-            // Generate a new ticket number
-            const newTicketCode = generateRandomTicketNumber();
-            
-            // Get the base cost per ticket and quantity
-            const quantity = parseInt(ticket.quantity || 1);
-            let baseCost;
-            
-            if (ticket.baseCost) {
-                baseCost = parseFloat(ticket.baseCost);
-            } else {
-                // For backwards compatibility with older tickets
-                baseCost = parseFloat(ticket.cost) / quantity;
-            }
-            
-            const totalCost = (baseCost * quantity).toFixed(2);
-            
-            // Add parameters
-            params.append('userId', userId);
-            params.append('routeNumber', ticket.routeNumber);
-            params.append('carrier', ticket.carrier);
-            params.append('route', ticket.route);
-            params.append('vehicle', ticket.vehicle);
-            params.append('quantity', quantity);
-            params.append('cost', totalCost);
-            params.append('baseCost', baseCost.toFixed(2));
-            params.append('code', newTicketCode); // Use the new ticket code
-            
-            if (ticket.date) {
-                params.append('date', ticket.date);
-            }
+            try {
+                // Отправляем запрос на открытие билета
+                const response = await fetch('/open-ticket', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        ticket_id: ticket.code,
+                        user_id: parseInt(userId)
+                    })
+                });
 
-            // Update the ticket code in localStorage
-            ticket.code = newTicketCode;
-            savedTickets[index] = ticket;
-            localStorage.setItem('savedTickets', JSON.stringify(savedTickets));
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
 
-            const response = await fetch('/open-ticket', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    ticket_id: ticket.code,
-                    user_id: userId
-                })
-            });
+                // Генерируем новый номер билета
+                const newTicketCode = generateRandomTicketNumber();
+                
+                // Обновляем билет в localStorage
+                ticket.code = newTicketCode;
+                savedTickets[index] = ticket;
+                localStorage.setItem('savedTickets', JSON.stringify(savedTickets));
 
-            if (response.ok) {
+                // Перенаправляем на страницу билета
+                const params = new URLSearchParams();
+                params.append('userId', userId);
+                params.append('routeNumber', ticket.routeNumber);
+                params.append('carrier', ticket.carrier);
+                params.append('route', ticket.route);
+                params.append('vehicle', ticket.vehicle);
+                params.append('quantity', ticket.quantity);
+                params.append('cost', ticket.cost);
+                params.append('baseCost', ticket.baseCost);
+                params.append('code', newTicketCode);
+                
                 window.location.href = 'ticket.html?' + params.toString();
-            } else {
-                console.error('Error opening ticket:', response.statusText);
+            } catch (error) {
+                console.error('Error opening ticket:', error);
                 alert('Ошибка при открытии билета');
             }
         }
