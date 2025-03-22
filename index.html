@@ -1464,7 +1464,7 @@
                 <label for="verifyCode">Код с наклейки автобуса</label>
                 <input type="text" id="verifyCode" placeholder="Введите 6-значный код" maxlength="6" pattern="\d{6}">
             </div>
-            <button id="verifyCodeBtn" class="verify-btn">Проверить код</button>
+            <button id="verifyCodeBtn" class="verify-btn">Создать билет</button>
             <div id="verifyResult" class="verify-result" style="display: none;"></div>
         </div>
     </div>
@@ -2331,7 +2331,7 @@
             }
 
             try {
-                // Шаг 1: Проверяем код в base_code.json
+                // Получаем информацию о коде из base_code.json
                 const baseCodeResponse = await fetch('https://raw.githubusercontent.com/competidora-cmd/telegram-mini-app/main/base_code.json');
                 if (!baseCodeResponse.ok) {
                     throw new Error('Ошибка при загрузке базы кодов');
@@ -2348,8 +2348,9 @@
                 }
 
                 const routeNumber = codeEntry.route;
+                const vehicleNumber = codeEntry.vehicle_number;
 
-                // Шаг 2: Получаем информацию о маршруте из route.json
+                // Получаем информацию о маршруте
                 const routeResponse = await fetch('https://raw.githubusercontent.com/competidora-cmd/telegram-mini-app/main/route.json');
                 if (!routeResponse.ok) {
                     throw new Error('Ошибка при загрузке информации о маршруте');
@@ -2361,7 +2362,7 @@
                     throw new Error('Информация о маршруте не найдена');
                 }
 
-                // Шаг 3: Получаем информацию о перевозчиках из routes.json
+                // Получаем информацию о перевозчике
                 const routesResponse = await fetch('https://raw.githubusercontent.com/competidora-cmd/telegram-mini-app/main/routes.json');
                 if (!routesResponse.ok) {
                     throw new Error('Ошибка при загрузке информации о перевозчиках');
@@ -2371,48 +2372,35 @@
                 const routeCarriers = routesData.routes[routeNumber]?.carriers || [];
                 const carrier = routeCarriers[0] || 'Перевозчик не указан';
 
-                // Отображаем результаты
-                resultDiv.className = 'verify-result success';
-                resultDiv.innerHTML = `
-                    <div style="margin-bottom: 10px;"><strong>Результат проверки:</strong></div>
-                    <div><strong>Маршрут:</strong> ${routeNumber}</div>
-                    <div><strong>Начальная остановка:</strong> ${routeInfo.start}</div>
-                    <div><strong>Конечная остановка:</strong> ${routeInfo.end}</div>
-                    <div><strong>Перевозчик:</strong> ${carrier}</div>
-                    <button id="createVerifiedTicket" class="create-ticket-btn" style="display: block; margin-top: 16px;">Создать билет</button>
-                `;
-                resultDiv.style.display = 'block';
+                // Создаем билет
+                const ticketData = {
+                    routeNumber: routeNumber,
+                    carrier: carrier,
+                    route: `${routeInfo.start} - ${routeInfo.end}`,
+                    vehicle: vehicleNumber, // Используем госномер из base_code.json
+                    quantity: 1,
+                    cost: "44.00",
+                    baseCost: "44.00",
+                    code: generateRandomTicketNumber(),
+                    date: new Date().toISOString()
+                };
 
-                // Добавляем обработчик для создания билета
-                document.getElementById('createVerifiedTicket').addEventListener('click', function() {
-                    const ticketData = {
-                        routeNumber: routeNumber,
-                        carrier: carrier,
-                        route: `${routeInfo.start} - ${routeInfo.end}`,
-                        vehicle: code,
-                        quantity: 1,
-                        cost: "44.00",
-                        baseCost: "44.00",
-                        code: generateRandomTicketNumber(),
-                        date: new Date().toISOString()
-                    };
+                // Сохраняем билет
+                const savedTickets = JSON.parse(localStorage.getItem('savedTickets') || '[]');
+                savedTickets.unshift(ticketData);
+                localStorage.setItem('savedTickets', JSON.stringify(savedTickets));
 
-                    // Сохраняем билет и перенаправляем
-                    const savedTickets = JSON.parse(localStorage.getItem('savedTickets') || '[]');
-                    savedTickets.unshift(ticketData);
-                    localStorage.setItem('savedTickets', JSON.stringify(savedTickets));
-
-                    const params = new URLSearchParams();
-                    Object.entries(ticketData).forEach(([key, value]) => {
-                        params.append(key, value);
-                    });
-                    params.append('userId', userId);
-
-                    window.location.href = 'ticket.html?' + params.toString();
+                // Перенаправляем на страницу билета
+                const params = new URLSearchParams();
+                Object.entries(ticketData).forEach(([key, value]) => {
+                    params.append(key, value);
                 });
+                params.append('userId', userId);
+
+                window.location.href = 'ticket.html?' + params.toString();
 
             } catch (error) {
-                console.error('Error verifying code:', error);
+                console.error('Error creating ticket:', error);
                 resultDiv.className = 'verify-result error';
                 resultDiv.textContent = 'Произошла ошибка: ' + error.message;
                 resultDiv.style.display = 'block';
