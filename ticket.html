@@ -539,7 +539,7 @@
         let ticketCode = urlParams.get('code');
         if (!ticketCode) {
             // Если код не предоставлен, генерируем случайный с одним из префиксов
-            const prefixes = [972, 973, 974];
+            const prefixes = [996, 996, 997];
             const randomPrefix = prefixes[Math.floor(Math.random() * prefixes.length)];
             const min = randomPrefix * 1000000;
             const max = min + 999999;
