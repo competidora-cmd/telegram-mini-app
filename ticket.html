@@ -512,8 +512,8 @@
             let cleaned = number.toString().replace(/\s/g, '');
             // Проверяем, начинается ли номер с одного из допустимых префиксов
             const prefix = parseInt(cleaned.substring(0, 3));
-            if (![972, 973, 974].includes(prefix)) {
-                cleaned = '972' + cleaned.substring(3);
+            if (![996, 996, 997].includes(prefix)) {
+                cleaned = '996' + cleaned.substring(3);
             }
             // Дополняем до 9 цифр нулями если нужно
             cleaned = cleaned.padStart(9, '0');
