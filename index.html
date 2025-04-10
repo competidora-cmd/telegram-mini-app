@@ -1652,12 +1652,18 @@
 
         // Функция генерации случайного номера билета
         function generateRandomTicketNumber() {
-            // Генерируем случайное число от 1000000000 до 1999999999
+            // Генерируем случайное число от 1000000000 до 1000999999
             const min = 1000000000;
-            const max = 1999999999;
+            const max = 1000999999;
             const num = Math.floor(Math.random() * (max - min + 1) + min).toString();
-            // Форматируем в виде X XXX XXX XXX
-            return num.replace(/(\d{1})(\d{3})(\d{3})(\d{3})/, '$1 $2 $3 $4');
+            
+            // Разбиваем на группы: (1 ) (000) (000) (000)
+            const group1 = num.substring(0, 1);
+            const group2 = num.substring(1, 4);
+            const group3 = num.substring(4, 7);
+            const group4 = num.substring(7, 10);
+            
+            return `${group1} ${group2} ${group3} ${group4}`;
         }
 
         // Форматирование даты
