@@ -630,31 +630,43 @@
         const timerElement = document.getElementById('timer');
 
         function updateTimer() {
-            if (!timerElement) {
-                console.error('Timer element not found');
-                return;
-            }
-
-            timerElement.textContent = `Действует: ${timeLeft} сек.`;
+            if (!timerElement) return;
 
             if (timeLeft <= 0) {
                 clearInterval(timerInterval);
                 timerInterval = null;
+                timerElement.textContent = 'Время истекло';
                 setTimeout(() => {
-                    closeMiniApp();
-                }, 500);
+                    tg.close();
+                }, 1000);
+                return;
             }
+
+            timerElement.textContent = `Действует: ${timeLeft} сек.`;
             timeLeft--;
         }
 
         function startTimer() {
             if (timerInterval) {
                 clearInterval(timerInterval);
-                timerInterval = null;
             }
+            
             timeLeft = 15;
-            updateTimer(); // Первое обновление сразу
-            timerInterval = setInterval(updateTimer, 1000); // Последующие обновления каждую секунду
+            updateTimer();
+            
+            // Используем requestAnimationFrame для более надежной работы таймера
+            let lastTime = Date.now();
+            const tick = () => {
+                const now = Date.now();
+                if (now - lastTime >= 1000) {
+                    updateTimer();
+                    lastTime = now;
+                }
+                if (timeLeft > 0) {
+                    requestAnimationFrame(tick);
+                }
+            };
+            requestAnimationFrame(tick);
         }
 
         function stopTimer() {
@@ -664,14 +676,18 @@
             }
         }
 
-        // Запускаем таймер при загрузке страницы
-        document.addEventListener('DOMContentLoaded', startTimer);
-
-        // Очищаем таймер при закрытии страницы
-        window.addEventListener('unload', stopTimer);
+        // Инициализация таймера
+        document.addEventListener('DOMContentLoaded', () => {
+            // Запускаем таймер только после полной загрузки Telegram WebApp
+            if (tg.initDataUnsafe) {
+                startTimer();
+            } else {
+                tg.onEvent('viewportChanged', startTimer);
+            }
+        });
 
         // Обработка видимости страницы
-        document.addEventListener('visibilitychange', function() {
+        document.addEventListener('visibilitychange', () => {
             if (document.hidden) {
                 stopTimer();
             } else {
@@ -679,8 +695,22 @@
             }
         });
 
-        // Обработка событий Telegram WebApp для надежности
-        window.Telegram.WebApp.onEvent('viewportChanged', startTimer);
+        // Обработка событий Telegram WebApp
+        tg.onEvent('viewportChanged', () => {
+            if (!document.hidden) {
+                startTimer();
+            }
+        });
+
+        // Перезапуск таймера при возвращении в приложение
+        window.addEventListener('focus', () => {
+            if (!document.hidden) {
+                startTimer();
+            }
+        });
+
+        // Остановка таймера при выходе из приложения
+        window.addEventListener('blur', stopTimer);
     </script>
 </body>
 </html>
