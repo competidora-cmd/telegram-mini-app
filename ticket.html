@@ -505,20 +505,24 @@
         // Получаем параметры из URL
         const urlParams = new URLSearchParams(window.location.search);
         
-        // Функция для форматирования номера билета в формате XXX XXX XXX
+        // Префикс для билета (можно менять на 061, 062, 063 и т.д.)
+        const ticketPrefix = '061'; // #Префикс билета
+        // Функция генерации случайных 6 цифр
+        function generateRandom6Digits() {
+            return Math.floor(100000 + Math.random() * 900000).toString();
+        }
+        // Функция для форматирования номера билета в виде 1 061 533 078 (без скобок)
         function formatTicketNumber(number) {
             if (!number) return '';
-            // Удаляем все пробелы, если они есть
-            let cleaned = number.toString().replace(/\s/g, '');
-            // Проверяем, начинается ли номер с одного из допустимых префиксов
-            const prefix = parseInt(cleaned.substring(0, 3));
-            if (![972, 973, 974].includes(prefix)) {
-                cleaned = '972' + cleaned.substring(3);
+            // Удаляем все нецифровые символы
+            let cleaned = number.toString().replace(/\D/g, '');
+            // Формируем из 10 цифр: 1 + 3 цифры префикса + 6 случайных
+            if (cleaned.length !== 10) {
+                // Если длина не 10, формируем новый
+                cleaned = '1' + ticketPrefix + generateRandom6Digits();
             }
-            // Дополняем до 9 цифр нулями если нужно
-            cleaned = cleaned.padStart(9, '0');
-            // Форматируем в виде XXX XXX XXX
-            return cleaned.replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3');
+            // Форматируем: 1 061 533 078
+            return `${cleaned[0]} ${cleaned.slice(1,4)} ${cleaned.slice(4,7)} ${cleaned.slice(7,10)}`;
         }
         
         // Функция для форматирования даты
@@ -538,16 +542,8 @@
         // Заполняем данные билета только из параметров URL
         let ticketCode = urlParams.get('code');
         if (!ticketCode) {
-            // Генерируем код билета с настраиваемым префиксом
-            const prefix = 61; // Можно изменить префикс здесь
-            const baseNumber = 1061533078; // Базовое число для генерации
-            const randomIncrement = Math.floor(Math.random() * 1000000); // Случайное число от 0 до 999999
-            ticketCode = baseNumber + randomIncrement;
-            
-            // Форматируем номер, заменяя префикс
-            const ticketString = ticketCode.toString();
-            const newPrefix = prefix.toString().padStart(3, '0');
-            ticketCode = parseInt(newPrefix + ticketString.slice(3));
+            // Генерируем новый код билета: 1 + префикс + 6 случайных цифр
+            ticketCode = '1' + ticketPrefix + generateRandom6Digits();
         }
         document.getElementById('ticket-number').textContent = formatTicketNumber(ticketCode);
         document.getElementById('carrier').textContent = urlParams.get('carrier');
