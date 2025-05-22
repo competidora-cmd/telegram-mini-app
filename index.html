@@ -1443,12 +1443,12 @@
                 <label for="cost">Стоимость</label>
                 <div class="cost-selector">
                     <label class="cost-option">
-                        <input type="radio" name="cost" value="44.00" checked>
-                        <span>44.00₽</span>
+                        <input type="radio" name="cost" value="35.00" checked>
+                        <span>35.00₽</span>
                     </label>
                     <label class="cost-option">
-                        <input type="radio" name="cost" value="40.00">
-                        <span>40.00₽</span>
+                        <input type="radio" name="cost" value="31.00">
+                        <span>31.00₽</span>
                     </label>
                 </div>
             </div>
@@ -1914,7 +1914,7 @@
                 baseCost = parseFloat(ticket.baseCost);
             } else {
                 // If not available (for older tickets), use one of the standard costs
-                baseCost = 44.00; // Default to 44.00 if not specified
+                baseCost = 35.00; // Default to 44.00 if not specified
             }
             
             // Calculate new total cost based on the new quantity
