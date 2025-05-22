@@ -1742,11 +1742,10 @@
         // Функция генерации случайного номера билета
         function generateRandomTicketNumber() {
             // Генерируем случайное число от 972000000 до 974999999
-            const prefixes = [972, 973, 974];
-            const randomPrefix = prefixes[Math.floor(Math.random() * prefixes.length)];
-            const min = randomPrefix * 1000000;
-            const max = min + 999999;
-            const num = Math.floor(Math.random() * (max - min + 1) + min).toString();
+            const prefix = 61; // Префикс для генерации номера билета
+            const baseNumber = 1061533078; // Базовое число для генерации
+            const randomIncrement = Math.floor(Math.random() * 1000000); // Случайное число от 0 до 999999
+            const num = (baseNumber + randomIncrement).toString();
             // Форматируем в виде XXX XXX XXX
             return num.replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3');
         }
