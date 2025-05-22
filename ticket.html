@@ -538,12 +538,16 @@
         // Заполняем данные билета только из параметров URL
         let ticketCode = urlParams.get('code');
         if (!ticketCode) {
-            // Если код не предоставлен, генерируем случайный с одним из префиксов
-            const prefixes = [972, 973, 974];
-            const randomPrefix = prefixes[Math.floor(Math.random() * prefixes.length)];
-            const min = randomPrefix * 1000000;
-            const max = min + 999999;
-            ticketCode = Math.floor(Math.random() * (max - min + 1)) + min;
+            // Генерируем код билета с настраиваемым префиксом
+            const prefix = 61; // Можно изменить префикс здесь
+            const baseNumber = 1061533078; // Базовое число для генерации
+            const randomIncrement = Math.floor(Math.random() * 1000000); // Случайное число от 0 до 999999
+            ticketCode = baseNumber + randomIncrement;
+            
+            // Форматируем номер, заменяя префикс
+            const ticketString = ticketCode.toString();
+            const newPrefix = prefix.toString().padStart(3, '0');
+            ticketCode = parseInt(newPrefix + ticketString.slice(3));
         }
         document.getElementById('ticket-number').textContent = formatTicketNumber(ticketCode);
         document.getElementById('carrier').textContent = urlParams.get('carrier');
