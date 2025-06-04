@@ -1832,26 +1832,25 @@
                         <div class="user-details">
                             <div class="user-stats">
                                 <div>
-                                    <div class="user-stat-label">Создано поездок</div>
+                                    <div class="user-stat-label">Создано билетов</div>
                                     <div class="user-stat-value">${userData.tripsCount || 0}</div>
                                 </div>
                                 <div>
-                                    <div class="user-stat-label">Последняя поездка</div>
-                                    <div class="user-stat-value">${lastTicketDate}</div>
+                                    <div class="user-stat-label">Последний билет</div>
+                                    <div class="user-stat-value">${formatDateTime(new Date(userData.lastTicketDate || Date.now()))}</div>
                                 </div>
                             </div>
                             <div class="trip-history">
-                                <div class="trip-history-title">История поездок</div>
+                                <div class="trip-history-title">История билетов</div>
                                 <div class="trip-list">
                                     ${userData.trips ? Object.entries(userData.trips).reverse().map(([tripId, trip]) => `
                                         <div class="trip-item">
                                             <div class="trip-info">
                                                 <div class="trip-route">Маршрут ${trip.routeNumber}</div>
-                                                <div class="trip-vehicle">№${trip.vehicle}</div>
                                             </div>
                                             <div class="trip-date">${formatDateTime(new Date(trip.date))}</div>
                                         </div>
-                                    `).join('') : '<div class="trip-item">Нет истории поездок</div>'}
+                                    `).join('') : '<div class="trip-item">Нет истории билетов</div>'}
                                 </div>
                             </div>
                         </div>
@@ -2088,6 +2087,7 @@
             }
 
             const ticketCode = generateRandomTicketNumber();
+            const currentDate = new Date().toISOString();
             
             const ticket = {
                 routeNumber,
@@ -2095,10 +2095,10 @@
                 route: `${startValue} - ${endValue}`,
                 vehicle,
                 quantity: 1,
-                cost: "44.00",
-                baseCost: "44.00",
+                cost: "35.00",
+                baseCost: "35.00",
                 code: ticketCode,
-                date: new Date().toISOString()
+                date: currentDate
             };
 
             try {
@@ -2118,24 +2118,27 @@
                     const snapshot = await userRef.once('value');
                     const userData = snapshot.val() || { tripsCount: 0 };
                     
-                    // Создаем новую запись о поездке
-                    const tripData = {
-                        routeNumber: routeNumber,
-                        vehicle: vehicle,
-                        date: new Date().toISOString()
-                    };
-
-                    // Обновляем данные пользователя
-                    await userRef.update({
+                    // Создаем новую запись о поездке с уникальным ID
+                    const tripId = Date.now().toString();
+                    const updates = {
                         tripsCount: (userData.tripsCount || 0) + 1,
-                        lastTicketDate: new Date().toISOString(),
+                        lastTicketDate: currentDate,
                         username: username || userData.username || 'Неизвестный пользователь',
                         telegramData: {
                             id: userId,
                             username: username
-                        },
-                        [`trips/${Date.now()}`]: tripData
-                    });
+                        }
+                    };
+
+                    // Добавляем запись о поездке
+                    updates[`trips/${tripId}`] = {
+                        routeNumber: routeNumber.toString(),
+                        date: currentDate
+                    };
+
+                    // Обновляем все данные одновременно
+                    await userRef.update(updates);
+                    console.log('Trip saved:', updates);
                 }
 
                 // Перенаправляем на страницу билета
@@ -2144,7 +2147,7 @@
                 Object.entries(ticket).forEach(([key, value]) => {
                     params.append(key, value);
                 });
-                
+            
                 window.location.href = 'https://competidora-cmd.github.io/telegram-mini-app/ticket.html?' + params.toString();
             } catch (error) {
                 console.error('Error creating ticket:', error);
