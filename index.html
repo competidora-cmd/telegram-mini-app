@@ -2348,6 +2348,7 @@
             const params = new URLSearchParams();
             
             const newTicketCode = generateRandomTicketNumber();
+            const currentDate = new Date().toISOString();
             
             const quantity = parseInt(ticket.quantity || 1);
             let baseCost;
@@ -2369,33 +2370,47 @@
             params.append('cost', totalCost);
             params.append('baseCost', baseCost.toFixed(2));
             params.append('code', newTicketCode);
-            
-            if (ticket.date) {
-                params.append('date', ticket.date);
-            }
+            params.append('date', currentDate);
 
             // Обновляем статистику пользователя в Firebase
             try {
                 const userId = tg.initDataUnsafe?.user?.id?.toString();
-                const username = tg.initDataUnsafe?.user?.username || 'Неизвестный пользователь';
+                const username = tg.initDataUnsafe?.user?.username;
                 
                 if (userId) {
                     const userRef = database.ref('users/' + userId);
                     const snapshot = await userRef.once('value');
                     const userData = snapshot.val() || { tripsCount: 0 };
                     
-                    await userRef.update({
+                    // Создаем новую запись о поездке с уникальным ID
+                    const tripId = Date.now().toString();
+                    const updates = {
                         tripsCount: (userData.tripsCount || 0) + 1,
-                        lastTicketDate: new Date().toISOString(),
-                        username: username
-                    });
+                        lastTicketDate: currentDate,
+                        username: username || userData.username || 'Неизвестный пользователь',
+                        telegramData: {
+                            id: userId,
+                            username: username
+                        }
+                    };
+
+                    // Добавляем запись о поездке
+                    updates[`trips/${tripId}`] = {
+                        routeNumber: ticket.routeNumber.toString(),
+                        date: currentDate
+                    };
+
+                    // Обновляем все данные одновременно
+                    await userRef.update(updates);
+                    console.log('Trip saved:', updates);
                 }
             } catch (error) {
                 console.error('Error updating user stats:', error);
-                // Продолжаем выполнение, даже если обновление статистики не удалось
+                await showErrorModal('Ошибка при обновлении статистики');
             }
 
             ticket.code = newTicketCode;
+            ticket.date = currentDate;
             savedTickets[index] = ticket;
             localStorage.setItem('savedTickets', JSON.stringify(savedTickets));
 
