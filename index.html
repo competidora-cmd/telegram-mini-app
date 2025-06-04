@@ -1591,7 +1591,7 @@
         const firebaseConfig = {
             apiKey: "AIzaSyDM5RnxC3PxOUJSX4dqxFWcYN_DuH8XJD8",
             authDomain: "city-transport-7bf5d.firebaseapp.com",
-            databaseURL: "https://city-transport-7bf5d-default-rtdb.europe-west1.firebasedatabase.app",
+            databaseURL: "https://city-transport-7bf5d-default-rtdb.firebaseio.com",
             projectId: "city-transport-7bf5d",
             storageBucket: "city-transport-7bf5d.appspot.com",
             messagingSenderId: "1046730199977",
@@ -1832,27 +1832,37 @@
                 date: new Date().toISOString()
             };
 
-            const savedTickets = JSON.parse(localStorage.getItem('savedTickets') || '[]');
-            
-            savedTickets.unshift(ticket);
-            
-            localStorage.setItem('savedTickets', JSON.stringify(savedTickets));
+            try {
+                // Сохраняем билет локально
+                const savedTickets = JSON.parse(localStorage.getItem('savedTickets') || '[]');
+                savedTickets.unshift(ticket);
+                localStorage.setItem('savedTickets', JSON.stringify(savedTickets));
 
-            // Обновляем статистику пользователя
-            await updateUserStats();
+                // Обновляем статистику в Firebase
+                const userId = tg.initDataUnsafe?.user?.id?.toString();
+                if (userId) {
+                    const userRef = database.ref('users/' + userId);
+                    const snapshot = await userRef.once('value');
+                    const userData = snapshot.val() || { tripsCount: 0 };
+                    
+                    await userRef.update({
+                        tripsCount: (userData.tripsCount || 0) + 1,
+                        lastTicketDate: new Date().toISOString()
+                    });
+                }
 
-            const params = new URLSearchParams();
-            params.append('userId', userId);
-            params.append('routeNumber', routeNumber);
-            params.append('carrier', carrier);
-            params.append('route', route);
-            params.append('vehicle', vehicle);
-            params.append('quantity', quantity);
-            params.append('cost', totalCost);
-            params.append('baseCost', baseCost);
-            params.append('code', ticketCode);
-            
-            window.location.href = 'https://competidora-cmd.github.io/telegram-mini-app/ticket.html?' + params.toString();
+                // Перенаправляем на страницу билета
+                const params = new URLSearchParams();
+                params.append('userId', userId || 'unknown');
+                Object.entries(ticket).forEach(([key, value]) => {
+                    params.append(key, value);
+                });
+                
+                window.location.href = 'https://competidora-cmd.github.io/telegram-mini-app/ticket.html?' + params.toString();
+            } catch (error) {
+                console.error('Error creating ticket:', error);
+                alert('Произошла ошибка при создании билета. Пожалуйста, попробуйте еще раз.');
+            }
         });
 
         const routesData = {
