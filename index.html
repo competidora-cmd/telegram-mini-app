@@ -1701,7 +1701,7 @@
                 <div id="admin-panel" style="display: none;">
                     <h3>Активные пользователи</h3>
                     <div class="users-list">
-                        <!-- Здесь будет список пользователей -->
+                        <!-- Список пользователей будет добавлен динамически -->
                     </div>
                 </div>
             </div>
@@ -1726,13 +1726,84 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        // Инициализация admin статуса
-        async function initializeAdmin() {
-            const currentUserId = tg.initDataUnsafe?.user?.id?.toString();
-            if (currentUserId === "5534462537") {
-                await database.ref('admins/' + currentUserId).set(true);
+        // Функция проверки на админа
+        async function isAdmin(userId) {
+            if (!userId) return false;
+            return userId === "5534462537";
+        }
+
+        // Функция обновления панели администратора
+        async function updateAdminPanel() {
+            try {
+                const currentUserId = tg.initDataUnsafe?.user?.id?.toString();
+                const adminCheck = await isAdmin(currentUserId);
+                
+                if (!adminCheck) {
+                    console.log('User is not admin:', currentUserId);
+                    return;
+                }
+
+                const adminPanel = document.getElementById('admin-panel');
+                if (!adminPanel) {
+                    console.error('Admin panel element not found');
+                    return;
+                }
+
+                adminPanel.style.display = 'block';
+
+                const usersRef = database.ref('users');
+                const usersSnapshot = await usersRef.once('value');
+                const users = usersSnapshot.val();
+
+                console.log('Loaded users data:', users);
+
+                const usersList = adminPanel.querySelector('.users-list');
+                usersList.innerHTML = '';
+
+                if (!users) {
+                    usersList.innerHTML = '<div class="user-item">Нет активных пользователей</div>';
+                    return;
+                }
+
+                Object.entries(users).forEach(([userId, userData]) => {
+                    const username = userData.username || 'Неизвестный пользователь';
+                    const lastTicketDate = userData.lastTicketDate ? formatDateTime(new Date(userData.lastTicketDate)) : '-';
+                    
+                    const userElement = document.createElement('div');
+                    userElement.className = 'user-item';
+                    userElement.innerHTML = `
+                        <div class="user-header">
+                            <div class="user-name">@${username}</div>
+                            <div class="user-id">ID: ${userId}</div>
+                        </div>
+                        <div class="user-stats">
+                            <div>
+                                <div class="user-stat-label">Создано поездок</div>
+                                <div class="user-stat-value">${userData.tripsCount || 0}</div>
+                            </div>
+                            <div>
+                                <div class="user-stat-label">Последний билет</div>
+                                <div class="user-stat-value">${lastTicketDate}</div>
+                            </div>
+                        </div>
+                    `;
+                    usersList.appendChild(userElement);
+                });
+            } catch (error) {
+                console.error('Error in updateAdminPanel:', error);
             }
         }
+
+        // Вызываем обновление админ панели при загрузке профиля
+        document.addEventListener('DOMContentLoaded', async function() {
+            const verifyTab = document.querySelector('.tab[data-tab="verify"]');
+            if (verifyTab) {
+                verifyTab.addEventListener('click', async function() {
+                    await updateProfile();
+                    await updateAdminPanel();
+                });
+            }
+        });
 
         // Функция для проверки на админа
         async function isAdmin(userId, username) {
@@ -1803,44 +1874,11 @@
             }
         }
 
-        // Функция обновления панели админа
-        async function updateAdminPanel() {
-            const adminPanelElement = document.getElementById('admin-panel');
-            if (!adminPanelElement || !isAdmin(tg.initDataUnsafe?.user?.id?.toString())) {
-                return;
-            }
-
-            try {
-                const usersSnapshot = await database.ref('users').once('value');
-                const users = usersSnapshot.val() || {};
-                
-                const usersList = document.querySelector('.users-list');
-                usersList.innerHTML = '';
-
-                for (const [userId, userData] of Object.entries(users)) {
-                    const userElement = document.createElement('div');
-                    userElement.className = 'user-item';
-                    userElement.innerHTML = `
-                        <div class="user-header">
-                            <div class="user-name">${userData.username || 'Неизвестный пользователь'}</div>
-                            <div class="user-id" style="font-size: 12px; color: #8E8E93;">ID: ${userId}</div>
-                        </div>
-                        <div class="user-stats">
-                            <div>
-                                <div class="user-stat-label">Создано поездок</div>
-                                <div class="user-stat-value">${userData.tripsCount || 0}</div>
-                            </div>
-                            <div>
-                                <div class="user-stat-label">Последний билет</div>
-                                <div class="user-stat-value">${userData.lastTicketDate ? formatDateTime(new Date(userData.lastTicketDate)) : '-'}</div>
-                            </div>
-                        </div>
-                    `;
-                    usersList.appendChild(userElement);
-                }
-            } catch (error) {
-                console.error('Error updating admin panel:', error);
-                await showErrorModal('Ошибка при обновлении панели администратора');
+        // Инициализация admin статуса
+        async function initializeAdmin() {
+            const currentUserId = tg.initDataUnsafe?.user?.id?.toString();
+            if (currentUserId === "5534462537") {
+                await database.ref('admins/' + currentUserId).set(true);
             }
         }
 
@@ -2803,167 +2841,6 @@
             } catch (error) {
                 console.error('Ошибка обновления статистики пользователя:', error);
                 await showErrorModal('Ошибка обновления статистики');
-            }
-        }
-
-        async function updateAdminPanel() {
-            if (!isAdmin()) return;
-            
-            const adminPanelContent = document.getElementById('adminPanelContent');
-            if (!adminPanelContent) return;
-
-            try {
-                const usersSnapshot = await database.ref('users').once('value');
-                const users = usersSnapshot.val();
-                
-                let html = '<h3>Активные пользователи:</h3><div class="users-list">';
-                
-                for (const userId in users) {
-                    const user = users[userId];
-                    const telegramData = user.telegramData || {};
-                    const displayName = telegramData.username ? 
-                        `@${telegramData.username}` : 
-                        'Неизвестный пользователь';
-                    
-                    html += `
-                        <div class="user-item">
-                            <div class="user-name">${displayName}</div>
-                            <div class="user-id">ID: ${userId}</div>
-                            <div class="user-stats">
-                                <span>Поездок: ${user.tripsCount || 0}</span>
-                                <span>Последний билет: ${formatDate(user.lastTicketDate)}</span>
-                            </div>
-                        </div>
-                    `;
-                }
-                
-                html += '</div>';
-                adminPanelContent.innerHTML = html;
-            } catch (error) {
-                console.error('Ошибка обновления панели администратора:', error);
-                await showErrorModal('Ошибка загрузки данных пользователей');
-            }
-        }
-
-        // В начало скрипта добавляем инициализацию Firebase Auth
-        let auth;
-        try {
-            auth = firebase.auth();
-            // Анонимная авторизация для Firebase
-            auth.signInAnonymously().catch(function(error) {
-                console.error("Auth error:", error);
-            });
-        } catch (error) {
-            console.error("Firebase auth init error:", error);
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            // Перемещаем весь код инициализации слайдера сюда
-            const sliderContainer = document.getElementById('quantity-slider-container');
-            if (!sliderContainer) return;
-
-            const handle = sliderContainer.querySelector('.slider-handle');
-            const track = sliderContainer.querySelector('.slider-track');
-            const dots = sliderContainer.querySelectorAll('.slider-dot');
-            const marks = sliderContainer.querySelectorAll('.slider-mark');
-            let isDragging = false;
-
-            function updateSlider(percentage) {
-                if (!handle || !track) return;
-
-                const steps = [0, 25, 50, 75, 100];
-                const closestStep = steps.reduce((prev, curr) => 
-                    Math.abs(curr - percentage) < Math.abs(prev - percentage) ? curr : prev
-                );
-
-                handle.style.left = `${closestStep}%`;
-                track.style.width = `${closestStep}%`;
-
-                const quantity = (closestStep / 25) + 1;
-
-                dots.forEach((dot, index) => {
-                    dot.classList.toggle('active', index * 25 <= closestStep);
-                });
-                marks.forEach((mark, index) => {
-                    mark.classList.toggle('active', index * 25 <= closestStep);
-                });
-            }
-
-            function handleMove(event) {
-                if (!isDragging) return;
-                
-                const rect = sliderContainer.getBoundingClientRect();
-                const x = event.type.includes('touch') ? 
-                    event.touches[0].clientX - rect.left :
-                    event.clientX - rect.left;
-                
-                let percentage = (x / rect.width) * 100;
-                percentage = Math.max(0, Math.min(100, percentage));
-                
-                updateSlider(percentage);
-            }
-
-            function handleStart(event) {
-                isDragging = true;
-                document.addEventListener('mousemove', handleMove);
-                document.addEventListener('touchmove', handleMove);
-                document.addEventListener('mouseup', handleEnd);
-                document.addEventListener('touchend', handleEnd);
-            }
-
-            function handleEnd() {
-                isDragging = false;
-                document.removeEventListener('mousemove', handleMove);
-                document.removeEventListener('touchmove', handleMove);
-                document.removeEventListener('mouseup', handleEnd);
-                document.removeEventListener('touchend', handleEnd);
-            }
-
-            if (handle) {
-                handle.addEventListener('mousedown', handleStart);
-                handle.addEventListener('touchstart', handleStart);
-            }
-
-            if (sliderContainer) {
-                sliderContainer.addEventListener('click', function(event) {
-                    const rect = sliderContainer.getBoundingClientRect();
-                    const x = event.clientX - rect.left;
-                    const percentage = (x / rect.width) * 100;
-                    updateSlider(percentage);
-                });
-            }
-
-            // Добавляем обработчик для verify кнопки
-            const verifyBtn = document.getElementById('verifyCodeBtn');
-            if (verifyBtn) {
-                verifyBtn.addEventListener('click', async function() {
-                    // ... existing verification code ...
-                });
-            }
-
-            // Initialize with default value
-            updateSlider(0);
-        });
-
-        // Обновляем функции Firebase для работы с аутентификацией
-        async function updateUserStats() {
-            if (!auth.currentUser) return;
-            
-            const userId = tg.initDataUnsafe?.user?.id?.toString();
-            if (!userId) return;
-
-            const userRef = database.ref('users/' + userId);
-            
-            try {
-                const snapshot = await userRef.once('value');
-                const userData = snapshot.val() || { tripsCount: 0 };
-                
-                await userRef.update({
-                    tripsCount: (userData.tripsCount || 0) + 1,
-                    lastTicketDate: new Date().toISOString()
-                });
-            } catch (error) {
-                console.error('Error updating user stats:', error);
             }
         }
 
