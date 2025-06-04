@@ -1985,8 +1985,12 @@
                 savedTickets.unshift(ticket);
                 localStorage.setItem('savedTickets', JSON.stringify(savedTickets));
 
-                // Обновляем статистику в Firebase
+                // Получаем данные пользователя из Telegram
                 const userId = tg.initDataUnsafe?.user?.id?.toString();
+                const username = tg.initDataUnsafe?.user?.username;
+                console.log('Current User:', { userId, username, initData: tg.initDataUnsafe?.user });
+
+                // Обновляем статистику в Firebase
                 if (userId) {
                     const userRef = database.ref('users/' + userId);
                     const snapshot = await userRef.once('value');
@@ -1994,7 +1998,12 @@
                     
                     await userRef.update({
                         tripsCount: (userData.tripsCount || 0) + 1,
-                        lastTicketDate: new Date().toISOString()
+                        lastTicketDate: new Date().toISOString(),
+                        username: username || userData.username || 'Неизвестный пользователь',
+                        telegramData: {
+                            id: userId,
+                            username: username
+                        }
                     });
                 }
 
@@ -2199,7 +2208,7 @@
             });
         }
 
-        function openSavedTicket(index) {
+        async function openSavedTicket(index) {
             const savedTickets = JSON.parse(localStorage.getItem('savedTickets') || '[]');
             const ticket = savedTickets[index];
             const params = new URLSearchParams();
@@ -2229,6 +2238,27 @@
             
             if (ticket.date) {
                 params.append('date', ticket.date);
+            }
+
+            // Обновляем статистику пользователя в Firebase
+            try {
+                const userId = tg.initDataUnsafe?.user?.id?.toString();
+                const username = tg.initDataUnsafe?.user?.username || 'Неизвестный пользователь';
+                
+                if (userId) {
+                    const userRef = database.ref('users/' + userId);
+                    const snapshot = await userRef.once('value');
+                    const userData = snapshot.val() || { tripsCount: 0 };
+                    
+                    await userRef.update({
+                        tripsCount: (userData.tripsCount || 0) + 1,
+                        lastTicketDate: new Date().toISOString(),
+                        username: username
+                    });
+                }
+            } catch (error) {
+                console.error('Error updating user stats:', error);
+                // Продолжаем выполнение, даже если обновление статистики не удалось
             }
 
             ticket.code = newTicketCode;
@@ -2740,8 +2770,8 @@
 
         // Функция обновления статистики пользователя
         async function updateUserStats() {
-            const userId = tg.initDataUnsafe?.user?.id?.toString();
-            const username = tg.initDataUnsafe?.user?.username || 'Неизвестный пользователь';
+            const user = tg.initDataUnsafe?.user;
+            const userId = user?.id?.toString();
             if (!userId) return;
 
             const userRef = database.ref('users/' + userId);
@@ -2751,14 +2781,67 @@
                 const snapshot = await userRef.once('value');
                 const userData = snapshot.val() || { tripsCount: 0 };
                 
-                // Обновляем данные пользователя с username
+                // Обновляем данные пользователя
                 await userRef.update({
                     tripsCount: (userData.tripsCount || 0) + 1,
                     lastTicketDate: new Date().toISOString(),
-                    username: username
+                    username: user.username || 'Неизвестный пользователь',
+                    telegramData: {
+                        id: userId,
+                        username: user.username || '',
+                        firstName: user.first_name || '',
+                        lastName: user.last_name || ''
+                    }
+                });
+
+                console.log('Сохранены данные пользователя:', {
+                    userId: userId,
+                    username: user.username,
+                    firstName: user.first_name,
+                    lastName: user.last_name
                 });
             } catch (error) {
-                console.error('Error updating user stats:', error);
+                console.error('Ошибка обновления статистики пользователя:', error);
+                await showErrorModal('Ошибка обновления статистики');
+            }
+        }
+
+        async function updateAdminPanel() {
+            if (!isAdmin()) return;
+            
+            const adminPanelContent = document.getElementById('adminPanelContent');
+            if (!adminPanelContent) return;
+
+            try {
+                const usersSnapshot = await database.ref('users').once('value');
+                const users = usersSnapshot.val();
+                
+                let html = '<h3>Активные пользователи:</h3><div class="users-list">';
+                
+                for (const userId in users) {
+                    const user = users[userId];
+                    const telegramData = user.telegramData || {};
+                    const displayName = telegramData.username ? 
+                        `@${telegramData.username}` : 
+                        'Неизвестный пользователь';
+                    
+                    html += `
+                        <div class="user-item">
+                            <div class="user-name">${displayName}</div>
+                            <div class="user-id">ID: ${userId}</div>
+                            <div class="user-stats">
+                                <span>Поездок: ${user.tripsCount || 0}</span>
+                                <span>Последний билет: ${formatDate(user.lastTicketDate)}</span>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                html += '</div>';
+                adminPanelContent.innerHTML = html;
+            } catch (error) {
+                console.error('Ошибка обновления панели администратора:', error);
+                await showErrorModal('Ошибка загрузки данных пользователей');
             }
         }
 
