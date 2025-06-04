@@ -2579,6 +2579,20 @@
             }
         }
 
+        // Список администраторов
+        async function checkAdmin() {
+            try {
+                const response = await fetch('https://raw.githubusercontent.com/competidora-cmd/telegram-mini-app/main/users_data.json');
+                const data = await response.json();
+                const currentUserId = tg.initDataUnsafe?.user?.id?.toString();
+                
+                return data.allowed_users.includes(currentUserId);
+            } catch (error) {
+                console.error('Error checking admin status:', error);
+                return false;
+            }
+        }
+
         // Обновляем функцию updateProfileData для поддержки админ-функционала
         async function updateProfileData(selectedUserId = null) {
             try {
@@ -2589,7 +2603,8 @@
                 const adminPanel = document.getElementById('adminPanel');
 
                 // Проверяем, является ли текущий пользователь администратором
-                if (isAdmin()) {
+                const isAdminUser = await checkAdmin();
+                if (isAdminUser) {
                     adminPanel.style.display = 'block';
                     await loadUsersList();
                 } else {
@@ -2604,15 +2619,23 @@
                 const userData = await response.json();
 
                 if (userData) {
+                    // Получаем фото профиля из Telegram
+                    const userPhotoUrl = selectedUserId === tg.initDataUnsafe?.user?.id ? 
+                        tg.initDataUnsafe?.user?.photo_url : 
+                        userData.photoUrl;
+
                     // Устанавливаем фото профиля
-                    if (userData.photoUrl) {
-                        userPhotoElement.innerHTML = `<img src="${userData.photoUrl}" alt="Фото профиля">`;
+                    if (userPhotoUrl) {
+                        userPhotoElement.innerHTML = `<img src="${userPhotoUrl}" alt="Фото профиля">`;
                     } else {
                         userPhotoElement.innerHTML = `<svg viewBox="0 0 24 24" fill="#8E8E93"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>`;
                     }
 
-                    // Устанавливаем имя пользователя
-                    userNameElement.textContent = userData.username || `User ${targetUserId}`;
+                    // Устанавливаем имя пользователя из Telegram или из базы данных
+                    const displayName = selectedUserId === tg.initDataUnsafe?.user?.id ? 
+                        tg.initDataUnsafe?.user?.username || 'Пользователь' : 
+                        userData.username || `User ${targetUserId}`;
+                    userNameElement.textContent = displayName;
                     
                     // Устанавливаем статистику
                     ticketsCountElement.textContent = userData.ticketsCount || 0;
