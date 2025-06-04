@@ -2797,9 +2797,104 @@
         }
 
         // Вызываем обновление профиля при загрузке страницы и после каждого создания билета
-        document.addEventListener('DOMContentLoaded', () => {
-            updateProfileData();
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            // Инициализация вкладок
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Убираем активный класс со всех вкладок
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(c => c.classList.remove('active'));
+                    
+                    // Добавляем активный класс выбранной вкладке
+                    tab.classList.add('active');
+                    const content = document.getElementById(tab.dataset.tab + '-content');
+                    if (content) {
+                        content.classList.add('active');
+                    }
+                    
+                    // Если открыта вкладка профиля, обновляем данные
+                    if (tab.dataset.tab === 'verify') {
+                        initializeProfile();
+                    }
+                });
+            });
+
+            // Инициализация профиля
+            initializeProfile();
         });
+
+        async function initializeProfile() {
+            try {
+                console.log('Initializing profile...');
+                
+                // Получаем элементы
+                const userNameElement = document.getElementById('userName');
+                const adminPanel = document.getElementById('adminPanel');
+                const ticketsCountElement = document.getElementById('ticketsCount');
+                const lastTicketDateElement = document.getElementById('lastTicketDate');
+
+                if (!userNameElement || !adminPanel || !ticketsCountElement || !lastTicketDateElement) {
+                    console.error('Some profile elements not found', {
+                        userNameElement: !!userNameElement,
+                        adminPanel: !!adminPanel,
+                        ticketsCountElement: !!ticketsCountElement,
+                        lastTicketDateElement: !!lastTicketDateElement
+                    });
+                    return;
+                }
+
+                // Получаем данные пользователя из Telegram
+                const userId = tg.initDataUnsafe?.user?.id?.toString();
+                const username = tg.initDataUnsafe?.user?.username;
+
+                console.log('User data:', { userId, username });
+
+                // Устанавливаем имя пользователя
+                if (username) {
+                    userNameElement.textContent = username;
+                    console.log('Username set:', username);
+                } else {
+                    userNameElement.textContent = 'Пользователь';
+                }
+
+                // Проверяем права администратора
+                const isAdmin = userId === "5534462537" || username?.toLowerCase() === "competidora";
+                console.log('Is admin:', isAdmin);
+
+                // Показываем/скрываем админ-панель
+                adminPanel.style.display = isAdmin ? 'block' : 'none';
+
+                // Загружаем статистику из Firebase
+                if (userId) {
+                    const response = await fetch(`https://city-transport-7bf5d.firebaseio.com/users/${userId}.json`);
+                    const userData = await response.json();
+                    console.log('Firebase user data:', userData);
+
+                    if (userData) {
+                        ticketsCountElement.textContent = userData.ticketsCount || '0';
+                        if (userData.lastTicketDate) {
+                            const lastTicketDate = new Date(userData.lastTicketDate);
+                            lastTicketDateElement.textContent = `${lastTicketDate.toLocaleDateString('ru-RU')} ${lastTicketDate.toLocaleTimeString('ru-RU', {hour: '2-digit', minute: '2-digit'})}`;
+                        } else {
+                            lastTicketDateElement.textContent = '-';
+                        }
+                    } else {
+                        ticketsCountElement.textContent = '0';
+                        lastTicketDateElement.textContent = '-';
+                    }
+                }
+
+                // Если админ, загружаем список пользователей
+                if (isAdmin) {
+                    await loadUsersList();
+                }
+            } catch (error) {
+                console.error('Error initializing profile:', error);
+            }
+        }
     </script>
 </body>
 
