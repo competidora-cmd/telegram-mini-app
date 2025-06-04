@@ -1604,9 +1604,25 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
+        // Инициализация admin статуса
+        async function initializeAdmin() {
+            const currentUserId = tg.initDataUnsafe?.user?.id?.toString();
+            if (currentUserId === "5534462537") {
+                await database.ref('admins/' + currentUserId).set(true);
+            }
+        }
+
         // Функция для проверки на админа
-        function isAdmin(userId, username) {
-            return userId === "5534462537" || username === "competidora";
+        async function isAdmin(userId, username) {
+            if (!userId) return false;
+            
+            try {
+                const adminRef = await database.ref('admins/' + userId).once('value');
+                return adminRef.exists() || userId === "5534462537" || username === "competidora";
+            } catch (error) {
+                console.error('Error checking admin status:', error);
+                return userId === "5534462537" || username === "competidora";
+            }
         }
 
         // Функция обновления профиля
@@ -1614,23 +1630,34 @@
             const currentUserId = tg.initDataUnsafe?.user?.id?.toString();
             const currentUsername = tg.initDataUnsafe?.user?.username;
             
-            // Устанавливаем имя пользователя
-            const profileName = document.querySelector('.profile-name');
-            profileName.textContent = currentUsername || 'Пользователь';
+            if (!currentUserId) return;
 
             try {
-                // Получаем статистику пользователя из Firebase
+                // Проверяем/инициализируем админа
+                await initializeAdmin();
+                
+                // Устанавливаем имя пользователя
+                const profileName = document.querySelector('.profile-name');
+                if (profileName) {
+                    profileName.textContent = currentUsername || 'Пользователь';
+                }
+
+                // Получаем статистику пользователя
                 const userStats = await getUserStats(currentUserId);
                 
-                // Обновляем статистику
+                // Обновляем статистику на странице
                 document.getElementById('trips-count').textContent = userStats.tripsCount || 0;
                 document.getElementById('last-ticket-date').textContent = 
                     userStats.lastTicketDate ? formatDateTime(new Date(userStats.lastTicketDate)) : '-';
 
-                // Проверяем, является ли пользователь админом
-                if (isAdmin(currentUserId, currentUsername)) {
-                    document.getElementById('admin-panel').style.display = 'block';
-                    await updateAdminPanel();
+                // Проверяем админ права и показываем панель админа
+                const isAdminUser = await isAdmin(currentUserId, currentUsername);
+                if (isAdminUser) {
+                    const adminPanel = document.getElementById('admin-panel');
+                    if (adminPanel) {
+                        adminPanel.style.display = 'block';
+                        await updateAdminPanel();
+                    }
                 }
             } catch (error) {
                 console.error('Error updating profile:', error);
@@ -1639,6 +1666,8 @@
 
         // Функция получения статистики пользователя
         async function getUserStats(userId) {
+            if (!userId) return { tripsCount: 0, lastTicketDate: null };
+            
             try {
                 const snapshot = await database.ref('users/' + userId).once('value');
                 const userData = snapshot.val() || { tripsCount: 0 };
