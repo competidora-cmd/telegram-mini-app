@@ -1290,6 +1290,34 @@
             from { opacity: 0; }
             to { opacity: 1; }
         }
+        .editable-select {
+            transition: all 0.2s ease;
+        }
+        .editable-select:hover {
+            border-color: #007AFF;
+            cursor: pointer;
+        }
+        .carrier-selection {
+            display: flex;
+            flex-direction: column;
+        }
+        .carrier-selection select {
+            margin-bottom: 8px;
+        }
+        @media (min-width: 481px) {
+            .carrier-selection {
+                flex-direction: row;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            .carrier-selection select {
+                margin-bottom: 0;
+            }
+            .edit-message {
+                position: absolute;
+                margin-top: 48px;
+            }
+        }
     </style>
 
 </head>
@@ -2116,11 +2144,33 @@
             
             if (route && route.carriers && route.carriers.length > 0) {
                 const carrierSelect = document.getElementById('carrier');
+                const carrierSelection = document.querySelector('.carrier-selection');
+                
+                // Обновляем список перевозчиков
                 if (route.carriers.length === 1) {
                     carrierSelect.value = route.carriers[0];
                 } else {
                     updateCarrierBasedOnRoute();
                 }
+                
+                // Убеждаемся, что select доступен для редактирования
+                carrierSelect.disabled = false;
+                
+                // Добавляем подсказку о возможности изменения
+                const existingMessage = carrierSelection.querySelector('.edit-message');
+                if (!existingMessage) {
+                    const messageDiv = document.createElement('div');
+                    messageDiv.className = 'edit-message';
+                    messageDiv.style.color = '#007AFF';
+                    messageDiv.style.fontSize = '13px';
+                    messageDiv.style.marginTop = '8px';
+                    messageDiv.style.marginBottom = '8px';
+                    messageDiv.innerHTML = '✏️ Вы можете изменить перевозчика вручную, если данные неверны';
+                    carrierSelection.appendChild(messageDiv);
+                }
+                
+                // Добавляем эффект при наведении на select
+                carrierSelect.classList.add('editable-select');
             } else {
                 alert('Для этого маршрута нет доступных перевозчиков');
             }
