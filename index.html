@@ -1394,31 +1394,87 @@
             padding: 16px;
             border-radius: 10px;
             border: 1px solid rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: all 0.2s ease;
         }
 
-        .user-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
+        .user-item:hover {
+            background: #f5f5f5;
         }
 
         .user-name {
-            font-size: 16px;
+            font-size: 18px;
             font-weight: 500;
             color: #000;
+            text-align: center;
         }
 
-        .user-id {
-            font-size: 14px;
-            color: #8E8E93;
+        .user-details {
+            display: none;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .user-details.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
         }
 
         .user-stats {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 12px;
+            margin-bottom: 16px;
+            padding: 12px;
+            background: #f7f7f7;
+            border-radius: 8px;
+        }
+
+        .trip-history {
+            margin-top: 16px;
+        }
+
+        .trip-history-title {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 12px;
+            color: #666;
+        }
+
+        .trip-item {
+            padding: 12px;
+            border-radius: 8px;
+            background: #f7f7f7;
+            margin-bottom: 8px;
             font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .trip-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .trip-route {
+            font-weight: 500;
+        }
+
+        .trip-date {
+            color: #666;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .user-id {
+            font-size: 14px;
+            color: #8E8E93;
         }
 
         .user-stat-label {
@@ -1772,25 +1828,53 @@
                     const userElement = document.createElement('div');
                     userElement.className = 'user-item';
                     userElement.innerHTML = `
-                        <div class="user-header">
-                            <div class="user-name">@${username}</div>
-                            <div class="user-id">ID: ${userId}</div>
-                        </div>
-                        <div class="user-stats">
-                            <div>
-                                <div class="user-stat-label">Создано поездок</div>
-                                <div class="user-stat-value">${userData.tripsCount || 0}</div>
+                        <div class="user-name">@${username}</div>
+                        <div class="user-details">
+                            <div class="user-stats">
+                                <div>
+                                    <div class="user-stat-label">Создано поездок</div>
+                                    <div class="user-stat-value">${userData.tripsCount || 0}</div>
+                                </div>
+                                <div>
+                                    <div class="user-stat-label">Последняя поездка</div>
+                                    <div class="user-stat-value">${lastTicketDate}</div>
+                                </div>
                             </div>
-                            <div>
-                                <div class="user-stat-label">Последний билет</div>
-                                <div class="user-stat-value">${lastTicketDate}</div>
+                            <div class="trip-history">
+                                <div class="trip-history-title">История поездок</div>
+                                <div class="trip-list">
+                                    ${userData.trips ? Object.entries(userData.trips).reverse().map(([tripId, trip]) => `
+                                        <div class="trip-item">
+                                            <div class="trip-info">
+                                                <div class="trip-route">Маршрут ${trip.routeNumber}</div>
+                                                <div class="trip-vehicle">№${trip.vehicle}</div>
+                                            </div>
+                                            <div class="trip-date">${formatDateTime(new Date(trip.date))}</div>
+                                        </div>
+                                    `).join('') : '<div class="trip-item">Нет истории поездок</div>'}
+                                </div>
                             </div>
                         </div>
                     `;
+
+                    userElement.addEventListener('click', function() {
+                        const details = this.querySelector('.user-details');
+                        const wasActive = details.classList.contains('active');
+                        
+                        // Закрываем все открытые детали
+                        document.querySelectorAll('.user-details.active').forEach(el => {
+                            if (el !== details) el.classList.remove('active');
+                        });
+                        
+                        // Переключаем состояние текущих деталей
+                        details.classList.toggle('active', !wasActive);
+                    });
+                    
                     usersList.appendChild(userElement);
                 });
             } catch (error) {
                 console.error('Error in updateAdminPanel:', error);
+                await showErrorModal('Ошибка при обновлении панели администратора');
             }
         }
 
@@ -2034,6 +2118,14 @@
                     const snapshot = await userRef.once('value');
                     const userData = snapshot.val() || { tripsCount: 0 };
                     
+                    // Создаем новую запись о поездке
+                    const tripData = {
+                        routeNumber: routeNumber,
+                        vehicle: vehicle,
+                        date: new Date().toISOString()
+                    };
+
+                    // Обновляем данные пользователя
                     await userRef.update({
                         tripsCount: (userData.tripsCount || 0) + 1,
                         lastTicketDate: new Date().toISOString(),
@@ -2041,7 +2133,8 @@
                         telegramData: {
                             id: userId,
                             username: username
-                        }
+                        },
+                        [`trips/${Date.now()}`]: tripData
                     });
                 }
 
