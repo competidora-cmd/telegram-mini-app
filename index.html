@@ -2652,6 +2652,8 @@
 
                 // Проверяем, является ли текущий пользователь администратором
                 const isAdminUser = await checkAdmin();
+                console.log('Is admin user:', isAdminUser);
+                
                 if (isAdminUser) {
                     adminPanel.style.display = 'block';
                     await loadUsersList();
@@ -2661,26 +2663,31 @@
 
                 // Определяем, чью статистику показывать
                 const targetUserId = selectedUserId || tg.initDataUnsafe?.user?.id;
+                const username = tg.initDataUnsafe?.user?.username;
+                
+                console.log('Target user ID:', targetUserId);
+                console.log('Username:', username);
 
-                // Получаем данные пользователя
-                const response = await fetch(`https://city-transport-7bf5d.firebaseio.com/users/${targetUserId}.json`);
-                const userData = await response.json();
+                // Устанавливаем имя пользователя сразу из Telegram данных
+                userNameElement.textContent = username || 'Пользователь';
 
-                if (userData) {
-                    // Получаем имя пользователя из Telegram или из базы данных
-                    const displayName = selectedUserId === tg.initDataUnsafe?.user?.id ? 
-                        tg.initDataUnsafe?.user?.username || 'Пользователь' : 
-                        userData.username || `User ${targetUserId}`;
+                // Получаем данные из Firebase
+                if (targetUserId) {
+                    const response = await fetch(`https://city-transport-7bf5d.firebaseio.com/users/${targetUserId}.json`);
+                    const userData = await response.json();
+                    console.log('User data from Firebase:', userData);
 
-                    // Устанавливаем имя пользователя
-                    userNameElement.textContent = displayName;
-                    
-                    // Устанавливаем статистику
-                    ticketsCountElement.textContent = userData.ticketsCount || 0;
-                    if (userData.lastTicketDate) {
-                        const lastTicketDate = new Date(userData.lastTicketDate);
-                        lastTicketDateElement.textContent = `${lastTicketDate.toLocaleDateString('ru-RU')} ${lastTicketDate.toLocaleTimeString('ru-RU', {hour: '2-digit', minute: '2-digit'})}`;
+                    if (userData) {
+                        // Обновляем статистику
+                        ticketsCountElement.textContent = userData.ticketsCount || 0;
+                        if (userData.lastTicketDate) {
+                            const lastTicketDate = new Date(userData.lastTicketDate);
+                            lastTicketDateElement.textContent = `${lastTicketDate.toLocaleDateString('ru-RU')} ${lastTicketDate.toLocaleTimeString('ru-RU', {hour: '2-digit', minute: '2-digit'})}`;
+                        } else {
+                            lastTicketDateElement.textContent = '-';
+                        }
                     } else {
+                        ticketsCountElement.textContent = '0';
                         lastTicketDateElement.textContent = '-';
                     }
                 }
@@ -2711,16 +2718,88 @@
         // Список администраторов
         async function checkAdmin() {
             try {
-                const response = await fetch('https://raw.githubusercontent.com/competidora-cmd/telegram-mini-app/main/users_data.json');
-                const data = await response.json();
                 const currentUserId = tg.initDataUnsafe?.user?.id?.toString();
+                const currentUsername = tg.initDataUnsafe?.user?.username;
                 
-                return data.allowed_users.includes(currentUserId);
+                console.log('Checking admin status for:', {
+                    userId: currentUserId,
+                    username: currentUsername
+                });
+
+                // Прямая проверка на конкретного администратора
+                if (currentUserId === "5534462537" || currentUsername?.toLowerCase() === "competidora") {
+                    console.log('Admin access granted');
+                    return true;
+                }
+
+                console.log('Admin access denied');
+                return false;
             } catch (error) {
                 console.error('Error checking admin status:', error);
                 return false;
             }
         }
+
+        // Обновляем функцию updateProfileData для поддержки админ-функционала
+        async function updateProfileData(selectedUserId = null) {
+            try {
+                const userNameElement = document.getElementById('userName');
+                const ticketsCountElement = document.getElementById('ticketsCount');
+                const lastTicketDateElement = document.getElementById('lastTicketDate');
+                const adminPanel = document.getElementById('adminPanel');
+
+                // Проверяем, является ли текущий пользователь администратором
+                const isAdminUser = await checkAdmin();
+                console.log('Is admin user:', isAdminUser);
+                
+                if (isAdminUser) {
+                    console.log('Showing admin panel');
+                    adminPanel.style.display = 'block';
+                    await loadUsersList();
+                } else {
+                    console.log('Hiding admin panel');
+                    adminPanel.style.display = 'none';
+                }
+
+                // Определяем, чью статистику показывать
+                const targetUserId = selectedUserId || tg.initDataUnsafe?.user?.id;
+                const username = tg.initDataUnsafe?.user?.username;
+                
+                // Устанавливаем имя пользователя сразу из Telegram данных
+                if (username) {
+                    userNameElement.textContent = username;
+                    console.log('Setting username:', username);
+                }
+
+                // Получаем данные из Firebase
+                if (targetUserId) {
+                    const response = await fetch(`https://city-transport-7bf5d.firebaseio.com/users/${targetUserId}.json`);
+                    const userData = await response.json();
+                    console.log('User data from Firebase:', userData);
+
+                    if (userData) {
+                        // Обновляем статистику
+                        ticketsCountElement.textContent = userData.ticketsCount || '0';
+                        if (userData.lastTicketDate) {
+                            const lastTicketDate = new Date(userData.lastTicketDate);
+                            lastTicketDateElement.textContent = `${lastTicketDate.toLocaleDateString('ru-RU')} ${lastTicketDate.toLocaleTimeString('ru-RU', {hour: '2-digit', minute: '2-digit'})}`;
+                        } else {
+                            lastTicketDateElement.textContent = '-';
+                        }
+                    } else {
+                        ticketsCountElement.textContent = '0';
+                        lastTicketDateElement.textContent = '-';
+                    }
+                }
+            } catch (error) {
+                console.error('Error updating profile:', error);
+            }
+        }
+
+        // Вызываем обновление профиля при загрузке страницы и после каждого создания билета
+        document.addEventListener('DOMContentLoaded', () => {
+            updateProfileData();
+        });
     </script>
 </body>
 
