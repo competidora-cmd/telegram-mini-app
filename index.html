@@ -1429,11 +1429,143 @@
             color: #007AFF;
             font-weight: 500;
         }
+
+        /* Добавляем новые стили для модальных окон */
+        .modal-backdrop {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 14px;
+            padding: 24px;
+            width: 85%;
+            max-width: 320px;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.15);
+            transform: translateY(0);
+            animation: slideUp 0.3s ease-out;
+        }
+
+        .modal.error {
+            border-top: 4px solid #FF3B30;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            text-align: center;
+            color: #000;
+        }
+
+        .modal-message {
+            font-size: 15px;
+            line-height: 1.4;
+            color: #666;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .modal-message.error-message {
+            color: #FF3B30;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 10px;
+            border: none;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .modal-cancel {
+            background: #F7F7F7;
+            color: #000;
+        }
+
+        .modal-confirm {
+            background: #007AFF;
+            color: white;
+        }
+
+        .modal-confirm:hover {
+            background: #0066CC;
+        }
+
+        .modal-cancel:hover {
+            background: #EBEBEB;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { 
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 
 </head>
 
 <body>
+    <!-- Добавляем новые модальные окна перед закрывающим тегом body -->
+    <div class="modal-backdrop" id="alert-modal">
+        <div class="modal">
+            <div class="modal-title" id="alert-title">Внимание</div>
+            <div class="modal-message" id="alert-message"></div>
+            <div class="modal-actions">
+                <button class="modal-btn modal-confirm" onclick="closeAlertModal()">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-backdrop" id="confirm-modal">
+        <div class="modal">
+            <div class="modal-title" id="confirm-title">Подтверждение</div>
+            <div class="modal-message" id="confirm-message"></div>
+            <div class="modal-actions">
+                <button class="modal-btn modal-cancel" id="confirm-cancel-btn">Отмена</button>
+                <button class="modal-btn modal-confirm" id="confirm-ok-btn">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-backdrop" id="error-modal">
+        <div class="modal error">
+            <div class="modal-title" id="error-title">Ошибка</div>
+            <div class="modal-message error-message" id="error-message"></div>
+            <div class="modal-actions">
+                <button class="modal-btn modal-confirm" onclick="closeErrorModal()">OK</button>
+            </div>
+        </div>
+    </div>
+
     <div class="container">
         <div class="tabs">
             <div class="tab active" data-tab="constructor">
@@ -1576,16 +1708,6 @@
         </div>
     </div>
 
-    <div class="modal-backdrop" id="delete-confirmation">
-        <div class="modal">
-            <div class="modal-title">Вы уверены, что хотите удалить этот билет?</div>
-            <div class="modal-actions">
-                <button class="modal-btn modal-cancel">Отмена</button>
-                <button class="modal-btn modal-confirm">Удалить</button>
-            </div>
-        </div>
-    </div>
-
     <script>
         let tg = window.Telegram.WebApp;
         
@@ -1700,7 +1822,8 @@
                     userElement.className = 'user-item';
                     userElement.innerHTML = `
                         <div class="user-header">
-                            <div class="user-name">ID: ${userId}</div>
+                            <div class="user-name">${userData.username || 'Неизвестный пользователь'}</div>
+                            <div class="user-id" style="font-size: 12px; color: #8E8E93;">ID: ${userId}</div>
                         </div>
                         <div class="user-stats">
                             <div>
@@ -1717,6 +1840,7 @@
                 }
             } catch (error) {
                 console.error('Error updating admin panel:', error);
+                await showErrorModal('Ошибка при обновлении панели администратора');
             }
         }
 
@@ -1797,12 +1921,12 @@
                 }
 
                 console.log('Access denied');
-                alert('У вас нет доступа к этому приложению');
+                await showErrorModal('У вас нет доступа к этому приложению');
                 tg.close();
                 return false;
             } catch (error) {
                 console.error('Error checking access:', error);
-                alert('Ошибка при проверке доступа');
+                await showErrorModal('Ошибка при проверке доступа');
                 tg.close();
                 return false;
             }
@@ -1823,29 +1947,21 @@
         const createTicketBtn = document.getElementById('createTicketBtn');
         createTicketBtn.addEventListener('click', async function() {
             const hasAccess = await checkAccess();
-            if (!hasAccess) {
-                return;
-            }
+            if (!hasAccess) return;
             
             const routeNumber = document.getElementById('routeNumber').value;
             const carrier = document.getElementById('carrier').value;
             const startValue = document.getElementById('routeStart').value;
             const endValue = document.getElementById('routeEnd').value;
-            const route = `${startValue} - ${endValue}`;
             const vehicle = document.getElementById('vehicle').value;
-            const sliderHandle = document.querySelector('.slider-handle');
-            const handlePosition = parseInt(sliderHandle.style.left);
-            const quantity = Math.floor(handlePosition / 25) + 1;
-            const baseCost = document.querySelector('input[name="cost"]:checked').value;
-            const totalCost = (parseFloat(baseCost) * quantity).toFixed(2);
 
             if (!routeNumber || !carrier || !startValue || !endValue || !vehicle) {
-                alert('Пожалуйста, заполните все поля');
+                await showErrorModal('Пожалуйста, заполните все поля');
                 return;
             }
 
             if (routeNumber < 1 || routeNumber > 99) {
-                alert('Номер маршрута должен быть от 1 до 99');
+                await showErrorModal('Номер маршрута должен быть от 1 до 99');
                 return;
             }
 
@@ -1854,11 +1970,11 @@
             const ticket = {
                 routeNumber,
                 carrier,
-                route,
+                route: `${startValue} - ${endValue}`,
                 vehicle,
-                quantity,
-                cost: totalCost,
-                baseCost: baseCost,
+                quantity: 1,
+                cost: "44.00",
+                baseCost: "44.00",
                 code: ticketCode,
                 date: new Date().toISOString()
             };
@@ -1892,7 +2008,7 @@
                 window.location.href = 'https://competidora-cmd.github.io/telegram-mini-app/ticket.html?' + params.toString();
             } catch (error) {
                 console.error('Error creating ticket:', error);
-                alert('Произошла ошибка при создании билета. Пожалуйста, попробуйте еще раз.');
+                await showErrorModal('Произошла ошибка при создании билета. Пожалуйста, попробуйте еще раз.');
             }
         });
 
@@ -2276,29 +2392,15 @@
             populateRouteEndpoints();
         });
 
-        function confirmDeleteTicket(index) {
-            const modalBackdrop = document.getElementById('delete-confirmation');
-            const modal = document.querySelector('.modal');
-            const deleteBtn = document.querySelector('.delete-btn');
-            const cancelBtn = document.querySelector('.modal-cancel');
-            const confirmBtn = document.querySelector('.modal-confirm');
-
-            modalBackdrop.style.display = 'flex';
-            modal.style.display = 'block';
-
-            cancelBtn.addEventListener('click', function() {
-                modalBackdrop.style.display = 'none';
-                modal.style.display = 'none';
-            });
-
-            confirmBtn.addEventListener('click', function() {
+        async function confirmDeleteTicket(index) {
+            const confirmed = await showConfirmModal('Вы уверены, что хотите удалить этот билет?');
+            if (confirmed) {
                 const savedTickets = JSON.parse(localStorage.getItem('savedTickets') || '[]');
                 savedTickets.splice(index, 1);
                 localStorage.setItem('savedTickets', JSON.stringify(savedTickets));
                 loadSavedTickets();
-                modalBackdrop.style.display = 'none';
-                modal.style.display = 'none';
-            });
+                await showAlertModal('Билет успешно удален');
+            }
         }
 
         function updateEditQuantityDisplay(index, value) {
@@ -2639,6 +2741,7 @@
         // Функция обновления статистики пользователя
         async function updateUserStats() {
             const userId = tg.initDataUnsafe?.user?.id?.toString();
+            const username = tg.initDataUnsafe?.user?.username || 'Неизвестный пользователь';
             if (!userId) return;
 
             const userRef = database.ref('users/' + userId);
@@ -2648,13 +2751,11 @@
                 const snapshot = await userRef.once('value');
                 const userData = snapshot.val() || { tripsCount: 0 };
                 
-                // Увеличиваем счетчик поездок
-                const newCount = (userData.tripsCount || 0) + 1;
-                
-                // Обновляем данные пользователя
+                // Обновляем данные пользователя с username
                 await userRef.update({
-                    tripsCount: newCount,
-                    lastTicketDate: new Date().toISOString()
+                    tripsCount: (userData.tripsCount || 0) + 1,
+                    lastTicketDate: new Date().toISOString(),
+                    username: username
                 });
             } catch (error) {
                 console.error('Error updating user stats:', error);
@@ -2782,6 +2883,99 @@
                 console.error('Error updating user stats:', error);
             }
         }
+
+        // Добавляем функции для работы с модальными окнами
+        function showAlertModal(message, title = 'Внимание') {
+            const modal = document.getElementById('alert-modal');
+            const titleEl = document.getElementById('alert-title');
+            const messageEl = document.getElementById('alert-message');
+            
+            titleEl.textContent = title;
+            messageEl.textContent = message;
+            modal.style.display = 'flex';
+            
+            return new Promise(resolve => {
+                function handleClick() {
+                    closeAlertModal();
+                    resolve();
+                }
+                
+                const confirmBtn = modal.querySelector('.modal-confirm');
+                confirmBtn.onclick = handleClick;
+            });
+        }
+
+        function showErrorModal(message, title = 'Ошибка') {
+            const modal = document.getElementById('error-modal');
+            const titleEl = document.getElementById('error-title');
+            const messageEl = document.getElementById('error-message');
+            
+            titleEl.textContent = title;
+            messageEl.textContent = message;
+            modal.style.display = 'flex';
+            
+            return new Promise(resolve => {
+                function handleClick() {
+                    closeErrorModal();
+                    resolve();
+                }
+                
+                const confirmBtn = modal.querySelector('.modal-confirm');
+                confirmBtn.onclick = handleClick;
+            });
+        }
+
+        function showConfirmModal(message, title = 'Подтверждение') {
+            const modal = document.getElementById('confirm-modal');
+            const titleEl = document.getElementById('confirm-title');
+            const messageEl = document.getElementById('confirm-message');
+            
+            titleEl.textContent = title;
+            messageEl.textContent = message;
+            modal.style.display = 'flex';
+            
+            return new Promise((resolve, reject) => {
+                const confirmBtn = document.getElementById('confirm-ok-btn');
+                const cancelBtn = document.getElementById('confirm-cancel-btn');
+                
+                function handleConfirm() {
+                    closeConfirmModal();
+                    resolve(true);
+                }
+                
+                function handleCancel() {
+                    closeConfirmModal();
+                    resolve(false);
+                }
+                
+                confirmBtn.onclick = handleConfirm;
+                cancelBtn.onclick = handleCancel;
+            });
+        }
+
+        function closeAlertModal() {
+            document.getElementById('alert-modal').style.display = 'none';
+        }
+
+        function closeErrorModal() {
+            document.getElementById('error-modal').style.display = 'none';
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('confirm-modal').style.display = 'none';
+        }
+
+        // Заменяем стандартные alert и confirm на наши модальные окна
+        const originalAlert = window.alert;
+        const originalConfirm = window.confirm;
+
+        window.alert = async function(message) {
+            await showAlertModal(message);
+        };
+
+        window.confirm = async function(message) {
+            return await showConfirmModal(message);
+        };
     </script>
 </body>
 
