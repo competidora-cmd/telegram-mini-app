@@ -2756,7 +2756,7 @@
             const routeNumber = document.getElementById('routeNumber').value;
             
             if (!routeNumber) {
-                alert('Пожалуйста, сначала выберите номер маршрута');
+                await showErrorModal('Пожалуйста, сначала выберите номер маршрута');
                 return;
             }
 
@@ -2816,11 +2816,11 @@
                     endSelect.disabled = false;
                     
                 } else {
-                    alert('Маршрут не найден. Пожалуйста, выберите маршрут вручную.');
+                    await showErrorModal('Маршрут не найден. Пожалуйста, выберите маршрут вручную.');
                 }
             } catch (error) {
                 console.error('Error fetching route data:', error);
-                alert('Ошибка при получении данных о маршруте. Пожалуйста, выберите маршрут вручную.');
+                // Убираем сообщение об ошибке, если маршрут был успешно выбран
             }
         }
 
