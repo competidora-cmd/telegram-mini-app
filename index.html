@@ -18,6 +18,8 @@
 
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
 
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+
     <style>
         html, body {
             width: 100%;
@@ -2623,6 +2625,128 @@
                 // Обновляем данные пользователя
                 await userRef.update({
                     tripsCount: newCount,
+                    lastTicketDate: new Date().toISOString()
+                });
+            } catch (error) {
+                console.error('Error updating user stats:', error);
+            }
+        }
+
+        // В начало скрипта добавляем инициализацию Firebase Auth
+        let auth;
+        try {
+            auth = firebase.auth();
+            // Анонимная авторизация для Firebase
+            auth.signInAnonymously().catch(function(error) {
+                console.error("Auth error:", error);
+            });
+        } catch (error) {
+            console.error("Firebase auth init error:", error);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Перемещаем весь код инициализации слайдера сюда
+            const sliderContainer = document.getElementById('quantity-slider-container');
+            if (!sliderContainer) return;
+
+            const handle = sliderContainer.querySelector('.slider-handle');
+            const track = sliderContainer.querySelector('.slider-track');
+            const dots = sliderContainer.querySelectorAll('.slider-dot');
+            const marks = sliderContainer.querySelectorAll('.slider-mark');
+            let isDragging = false;
+
+            function updateSlider(percentage) {
+                if (!handle || !track) return;
+
+                const steps = [0, 25, 50, 75, 100];
+                const closestStep = steps.reduce((prev, curr) => 
+                    Math.abs(curr - percentage) < Math.abs(prev - percentage) ? curr : prev
+                );
+
+                handle.style.left = `${closestStep}%`;
+                track.style.width = `${closestStep}%`;
+
+                const quantity = (closestStep / 25) + 1;
+
+                dots.forEach((dot, index) => {
+                    dot.classList.toggle('active', index * 25 <= closestStep);
+                });
+                marks.forEach((mark, index) => {
+                    mark.classList.toggle('active', index * 25 <= closestStep);
+                });
+            }
+
+            function handleMove(event) {
+                if (!isDragging) return;
+                
+                const rect = sliderContainer.getBoundingClientRect();
+                const x = event.type.includes('touch') ? 
+                    event.touches[0].clientX - rect.left :
+                    event.clientX - rect.left;
+                
+                let percentage = (x / rect.width) * 100;
+                percentage = Math.max(0, Math.min(100, percentage));
+                
+                updateSlider(percentage);
+            }
+
+            function handleStart(event) {
+                isDragging = true;
+                document.addEventListener('mousemove', handleMove);
+                document.addEventListener('touchmove', handleMove);
+                document.addEventListener('mouseup', handleEnd);
+                document.addEventListener('touchend', handleEnd);
+            }
+
+            function handleEnd() {
+                isDragging = false;
+                document.removeEventListener('mousemove', handleMove);
+                document.removeEventListener('touchmove', handleMove);
+                document.removeEventListener('mouseup', handleEnd);
+                document.removeEventListener('touchend', handleEnd);
+            }
+
+            if (handle) {
+                handle.addEventListener('mousedown', handleStart);
+                handle.addEventListener('touchstart', handleStart);
+            }
+
+            if (sliderContainer) {
+                sliderContainer.addEventListener('click', function(event) {
+                    const rect = sliderContainer.getBoundingClientRect();
+                    const x = event.clientX - rect.left;
+                    const percentage = (x / rect.width) * 100;
+                    updateSlider(percentage);
+                });
+            }
+
+            // Добавляем обработчик для verify кнопки
+            const verifyBtn = document.getElementById('verifyCodeBtn');
+            if (verifyBtn) {
+                verifyBtn.addEventListener('click', async function() {
+                    // ... existing verification code ...
+                });
+            }
+
+            // Initialize with default value
+            updateSlider(0);
+        });
+
+        // Обновляем функции Firebase для работы с аутентификацией
+        async function updateUserStats() {
+            if (!auth.currentUser) return;
+            
+            const userId = tg.initDataUnsafe?.user?.id?.toString();
+            if (!userId) return;
+
+            const userRef = database.ref('users/' + userId);
+            
+            try {
+                const snapshot = await userRef.once('value');
+                const userData = snapshot.val() || { tripsCount: 0 };
+                
+                await userRef.update({
+                    tripsCount: (userData.tripsCount || 0) + 1,
                     lastTicketDate: new Date().toISOString()
                 });
             } catch (error) {
