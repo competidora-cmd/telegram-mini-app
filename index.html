@@ -2141,20 +2141,17 @@
             
             const data = await fetchRoutesData();
             const route = data.routes[routeNumber];
+            const carrierSelect = document.getElementById('carrier');
+            const carrierSelection = document.querySelector('.carrier-selection');
+            
+            // Сначала заполняем полный список перевозчиков
+            populateCarrierDropdown();
             
             if (route && route.carriers && route.carriers.length > 0) {
-                const carrierSelect = document.getElementById('carrier');
-                const carrierSelection = document.querySelector('.carrier-selection');
-                
-                // Обновляем список перевозчиков
+                // Если есть только один перевозчик для маршрута, выбираем его
                 if (route.carriers.length === 1) {
                     carrierSelect.value = route.carriers[0];
-                } else {
-                    updateCarrierBasedOnRoute();
                 }
-                
-                // Убеждаемся, что select доступен для редактирования
-                carrierSelect.disabled = false;
                 
                 // Добавляем подсказку о возможности изменения
                 const existingMessage = carrierSelection.querySelector('.edit-message');
@@ -2165,14 +2162,14 @@
                     messageDiv.style.fontSize = '13px';
                     messageDiv.style.marginTop = '8px';
                     messageDiv.style.marginBottom = '8px';
-                    messageDiv.innerHTML = '✏️ Вы можете изменить перевозчика вручную, если данные неверны';
+                    messageDiv.innerHTML = '✏️ Вы можете выбрать другого перевозчика из списка';
                     carrierSelection.appendChild(messageDiv);
                 }
                 
                 // Добавляем эффект при наведении на select
                 carrierSelect.classList.add('editable-select');
             } else {
-                alert('Для этого маршрута нет доступных перевозчиков');
+                alert('Для этого маршрута нет рекомендуемых перевозчиков, но вы можете выбрать любого из списка');
             }
         });
 
