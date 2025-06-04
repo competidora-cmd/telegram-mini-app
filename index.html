@@ -149,21 +149,27 @@
         label {
             display: block;
             margin-bottom: 10px;
-            font-weight: 400;
-            color: #8E8E93;
+            font-weight: 600;
+            color: #A2ACB0;
             font-size: 15px;
+            font-family: Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            letter-spacing: 0.15px;
+            line-height: 22px;
         }
         input, select {
             width: 100%;
             padding: 16px;
             border: 1px solid rgba(60, 60, 67, 0.1);
             border-radius: 14px;
-            font-size: 17px;
+            font-size: 16px;
+            font-family: Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             background: #fff;
             color: #000;
             transition: all 0.2s ease;
             -webkit-appearance: none;
             appearance: none;
+            line-height: 24px;
+            letter-spacing: 0.15px;
         }
         select {
             background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%238E8E93' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
@@ -172,8 +178,10 @@
             padding-right: 40px;
         }
         input::placeholder {
-            color: #8E8E93;
-            font-size: 17px;
+            color: #A2ACB0;
+            font-size: 16px;
+            font-weight: 400;
+            letter-spacing: 0.15px;
         }
         input:focus, select:focus {
             outline: none;
@@ -1271,6 +1279,17 @@
         .svg-inline--fa mask .fa-secondary {
             fill: black;
         }
+        .route-endpoint:hover {
+            border-color: #007AFF;
+            cursor: pointer;
+        }
+        .edit-message {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
     </style>
 
 </head>
@@ -1279,8 +1298,8 @@
     <div class="container">
         <div class="tabs">
             <div class="tab active" data-tab="constructor">
-                <svg viewBox="0 0 24 24">
-                    <path fill="currentColor" d="M4 4h16v12H4V4zm8 12v4m-4 0h8M4 8h16M4 12h16"/>
+                <svg width="14" height="11" viewBox="0 0 14 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M8.21826 0.626873C8.70047 0.747427 8.99366 1.23607 8.8731 1.71828L6.8731 9.71828C6.75255 10.2005 6.26391 10.4937 5.78169 10.3731C5.29948 10.2526 5.00629 9.76394 5.12685 9.28172L7.12685 1.28172C7.2474 0.799504 7.73604 0.506319 8.21826 0.626873ZM4.13637 2.36361C4.48784 2.71508 4.48784 3.28493 4.13637 3.6364L2.27277 5.5L4.13637 7.36361C4.48784 7.71508 4.48784 8.28493 4.13637 8.6364C3.7849 8.98787 3.21505 8.98787 2.86358 8.6364L0.363579 6.1364C0.0121076 5.78493 0.0121076 5.21508 0.363579 4.86361L2.86358 2.36361C3.21505 2.01213 3.7849 2.01213 4.13637 2.36361ZM9.86358 2.36361C10.2151 2.01213 10.7849 2.01213 11.1364 2.36361L13.6364 4.86361C13.9878 5.21508 13.9878 5.78493 13.6364 6.1364L11.1364 8.6364C10.7849 8.98787 10.2151 8.98787 9.86358 8.6364C9.51211 8.28493 9.51211 7.71508 9.86358 7.36361L11.7272 5.5L9.86358 3.6364C9.51211 3.28493 9.51211 2.71508 9.86358 2.36361Z" fill="currentColor"/>
                 </svg>
                 Конструктор
             </div>
@@ -1417,13 +1436,16 @@
             tg = window.Telegram.WebApp;
             tg.expand();
             tg.ready();
+            // Устанавливаем белый цвет для заголовка
+            tg.setHeaderColor('#ffffff');
         } catch (error) {
             console.error('Error initializing Telegram Web App:', error);
             tg = {
                 initDataUnsafe: { user: { id: 'test_user' } },
                 close: () => console.log('Close called'),
                 expand: () => console.log('Expand called'),
-                ready: () => console.log('Ready called')
+                ready: () => console.log('Ready called'),
+                setHeaderColor: () => console.log('SetHeaderColor called')
             };
         }
 
@@ -2146,12 +2168,33 @@
                     }
                     
                     document.getElementById('route').value = `${route.start} - ${route.end}`;
+
+                    // Добавляем подсказку о возможности редактирования
+                    const messageDiv = document.createElement('div');
+                    messageDiv.style.color = '#007AFF';
+                    messageDiv.style.fontSize = '13px';
+                    messageDiv.style.marginTop = '8px';
+                    messageDiv.style.marginBottom = '8px';
+                    messageDiv.innerHTML = '✏️ Вы можете изменить маршрут вручную, если данные неверны';
+                    
+                    const routeSelector = document.querySelector('.route-selector');
+                    const existingMessage = routeSelector.querySelector('.edit-message');
+                    if (existingMessage) {
+                        existingMessage.remove();
+                    }
+                    messageDiv.className = 'edit-message';
+                    routeSelector.insertBefore(messageDiv, document.getElementById('routeStart').parentNode);
+
+                    // Делаем поля активными и доступными для редактирования
+                    startSelect.disabled = false;
+                    endSelect.disabled = false;
+                    
                 } else {
-                    alert('Маршрут не найден');
+                    alert('Маршрут не найден. Пожалуйста, выберите маршрут вручную.');
                 }
             } catch (error) {
                 console.error('Error fetching route data:', error);
-                alert('Ошибка при получении данных о маршруте');
+                alert('Ошибка при получении данных о маршруте. Пожалуйста, выберите маршрут вручную.');
             }
         }
 
