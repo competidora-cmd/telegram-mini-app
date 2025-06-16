@@ -1616,6 +1616,10 @@
         <div class="modal error">
             <div class="modal-title" id="error-title">Ошибка</div>
             <div class="modal-message error-message" id="error-message"></div>
+            <div id="error-code-block" style="display:none; margin-bottom: 12px; text-align:center;">
+                <span style="color:#8E8E93; font-size:13px;">Код ошибки: <span id="error-code-value" style="font-weight:bold; user-select:all; cursor:pointer;"></span></span>
+                <button id="copy-error-code-btn" style="margin-left:8px; padding:2px 8px; font-size:13px; border-radius:6px; border:none; background:#F7F7F7; color:#007AFF; cursor:pointer;">Скопировать</button>
+            </div>
             <div class="modal-actions">
                 <button class="modal-btn modal-confirm" onclick="closeErrorModal()">OK</button>
             </div>
@@ -2095,8 +2099,8 @@
                 route: `${startValue} - ${endValue}`,
                 vehicle,
                 quantity: 1,
-                cost: "44.00",
-                baseCost: "44.00",
+                cost: "35.00",
+                baseCost: "35.00",
                 code: ticketCode,
                 date: currentDate
             };
@@ -2891,8 +2895,8 @@
                     route: `${routeInfo.start} - ${routeInfo.end}`,
                     vehicle: vehicleNumber,
                     quantity: 1,
-                    cost: "44.00",
-                    baseCost: "44.00",
+                    cost: "35.00",
+                    baseCost: "35.00",
                     code: generateRandomTicketNumber(),
                     date: new Date().toISOString()
                 };
@@ -2980,21 +2984,33 @@
             });
         }
 
-        function showErrorModal(message, title = 'Ошибка') {
+        function showErrorModal(message, title = 'Ошибка', errorCode = null) {
             const modal = document.getElementById('error-modal');
             const titleEl = document.getElementById('error-title');
             const messageEl = document.getElementById('error-message');
-            
+            const codeBlock = document.getElementById('error-code-block');
+            const codeValue = document.getElementById('error-code-value');
+            const copyBtn = document.getElementById('copy-error-code-btn');
+
             titleEl.textContent = title;
             messageEl.textContent = message;
+            if (errorCode) {
+                codeBlock.style.display = 'block';
+                codeValue.textContent = errorCode;
+                copyBtn.onclick = function() {
+                    navigator.clipboard.writeText(errorCode);
+                    copyBtn.textContent = 'Скопировано!';
+                    setTimeout(() => { copyBtn.textContent = 'Скопировать'; }, 1200);
+                };
+            } else {
+                codeBlock.style.display = 'none';
+            }
             modal.style.display = 'flex';
-            
             return new Promise(resolve => {
                 function handleClick() {
                     closeErrorModal();
                     resolve();
                 }
-                
                 const confirmBtn = modal.querySelector('.modal-confirm');
                 confirmBtn.onclick = handleClick;
             });
@@ -3051,6 +3067,11 @@
         window.confirm = async function(message) {
             return await showConfirmModal(message);
         };
+
+        // Пример использования для случая отсутствия перевозчиков:
+        async function handleNoCarriers() {
+            await showErrorModal('Для этого маршрута нет рекомендуемых перевозчиков, но вы можете выбрать любого из списка.', 'Нет перевозчиков', '110');
+        }
     </script>
 </body>
 
