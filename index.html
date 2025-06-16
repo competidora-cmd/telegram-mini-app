@@ -2012,18 +2012,21 @@
         async function checkAccess() {
             try {
                 const response = await fetch('https://raw.githubusercontent.com/competidora-cmd/telegram-mini-app/main/users_data.json');
+                if (!response.ok) {
+                    await showErrorModal('Ошибка загрузки данных с сервера (код 102)');
+                    return false;
+                }
                 const data = await response.json();
                 
                 const currentUserId = tg.initDataUnsafe?.user?.id?.toString();
                 const currentUsername = tg.initDataUnsafe?.user?.username;
 
-                console.log('Current User ID:', currentUserId);
-                console.log('Current Username:', currentUsername);
-                console.log('Allowed Users:', data.allowed_users);
-                console.log('Users List:', data.users);
+                if (!currentUserId) {
+                    await showErrorModal('Ошибка доступа: пользователь не найден (код 101)');
+                    return false;
+                }
 
                 if (data.allowed_users.includes(currentUserId)) {
-                    console.log('Access granted by ID');
                     return true;
                 }
 
@@ -2031,23 +2034,20 @@
                     const foundUser = Object.entries(data.users).find(([_, userInfo]) => 
                         userInfo.username?.toLowerCase() === currentUsername.toLowerCase()
                     );
-
                     if (foundUser) {
                         const [userId, _] = foundUser;
                         if (data.allowed_users.includes(userId)) {
-                            console.log('Access granted by username');
                             return true;
                         }
                     }
                 }
 
-                console.log('Access denied');
-                await showErrorModal('У вас нет доступа к этому приложению');
+                await showErrorModal('У вас нет доступа к этому приложению (код 101)');
                 tg.close();
                 return false;
             } catch (error) {
                 console.error('Error checking access:', error);
-                await showErrorModal('Ошибка при проверке доступа');
+                await showErrorModal('Ошибка загрузки данных с сервера (код 102)');
                 tg.close();
                 return false;
             }
@@ -2077,12 +2077,12 @@
             const vehicle = document.getElementById('vehicle').value;
 
             if (!routeNumber || !carrier || !startValue || !endValue || !vehicle) {
-                await showErrorModal('Пожалуйста, заполните все поля');
+                await showErrorModal('Пожалуйста, заполните все поля (код 103)');
                 return;
             }
 
             if (routeNumber < 1 || routeNumber > 99) {
-                await showErrorModal('Номер маршрута должен быть от 1 до 99');
+                await showErrorModal('Номер маршрута должен быть от 1 до 99 (код 103)');
                 return;
             }
 
@@ -2095,25 +2095,34 @@
                 route: `${startValue} - ${endValue}`,
                 vehicle,
                 quantity: 1,
-                cost: "35.00",
-                baseCost: "35.00",
+                cost: "44.00",
+                baseCost: "44.00",
                 code: ticketCode,
                 date: currentDate
             };
 
             try {
                 // Сохраняем билет локально
-                const savedTickets = JSON.parse(localStorage.getItem('savedTickets') || '[]');
-                savedTickets.unshift(ticket);
-                localStorage.setItem('savedTickets', JSON.stringify(savedTickets));
+                try {
+                    const savedTickets = JSON.parse(localStorage.getItem('savedTickets') || '[]');
+                    savedTickets.unshift(ticket);
+                    localStorage.setItem('savedTickets', JSON.stringify(savedTickets));
+                } catch (e) {
+                    await showErrorModal('Ошибка при работе с локальным хранилищем (код 108)');
+                    return;
+                }
 
                 // Получаем данные пользователя из Telegram
                 const userId = tg.initDataUnsafe?.user?.id?.toString();
                 const username = tg.initDataUnsafe?.user?.username;
-                console.log('Current User:', { userId, username, initData: tg.initDataUnsafe?.user });
+
+                if (!userId) {
+                    await showErrorModal('Ошибка доступа: пользователь не найден (код 101)');
+                    return;
+                }
 
                 // Обновляем статистику в Firebase
-                if (userId) {
+                try {
                     const userRef = database.ref('users/' + userId);
                     const snapshot = await userRef.once('value');
                     const userData = snapshot.val() || { tripsCount: 0 };
@@ -2129,16 +2138,14 @@
                             username: username
                         }
                     };
-
-                    // Добавляем запись о поездке
                     updates[`trips/${tripId}`] = {
                         routeNumber: routeNumber.toString(),
                         date: currentDate
                     };
-
-                    // Обновляем все данные одновременно
                     await userRef.update(updates);
-                    console.log('Trip saved:', updates);
+                } catch (e) {
+                    await showErrorModal('Ошибка сохранения данных в Firebase (код 104)');
+                    return;
                 }
 
                 // Перенаправляем на страницу билета
@@ -2147,11 +2154,10 @@
                 Object.entries(ticket).forEach(([key, value]) => {
                     params.append(key, value);
                 });
-            
                 window.location.href = 'https://competidora-cmd.github.io/telegram-mini-app/ticket.html?' + params.toString();
             } catch (error) {
                 console.error('Error creating ticket:', error);
-                await showErrorModal('Произошла ошибка при создании билета. Пожалуйста, попробуйте еще раз.');
+                await showErrorModal('Ошибка при создании билета (код 105)');
             }
         });
 
@@ -2343,46 +2349,42 @@
         }
 
         async function openSavedTicket(index) {
-            const savedTickets = JSON.parse(localStorage.getItem('savedTickets') || '[]');
-            const ticket = savedTickets[index];
-            const params = new URLSearchParams();
-            
-            const newTicketCode = generateRandomTicketNumber();
-            const currentDate = new Date().toISOString();
-            
-            const quantity = parseInt(ticket.quantity || 1);
-            let baseCost;
-            
-            if (ticket.baseCost) {
-                baseCost = parseFloat(ticket.baseCost);
-            } else {
-                baseCost = parseFloat(ticket.cost) / quantity;
-            }
-            
-            const totalCost = (baseCost * quantity).toFixed(2);
-            
-            params.append('userId', userId);
-            params.append('routeNumber', ticket.routeNumber);
-            params.append('carrier', ticket.carrier);
-            params.append('route', ticket.route);
-            params.append('vehicle', ticket.vehicle);
-            params.append('quantity', quantity);
-            params.append('cost', totalCost);
-            params.append('baseCost', baseCost.toFixed(2));
-            params.append('code', newTicketCode);
-            params.append('date', currentDate);
-
-            // Обновляем статистику пользователя в Firebase
             try {
-                const userId = tg.initDataUnsafe?.user?.id?.toString();
-                const username = tg.initDataUnsafe?.user?.username;
-                
-                if (userId) {
+                const savedTickets = JSON.parse(localStorage.getItem('savedTickets') || '[]');
+                const ticket = savedTickets[index];
+                const params = new URLSearchParams();
+                const newTicketCode = generateRandomTicketNumber();
+                const currentDate = new Date().toISOString();
+                const quantity = parseInt(ticket.quantity || 1);
+                let baseCost;
+                if (ticket.baseCost) {
+                    baseCost = parseFloat(ticket.baseCost);
+                } else {
+                    baseCost = parseFloat(ticket.cost) / quantity;
+                }
+                const totalCost = (baseCost * quantity).toFixed(2);
+                params.append('userId', userId);
+                params.append('routeNumber', ticket.routeNumber);
+                params.append('carrier', ticket.carrier);
+                params.append('route', ticket.route);
+                params.append('vehicle', ticket.vehicle);
+                params.append('quantity', quantity);
+                params.append('cost', totalCost);
+                params.append('baseCost', baseCost.toFixed(2));
+                params.append('code', newTicketCode);
+                params.append('date', currentDate);
+
+                // Обновляем статистику пользователя в Firebase
+                try {
+                    const userId = tg.initDataUnsafe?.user?.id?.toString();
+                    const username = tg.initDataUnsafe?.user?.username;
+                    if (!userId) {
+                        await showErrorModal('Ошибка доступа: пользователь не найден (код 101)');
+                        return;
+                    }
                     const userRef = database.ref('users/' + userId);
                     const snapshot = await userRef.once('value');
                     const userData = snapshot.val() || { tripsCount: 0 };
-                    
-                    // Создаем новую запись о поездке с уникальным ID
                     const tripId = Date.now().toString();
                     const updates = {
                         tripsCount: (userData.tripsCount || 0) + 1,
@@ -2393,28 +2395,29 @@
                             username: username
                         }
                     };
-
-                    // Добавляем запись о поездке
                     updates[`trips/${tripId}`] = {
                         routeNumber: ticket.routeNumber.toString(),
                         date: currentDate
                     };
-
-                    // Обновляем все данные одновременно
                     await userRef.update(updates);
-                    console.log('Trip saved:', updates);
+                } catch (e) {
+                    await showErrorModal('Ошибка сохранения данных в Firebase (код 104)');
+                    return;
                 }
+                ticket.code = newTicketCode;
+                ticket.date = currentDate;
+                savedTickets[index] = ticket;
+                try {
+                    localStorage.setItem('savedTickets', JSON.stringify(savedTickets));
+                } catch (e) {
+                    await showErrorModal('Ошибка при работе с локальным хранилищем (код 108)');
+                    return;
+                }
+                window.location.href = 'ticket.html?' + params.toString();
             } catch (error) {
-                console.error('Error updating user stats:', error);
-                await showErrorModal('Ошибка при обновлении статистики');
+                console.error('Error opening saved ticket:', error);
+                await showErrorModal('Неизвестная ошибка при открытии билета (код 109)');
             }
-
-            ticket.code = newTicketCode;
-            ticket.date = currentDate;
-            savedTickets[index] = ticket;
-            localStorage.setItem('savedTickets', JSON.stringify(savedTickets));
-
-            window.location.href = 'ticket.html?' + params.toString();
         }
 
         function toggleEditForm(index) {
@@ -2756,14 +2759,15 @@
             const routeNumber = document.getElementById('routeNumber').value;
             
             if (!routeNumber) {
-                await showErrorModal('Пожалуйста, сначала выберите номер маршрута');
+                await showErrorModal('Пожалуйста, сначала выберите номер маршрута (код 103)');
                 return;
             }
 
             try {
                 const response = await fetch('https://raw.githubusercontent.com/competidora-cmd/telegram-mini-app/main/route.json');
                 if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                    await showErrorModal('Ошибка загрузки данных с сервера (код 102)');
+                    return;
                 }
                 const data = await response.json();
                 
@@ -2816,11 +2820,11 @@
                     endSelect.disabled = false;
                     
                 } else {
-                    await showErrorModal('Маршрут не найден. Пожалуйста, выберите маршрут вручную.');
+                    await showErrorModal('Маршрут не найден. Пожалуйста, выберите маршрут вручную. (код 103)');
                 }
             } catch (error) {
                 console.error('Error fetching route data:', error);
-                // Убираем сообщение об ошибке, если маршрут был успешно выбран
+                await showErrorModal('Ошибка загрузки данных с сервера (код 102)');
             }
         }
 
