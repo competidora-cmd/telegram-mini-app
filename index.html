@@ -1937,6 +1937,7 @@
                     if (adminPanel) {
                         adminPanel.style.display = 'block';
                         await updateAdminPanel();
+                        await setupAdminPanel(); // Добавляю вызов для управления allowed_users
                     }
                 }
             } catch (error) {
