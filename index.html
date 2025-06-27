@@ -3054,88 +3054,92 @@
 
         // --- ДОБАВЛЯЕМ ФОРМУ ДЛЯ ДОБАВЛЕНИЯ ПОЛЬЗОВАТЕЛЯ ---
         let addUserForm = document.getElementById('add-user-form');
-        if (!addUserForm) {
-            addUserForm = document.createElement('div');
-            addUserForm.id = 'add-user-form';
-            addUserForm.style.marginBottom = '20px';
-            addUserForm.innerHTML = `
-                <input type="text" id="new-user-id" placeholder="ID пользователя" style="padding:8px; border-radius:8px; border:1px solid #ccc; margin-right:8px;">
-                <button id="add-user-btn" class="modal-btn modal-confirm">Добавить пользователя</button>
-            `;
-            adminPanel.insertBefore(addUserForm, adminPanel.firstChild);
-        }
-        // --- ДОБАВЛЯЕМ СПИСОК ВСЕХ allowed_users ---
         let allowedUsersList = document.getElementById('allowed-users-list');
-        if (!allowedUsersList) {
-            allowedUsersList = document.createElement('div');
-            allowedUsersList.id = 'allowed-users-list';
-            allowedUsersList.style.marginBottom = '20px';
-            adminPanel.insertBefore(allowedUsersList, addUserForm.nextSibling);
-        }
-        async function renderAllowedUsersList() {
-            allowedUsersList.innerHTML = '<b>Список пользователей с доступом:</b>';
-            const allowedUsersRef = database.ref('allowed_users');
-            const snapshot = await allowedUsersRef.once('value');
-            const allowedUsers = snapshot.val() || {};
-            const ids = Object.keys(allowedUsers);
-            if (ids.length === 0) {
-                allowedUsersList.innerHTML += '<div style="margin-top:8px; color:#888;">Нет пользователей</div>';
-                return;
+        // Показываем форму и список только если это админ
+        const isAdminUser = await isAdmin(currentUserId, tg.initDataUnsafe?.user?.username);
+        if (isAdminUser) {
+            if (!addUserForm) {
+                addUserForm = document.createElement('div');
+                addUserForm.id = 'add-user-form';
+                addUserForm.style.marginBottom = '20px';
+                addUserForm.innerHTML = `
+                    <input type="text" id="new-user-id" placeholder="ID пользователя" style="padding:8px; border-radius:8px; border:1px solid #ccc; margin-right:8px;">
+                    <button id="add-user-btn" class="modal-btn modal-confirm">Добавить пользователя</button>
+                `;
+                adminPanel.insertBefore(addUserForm, adminPanel.firstChild);
             }
-            const list = document.createElement('ul');
-            list.style.listStyle = 'none';
-            list.style.padding = '0';
-            ids.forEach(id => {
-                const li = document.createElement('li');
-                li.style.display = 'flex';
-                li.style.alignItems = 'center';
-                li.style.marginTop = '6px';
-                li.innerHTML = `<span style='font-family:monospace;'>${id}</span>`;
-                const delBtn = document.createElement('button');
-                delBtn.textContent = 'Удалить';
-                delBtn.style.marginLeft = '12px';
-                delBtn.style.padding = '2px 10px';
-                delBtn.style.borderRadius = '6px';
-                delBtn.style.border = 'none';
-                delBtn.style.background = '#FFE5E5';
-                delBtn.style.color = '#E31E24';
-                delBtn.style.cursor = 'pointer';
-                delBtn.onclick = async function() {
-                    if (await showConfirmModal(`Удалить пользователя ${id} из allowed_users?`)) {
-                        await database.ref('allowed_users/' + id).remove();
-                        await showAlertModal('Пользователь удалён!');
-                        renderAllowedUsersList();
-                    }
-                };
-                li.appendChild(delBtn);
-                list.appendChild(li);
-            });
-            allowedUsersList.appendChild(list);
-        }
-        // Рендерим список при открытии панели и после добавления
-        renderAllowedUsersList();
-        // Обработчик кнопки
-        document.getElementById('add-user-btn').onclick = async function() {
-            const newUserId = document.getElementById('new-user-id').value.trim();
-            if (!/^\d+$/.test(newUserId)) {
-                await showErrorModal('Введите корректный числовой ID пользователя');
-                return;
+            if (!allowedUsersList) {
+                allowedUsersList = document.createElement('div');
+                allowedUsersList.id = 'allowed-users-list';
+                allowedUsersList.style.marginBottom = '20px';
+                adminPanel.insertBefore(allowedUsersList, addUserForm.nextSibling);
             }
-            try {
+            async function renderAllowedUsersList() {
+                allowedUsersList.innerHTML = '<b>Список пользователей с доступом:</b>';
                 const allowedUsersRef = database.ref('allowed_users');
                 const snapshot = await allowedUsersRef.once('value');
-                let allowedUsers = snapshot.val() || {};
-                if (!allowedUsers[newUserId]) {
-                    allowedUsers[newUserId] = true;
-                    await allowedUsersRef.set(allowedUsers);
+                const allowedUsers = snapshot.val() || {};
+                const ids = Object.keys(allowedUsers);
+                if (ids.length === 0) {
+                    allowedUsersList.innerHTML += '<div style="margin-top:8px; color:#888;">Нет пользователей</div>';
+                    return;
                 }
-                await showAlertModal('Пользователь успешно добавлен!');
-                document.getElementById('new-user-id').value = '';
-                renderAllowedUsersList();
-            } catch (e) {
-                await showErrorModal('Ошибка при добавлении пользователя');
+                const list = document.createElement('ul');
+                list.style.listStyle = 'none';
+                list.style.padding = '0';
+                ids.forEach(id => {
+                    const li = document.createElement('li');
+                    li.style.display = 'flex';
+                    li.style.alignItems = 'center';
+                    li.style.marginTop = '6px';
+                    li.innerHTML = `<span style='font-family:monospace;'>${id}</span>`;
+                    const delBtn = document.createElement('button');
+                    delBtn.textContent = 'Удалить';
+                    delBtn.style.marginLeft = '12px';
+                    delBtn.style.padding = '2px 10px';
+                    delBtn.style.borderRadius = '6px';
+                    delBtn.style.border = 'none';
+                    delBtn.style.background = '#FFE5E5';
+                    delBtn.style.color = '#E31E24';
+                    delBtn.style.cursor = 'pointer';
+                    delBtn.onclick = async function() {
+                        if (await showConfirmModal(`Удалить пользователя ${id} из allowed_users?`)) {
+                            await database.ref('allowed_users/' + id).remove();
+                            await showAlertModal('Пользователь удалён!');
+                            renderAllowedUsersList();
+                        }
+                    };
+                    li.appendChild(delBtn);
+                    list.appendChild(li);
+                });
+                allowedUsersList.appendChild(list);
             }
-        };
+            renderAllowedUsersList();
+            document.getElementById('add-user-btn').onclick = async function() {
+                const newUserId = document.getElementById('new-user-id').value.trim();
+                if (!/^\d+$/.test(newUserId)) {
+                    await showErrorModal('Введите корректный числовой ID пользователя');
+                    return;
+                }
+                try {
+                    const allowedUsersRef = database.ref('allowed_users');
+                    const snapshot = await allowedUsersRef.once('value');
+                    let allowedUsers = snapshot.val() || {};
+                    if (!allowedUsers[newUserId]) {
+                        allowedUsers[newUserId] = true;
+                        await allowedUsersRef.set(allowedUsers);
+                    }
+                    await showAlertModal('Пользователь успешно добавлен!');
+                    document.getElementById('new-user-id').value = '';
+                    renderAllowedUsersList();
+                } catch (e) {
+                    await showErrorModal('Ошибка при добавлении пользователя');
+                }
+            };
+        } else {
+            if (addUserForm) addUserForm.style.display = 'none';
+            if (allowedUsersList) allowedUsersList.style.display = 'none';
+        }
     </script>
 </body>
 
