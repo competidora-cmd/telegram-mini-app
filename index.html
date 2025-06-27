@@ -2014,6 +2014,9 @@
                 if (tab.dataset.tab === 'verify') {
                     await updateProfile();
                 }
+                if (tab.dataset.tab === 'game') {
+                    initGameTab();
+                }
             });
         });
 
@@ -2484,6 +2487,9 @@
                 }
                 if (tab.dataset.tab === 'verify') {
                     await updateProfile();
+                }
+                if (tab.dataset.tab === 'game') {
+                    initGameTab();
                 }
             });
         });
@@ -3300,12 +3306,20 @@
             renderOpenRooms();
         }
 
-        document.getElementById('createRoomBtn').onclick = createRoom;
-        document.getElementById('joinRoomBtn').onclick = function() {
-            const roomId = document.getElementById('joinRoomId').value.trim();
-            if (roomId) joinRoom(roomId);
-        };
-        renderOpenRooms();
+        function initGameTab() {
+            const createRoomBtn = document.getElementById('createRoomBtn');
+            if (createRoomBtn) {
+                createRoomBtn.onclick = createRoom;
+            }
+            const joinRoomBtn = document.getElementById('joinRoomBtn');
+            if (joinRoomBtn) {
+                joinRoomBtn.onclick = function() {
+                    const roomId = document.getElementById('joinRoomId')?.value.trim();
+                    if (roomId) joinRoom(roomId);
+                };
+            }
+            renderOpenRooms && renderOpenRooms();
+        }
     </script>
 </body>
 
