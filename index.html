@@ -1982,6 +1982,13 @@
         // Добавляем обработчик для обновления профиля при переключении на вкладку
         document.querySelectorAll('.tab').forEach(tab => {
             tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.tab + '-content').classList.add('active');
+                if (tab.dataset.tab === 'saved') {
+                    loadSavedTickets();
+                }
                 if (tab.dataset.tab === 'verify') {
                     updateProfile();
                 }
