@@ -1981,7 +1981,7 @@
 
         // Добавляем обработчик для обновления профиля при переключении на вкладку
         document.querySelectorAll('.tab').forEach(tab => {
-            tab.addEventListener('click', () => {
+            tab.addEventListener('click', async () => {
                 document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
                 document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
                 tab.classList.add('active');
@@ -1990,7 +1990,7 @@
                     loadSavedTickets();
                 }
                 if (tab.dataset.tab === 'verify') {
-                    updateProfile();
+                    await updateProfile();
                 }
             });
         });
@@ -2048,9 +2048,10 @@
             if (!hasAccess) {
                 document.getElementById('constructor-content').style.display = 'none';
                 document.getElementById('saved-content').style.display = 'none';
+                document.getElementById('verify-content').style.display = 'none';
+                // Можно добавить показ отдельного div с ошибкой доступа
                 return;
             }
-            
             populateCarrierDropdown();
             populateRouteEndpoints();
         });
@@ -2451,15 +2452,16 @@
         }
 
         document.querySelectorAll('.tab').forEach(tab => {
-            tab.addEventListener('click', () => {
+            tab.addEventListener('click', async () => {
                 document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
                 document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                
                 tab.classList.add('active');
                 document.getElementById(tab.dataset.tab + '-content').classList.add('active');
-                
                 if (tab.dataset.tab === 'saved') {
                     loadSavedTickets();
+                }
+                if (tab.dataset.tab === 'verify') {
+                    await updateProfile();
                 }
             });
         });
