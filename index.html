@@ -1628,6 +1628,13 @@
 
     <div class="container">
         <div class="tabs">
+            <div class="tab" data-tab="game">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                    <path d="M8 15l4-4 4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Игра
+            </div>
             <div class="tab active" data-tab="constructor">
                 <svg width="14" height="11" viewBox="0 0 14 11" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path fill-rule="evenodd" clip-rule="evenodd" d="M8.21826 0.626873C8.70047 0.747427 8.99366 1.23607 8.8731 1.71828L6.8731 9.71828C6.75255 10.2005 6.26391 10.4937 5.78169 10.3731C5.29948 10.2526 5.00629 9.76394 5.12685 9.28172L7.12685 1.28172C7.2474 0.799504 7.73604 0.506319 8.21826 0.626873ZM4.13637 2.36361C4.48784 2.71508 4.48784 3.28493 4.13637 3.6364L2.27277 5.5L4.13637 7.36361C4.48784 7.71508 4.48784 8.28493 4.13637 8.6364C3.7849 8.98787 3.21505 8.98787 2.86358 8.6364L0.363579 6.1364C0.0121076 5.78493 0.0121076 5.21508 0.363579 4.86361L2.86358 2.36361C3.21505 2.01213 3.7849 2.01213 4.13637 2.36361ZM9.86358 2.36361C10.2151 2.01213 10.7849 2.01213 11.1364 2.36361L13.6364 4.86361C13.9878 5.21508 13.9878 5.78493 13.6364 6.1364L11.1364 8.6364C10.7849 8.98787 10.2151 8.98787 9.86358 8.6364C9.51211 8.28493 9.51211 7.71508 9.86358 7.36361L11.7272 5.5L9.86358 3.6364C9.51211 3.28493 9.51211 2.71508 9.86358 2.36361Z" fill="currentColor"/>
@@ -1645,6 +1652,20 @@
                     <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
                 </svg>
                 Профиль
+            </div>
+        </div>
+
+        <div class="tab-content" id="game-content" style="display:none;">
+            <div id="game-room-ui" style="max-width:400px;margin:32px auto 0;">
+                <div id="game-room-main">
+                    <button id="createRoomBtn" style="width:100%;padding:14px 0;font-size:17px;border-radius:10px;background:#E31E24;color:#fff;border:none;cursor:pointer;font-weight:600;margin-bottom:16px;">Создать комнату</button>
+                    <div style="display:flex;gap:8px;margin-bottom:16px;">
+                        <input id="joinRoomId" type="text" placeholder="ID комнаты" style="flex:1;padding:10px;border-radius:8px;border:1px solid #ccc;">
+                        <button id="joinRoomBtn" style="padding:10px 18px;border-radius:8px;background:#007AFF;color:#fff;border:none;cursor:pointer;font-weight:500;">Войти</button>
+                    </div>
+                    <div id="openRoomsBlock" style="margin-bottom:16px;"></div>
+                </div>
+                <div id="game-room-status" style="display:none;"></div>
             </div>
         </div>
 
@@ -3152,6 +3173,139 @@
             renderAllowedUsersList();
         }
         setupAdminPanel();
+
+        document.getElementById('goToPasswordGameBtn').onclick = function() {
+            window.open('https://example.com/game-password', '_blank'); // Замени ссылку на свою игру, если нужно
+        };
+
+        // --- JS для комнат игры Пароль ---
+        const gameRoomMain = document.getElementById('game-room-main');
+        const gameRoomStatus = document.getElementById('game-room-status');
+        const openRoomsBlock = document.getElementById('openRoomsBlock');
+        let currentRoomId = null;
+        let currentRoomListener = null;
+        let user = tg.initDataUnsafe?.user || { id: 'test_user', username: 'test' };
+
+        async function renderOpenRooms() {
+            const roomsRef = database.ref('rooms');
+            const snapshot = await roomsRef.once('value');
+            const rooms = snapshot.val() || {};
+            const openRooms = Object.entries(rooms).filter(([roomId, room]) => room.users && Object.keys(room.users).length === 1);
+            if (openRooms.length === 0) {
+                openRoomsBlock.innerHTML = '<div style="color:#888;font-size:15px;">Нет открытых комнат</div>';
+                return;
+            }
+            openRoomsBlock.innerHTML = '<div style="font-size:15px;margin-bottom:4px;">Открытые комнаты:</div>';
+            openRooms.forEach(([roomId, room]) => {
+                const btn = document.createElement('button');
+                btn.textContent = `Войти в ${roomId}`;
+                btn.style.margin = '0 6px 6px 0';
+                btn.style.padding = '6px 12px';
+                btn.style.borderRadius = '8px';
+                btn.style.border = 'none';
+                btn.style.background = '#F7F7F7';
+                btn.style.color = '#007AFF';
+                btn.style.cursor = 'pointer';
+                btn.onclick = () => joinRoom(roomId);
+                openRoomsBlock.appendChild(btn);
+            });
+        }
+
+        async function createRoom() {
+            const roomRef = database.ref('rooms').push();
+            await roomRef.set({
+                users: {
+                    [user.id]: { username: user.username || 'user' }
+                },
+                createdAt: Date.now()
+            });
+            joinRoom(roomRef.key);
+        }
+
+        async function joinRoom(roomId) {
+            const roomRef = database.ref('rooms/' + roomId + '/users');
+            const snapshot = await roomRef.once('value');
+            const users = snapshot.val() || {};
+            if (Object.keys(users).length >= 2 && !users[user.id]) {
+                alert('Комната уже заполнена');
+                return;
+            }
+            await roomRef.child(user.id).set({ username: user.username || 'user' });
+            enterRoom(roomId);
+        }
+
+        function enterRoom(roomId) {
+            currentRoomId = roomId;
+            gameRoomMain.style.display = 'none';
+            gameRoomStatus.style.display = 'block';
+            renderRoomStatus(roomId);
+            if (currentRoomListener) database.ref('rooms/' + currentRoomListener).off();
+            currentRoomListener = roomId;
+            database.ref('rooms/' + roomId).on('value', snap => {
+                if (!snap.exists()) {
+                    leaveRoomUI();
+                    return;
+                }
+                renderRoomStatus(roomId);
+            });
+        }
+
+        async function renderRoomStatus(roomId) {
+            const roomRef = database.ref('rooms/' + roomId);
+            const snapshot = await roomRef.once('value');
+            const room = snapshot.val();
+            if (!room) {
+                leaveRoomUI();
+                return;
+            }
+            const users = room.users || {};
+            const userList = Object.entries(users).map(([id, u]) => `<li style='font-family:monospace;'>${u.username || id}${id === user.id ? ' (вы)' : ''}</li>`).join('');
+            let html = `<div style='font-size:16px;font-weight:600;margin-bottom:8px;'>ID комнаты: <span style='font-family:monospace;'>${roomId}</span></div>`;
+            html += `<div style='margin-bottom:8px;'>В комнате:</div><ul style='margin-bottom:12px;'>${userList}</ul>`;
+            // Кнопка перехода только если оба ввели пароль
+            if (Object.keys(users).length === 2 && Object.values(users).every(u => u.secret)) {
+                html += `<button id='goToPasswordGameBtn' style='padding:14px 28px;font-size:17px;border-radius:10px;background:#4CAF50;color:#fff;border:none;cursor:pointer;font-weight:600;'>Перейти к игре Пароль</button>`;
+            } else {
+                html += `<div style='color:#888;font-size:15px;margin-bottom:8px;'>Ожидание второго игрока или пароля...</div>`;
+            }
+            html += `<button id='leaveRoomBtn' style='padding:8px 18px;border-radius:8px;background:#F7F7F7;color:#E31E24;border:none;cursor:pointer;font-weight:500;'>Выйти из комнаты</button>`;
+            gameRoomStatus.innerHTML = html;
+            if (Object.keys(users).length === 2 && Object.values(users).every(u => u.secret)) {
+                document.getElementById('goToPasswordGameBtn').onclick = function() {
+                    window.open('game.html?roomId=' + roomId, '_blank');
+                };
+            }
+            document.getElementById('leaveRoomBtn').onclick = leaveRoom;
+        }
+
+        async function leaveRoom() {
+            if (!currentRoomId) return;
+            const userRef = database.ref('rooms/' + currentRoomId + '/users/' + user.id);
+            await userRef.remove();
+            // Если в комнате больше нет пользователей — удалить комнату
+            const usersRef = database.ref('rooms/' + currentRoomId + '/users');
+            const usersSnapshot = await usersRef.once('value');
+            if (!usersSnapshot.exists()) {
+                await database.ref('rooms/' + currentRoomId).remove();
+            }
+            leaveRoomUI();
+        }
+
+        function leaveRoomUI() {
+            if (currentRoomListener) database.ref('rooms/' + currentRoomListener).off();
+            currentRoomId = null;
+            currentRoomListener = null;
+            gameRoomMain.style.display = 'block';
+            gameRoomStatus.style.display = 'none';
+            renderOpenRooms();
+        }
+
+        document.getElementById('createRoomBtn').onclick = createRoom;
+        document.getElementById('joinRoomBtn').onclick = function() {
+            const roomId = document.getElementById('joinRoomId').value.trim();
+            if (roomId) joinRoom(roomId);
+        };
+        renderOpenRooms();
     </script>
 </body>
 
