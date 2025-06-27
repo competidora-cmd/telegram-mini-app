@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Игра Пароль (онлайн)</title>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f7f7f7; margin: 0; padding: 0; min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
+        .container { background: #fff; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); margin: 40px 0 0 0; padding: 32px 24px 24px 24px; max-width: 400px; width: 100%; }
+        h1 { text-align: center; color: #E31E24; margin-bottom: 24px; }
+        .status { text-align: center; margin-bottom: 18px; color: #007AFF; font-size: 16px; }
+        .input-block { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; color: #888; font-size: 15px; }
+        input[type="text"] { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; font-size: 18px; margin-bottom: 8px; }
+        button { padding: 12px 24px; border-radius: 10px; border: none; background: #E31E24; color: #fff; font-size: 17px; font-weight: 500; cursor: pointer; transition: background 0.2s; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        .history { margin-top: 24px; }
+        .history-title { font-size: 16px; color: #888; margin-bottom: 8px; }
+        .attempt-list { list-style: none; padding: 0; margin: 0; }
+        .attempt-item { background: #F7F7F7; border-radius: 8px; padding: 10px 14px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; font-size: 16px; }
+        .success { background: #E8F5E9; color: #1B5E20; }
+        .hint { color: #007AFF; font-weight: 500; }
+        .winner { color: #E31E24; font-size: 18px; font-weight: 600; text-align: center; margin-top: 18px; }
+        .restart-btn { margin-top: 24px; background: #007AFF; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Игра "Пароль" (онлайн)</h1>
+        <div id="status" class="status"></div>
+        <div id="secret-block" class="input-block">
+            <label for="secret">Загадайте 4-значный пароль</label>
+            <input type="text" id="secret" maxlength="4" pattern="\d{4}" autocomplete="off" inputmode="numeric" placeholder="Например: 3882">
+            <button id="setSecretBtn">Задать пароль</button>
+        </div>
+        <div id="guess-block" class="input-block" style="display:none;">
+            <label for="guess">Введите 4-значное число</label>
+            <input type="text" id="guess" maxlength="4" pattern="\d{4}" autocomplete="off" inputmode="numeric" placeholder="Попробуйте угадать пароль соперника">
+            <button id="tryGuessBtn">Проверить</button>
+        </div>
+        <div id="hint-block" style="display:none; margin-bottom:16px; font-size:16px;"></div>
+        <div class="history" id="history-block" style="display:none;">
+            <div class="history-title">История попыток:</div>
+            <ul class="attempt-list" id="attempt-list"></ul>
+        </div>
+        <div id="opponent-status" class="status" style="display:none;"></div>
+        <div id="winner-block" class="winner" style="display:none;"></div>
+        <button id="restartBtn" class="restart-btn" style="display:none;">Начать заново</button>
+    </div>
+    <script>
+    // --- Firebase config ---
+    const firebaseConfig = {
+        apiKey: "AIzaSyDM5RnxC3PxOUJSX4dqxFWcYN_DuH8XJD8",
+        authDomain: "city-transport-7bf5d.firebaseapp.com",
+        databaseURL: "https://city-transport-7bf5d-default-rtdb.firebaseio.com",
+        projectId: "city-transport-7bf5d",
+        storageBucket: "city-transport-7bf5d.appspot.com",
+        messagingSenderId: "1046730199977",
+        appId: "1:1046730199977:web:a6859e96df590f02c83a39"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    // --- Получаем roomId и userId из URL или генерируем ---
+    function getParam(name) {
+        const url = new URL(window.location.href);
+        return url.searchParams.get(name);
+    }
+    const roomId = getParam('roomId');
+    let userId = localStorage.getItem('game_user_id');
+    if (!userId) {
+        userId = 'u' + Math.random().toString(36).slice(2, 10);
+        localStorage.setItem('game_user_id', userId);
+    }
+    let username = localStorage.getItem('game_username') || ('Игрок_' + userId.slice(-4));
+
+    // --- DOM ---
+    const statusDiv = document.getElementById('status');
+    const secretBlock = document.getElementById('secret-block');
+    const guessBlock = document.getElementById('guess-block');
+    const setSecretBtn = document.getElementById('setSecretBtn');
+    const tryGuessBtn = document.getElementById('tryGuessBtn');
+    const secretInput = document.getElementById('secret');
+    const guessInput = document.getElementById('guess');
+    const hintBlock = document.getElementById('hint-block');
+    const historyBlock = document.getElementById('history-block');
+    const attemptList = document.getElementById('attempt-list');
+    const opponentStatus = document.getElementById('opponent-status');
+    const winnerBlock = document.getElementById('winner-block');
+    const restartBtn = document.getElementById('restartBtn');
+
+    let mySecret = '';
+    let myGuesses = [];
+    let myFinished = false;
+    let opponentId = null;
+    let opponent = null;
+    let opponentFinished = false;
+    let winner = null;
+
+    // --- Слушаем комнату ---
+    function listenRoom() {
+        if (!roomId) {
+            statusDiv.textContent = 'Ошибка: не указан roomId в URL.';
+            secretBlock.style.display = 'none';
+            return;
+        }
+        const roomRef = database.ref('rooms/' + roomId + '/users');
+        roomRef.on('value', snap => {
+            const users = snap.val() || {};
+            const ids = Object.keys(users);
+            opponentId = ids.find(id => id !== userId);
+            opponent = opponentId ? users[opponentId] : null;
+            // Обновляем статус
+            updateStatus(users);
+        });
+        // Слушаем победителя
+        database.ref('rooms/' + roomId + '/winner').on('value', snap => {
+            winner = snap.val();
+            if (winner) showWinner();
+        });
+    }
+
+    function updateStatus(users) {
+        const me = users[userId] || {};
+        opponent = opponentId ? users[opponentId] : null;
+        mySecret = me.secret || '';
+        myGuesses = me.guesses || [];
+        myFinished = !!me.finished;
+        opponentFinished = opponent ? !!opponent.finished : false;
+        // Если оба ввели секреты — показываем поле для угадывания
+        if (mySecret && opponent && opponent.secret) {
+            secretBlock.style.display = 'none';
+            guessBlock.style.display = myFinished ? 'none' : '';
+            historyBlock.style.display = myGuesses.length ? '' : 'none';
+            renderHistory();
+            if (myFinished) {
+                hintBlock.style.display = '';
+                hintBlock.innerHTML = `<span class='hint'>Вы завершили игру! Ждём соперника...</span>`;
+            } else {
+                hintBlock.style.display = 'none';
+            }
+            // Показываем статус соперника
+            opponentStatus.style.display = '';
+            opponentStatus.textContent = opponentFinished ? 'Соперник завершил игру!' : 'Соперник ещё играет...';
+        } else {
+            // Ожидаем второго игрока или ввода секретов
+            secretBlock.style.display = mySecret ? 'none' : '';
+            guessBlock.style.display = 'none';
+            historyBlock.style.display = 'none';
+            hintBlock.style.display = 'none';
+            opponentStatus.style.display = '';
+            if (!opponent) {
+                opponentStatus.textContent = 'Ожидание второго игрока...';
+            } else if (!mySecret) {
+                opponentStatus.textContent = 'Введите свой пароль!';
+            } else if (!opponent.secret) {
+                opponentStatus.textContent = 'Ожидание, пока соперник задаст пароль...';
+            }
+        }
+    }
+
+    setSecretBtn.onclick = async function() {
+        const val = secretInput.value.trim();
+        if (!/^\d{4}$/.test(val)) {
+            alert('Введите корректный 4-значный пароль');
+            return;
+        }
+        await database.ref('rooms/' + roomId + '/users/' + userId + '/secret').set(val);
+        secretInput.value = '';
+    };
+
+    tryGuessBtn.onclick = async function() {
+        const guess = guessInput.value.trim();
+        if (!/^\d{4}$/.test(guess)) {
+            alert('Введите корректное 4-значное число');
+            return;
+        }
+        if (!opponent || !opponent.secret) {
+            alert('Соперник ещё не задал пароль!');
+            return;
+        }
+        const hits = countHits(opponent.secret, guess);
+        const isWin = guess === opponent.secret;
+        myGuesses.push({ guess, hits, isWin });
+        await database.ref('rooms/' + roomId + '/users/' + userId + '/guesses').set(myGuesses);
+        if (isWin) {
+            await database.ref('rooms/' + roomId + '/users/' + userId + '/finished').set(true);
+            checkWinner();
+        }
+        guessInput.value = '';
+        renderHistory();
+    };
+
+    function countHits(secret, guess) {
+        let s = secret.split('');
+        let g = guess.split('');
+        let count = 0;
+        let secretCounts = {};
+        for (let ch of s) secretCounts[ch] = (secretCounts[ch] || 0) + 1;
+        for (let ch of g) {
+            if (secretCounts[ch]) {
+                count++;
+                secretCounts[ch]--;
+            }
+        }
+        return count;
+    }
+
+    function renderHistory() {
+        historyBlock.style.display = myGuesses.length ? '' : 'none';
+        attemptList.innerHTML = '';
+        myGuesses.forEach((a, i) => {
+            const li = document.createElement('li');
+            li.className = 'attempt-item' + (a.isWin ? ' success' : '');
+            li.innerHTML = `<span>${i+1}. ${a.guess}</span><span>${a.isWin ? 'Угадано!' : 'Совпадений: ' + a.hits}</span>`;
+            attemptList.appendChild(li);
+        });
+    }
+
+    async function checkWinner() {
+        // Проверяем, кто первый завершил
+        const usersSnap = await database.ref('rooms/' + roomId + '/users').once('value');
+        const users = usersSnap.val() || {};
+        const arr = Object.entries(users);
+        if (arr.length < 2) return;
+        const [u1, u2] = arr;
+        if (u1[1].finished && u2[1].finished) {
+            // Оба завершили — сравниваем количество попыток
+            let winnerId = null;
+            if (u1[1].guesses.length < u2[1].guesses.length) winnerId = u1[0];
+            else if (u2[1].guesses.length < u1[1].guesses.length) winnerId = u2[0];
+            else winnerId = 'draw';
+            await database.ref('rooms/' + roomId + '/winner').set(winnerId);
+        }
+    }
+
+    function showWinner() {
+        winnerBlock.style.display = '';
+        guessBlock.style.display = 'none';
+        hintBlock.style.display = 'none';
+        opponentStatus.style.display = 'none';
+        if (winner === 'draw') {
+            winnerBlock.textContent = 'Ничья! Оба игрока угадали за одинаковое число попыток.';
+        } else if (winner === userId) {
+            winnerBlock.textContent = 'Поздравляем! Вы победили!';
+        } else {
+            winnerBlock.textContent = 'Победил соперник!';
+        }
+        restartBtn.style.display = '';
+    }
+
+    restartBtn.onclick = function() {
+        // Очищаем только свою часть
+        database.ref('rooms/' + roomId + '/users/' + userId).set({ username });
+        database.ref('rooms/' + roomId + '/winner').remove();
+        winnerBlock.style.display = 'none';
+        resetLocal();
+    };
+
+    function resetLocal() {
+        mySecret = '';
+        myGuesses = [];
+        myFinished = false;
+        opponent = null;
+        opponentFinished = false;
+        winner = null;
+        secretBlock.style.display = '';
+        guessBlock.style.display = 'none';
+        hintBlock.style.display = 'none';
+        historyBlock.style.display = 'none';
+        attemptList.innerHTML = '';
+        opponentStatus.style.display = '';
+        winnerBlock.style.display = 'none';
+        restartBtn.style.display = 'none';
+    }
+
+    listenRoom();
+    </script>
+</body>
+</html>
