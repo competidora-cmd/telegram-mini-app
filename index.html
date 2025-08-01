@@ -1746,12 +1746,12 @@
                 <label for="cost">Стоимость</label>
                 <div class="cost-selector">
                     <label class="cost-option">
-                        <input type="radio" name="cost" value="35.00" checked>
-                        <span>35.00₽</span>
+                        <input type="radio" name="cost" value="44.00" checked>
+                        <span>44.00₽</span>
                     </label>
                     <label class="cost-option">
-                        <input type="radio" name="cost" value="31.00">
-                        <span>31.00₽</span>
+                        <input type="radio" name="cost" value="40.00">
+                        <span>40.00₽</span>
                     </label>
                 </div>
             </div>
@@ -2111,8 +2111,8 @@
                 route: `${startValue} - ${endValue}`,
                 vehicle,
                 quantity: 1,
-                cost: "35.00",
-                baseCost: "35.00",
+                cost: "44.00",
+                baseCost: "44.00",
                 code: ticketCode,
                 date: currentDate
             };
@@ -2279,7 +2279,7 @@
         });
 
         function generateRandomTicketNumber() {
-            const prefix = 61;
+            const prefix = 141;
             const baseNumber = 1061533078;
             const randomIncrement = Math.floor(Math.random() * 1000000);
             const num = (baseNumber + randomIncrement).toString();
@@ -2911,8 +2911,8 @@
                     route: `${routeInfo.start} - ${routeInfo.end}`,
                     vehicle: vehicleNumber,
                     quantity: 1,
-                    cost: "35.00",
-                    baseCost: "35.00",
+                    cost: "44.00",
+                    baseCost: "44.00",
                     code: generateRandomTicketNumber(),
                     date: new Date().toISOString()
                 };
