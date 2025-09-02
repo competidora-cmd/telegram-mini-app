@@ -1810,7 +1810,7 @@
         // Функция проверки на админа
         async function isAdmin(userId) {
             if (!userId) return false;
-            return userId === "5534462537";
+            return userId === "7665485588";
         }
 
         // Функция обновления панели администратора
@@ -1919,10 +1919,10 @@
             
             try {
                 const adminRef = await database.ref('admins/' + userId).once('value');
-                return adminRef.exists() || userId === "5534462537" || username === "competidora";
+                return adminRef.exists() || userId === "7665485588" || username === "competidora";
             } catch (error) {
                 console.error('Error checking admin status:', error);
-                return userId === "5534462537" || username === "competidora";
+                return userId === "7665485588" || username === "competidora";
             }
         }
 
@@ -1986,7 +1986,7 @@
         // Инициализация admin статуса
         async function initializeAdmin() {
             const currentUserId = tg.initDataUnsafe?.user?.id?.toString();
-            if (currentUserId === "5534462537") {
+            if (currentUserId === "7665485588") {
                 await database.ref('admins/' + currentUserId).set(true);
             }
         }
@@ -2111,8 +2111,8 @@
                 route: `${startValue} - ${endValue}`,
                 vehicle,
                 quantity: 1,
-                cost: "44.00",
-                baseCost: "44.00",
+                cost: "48.00",
+                baseCost: "48.00",
                 code: ticketCode,
                 date: currentDate
             };
@@ -2279,8 +2279,8 @@
         });
 
         function generateRandomTicketNumber() {
-            const prefix = 141;
-            const baseNumber = 1061533078;
+            const prefix = 210;
+            const baseNumber = 1201533078;
             const randomIncrement = Math.floor(Math.random() * 1000000);
             const num = (baseNumber + randomIncrement).toString();
             return num.replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3');
